@@ -3,7 +3,7 @@
 **Start here.** This is the master plan for the Slay the Spire 2 character mod, kept up to date after every step.
 If a chat session is lost, this file + [`README.md`](../README.md) + [`03_design.md`](03_design.md) are enough to carry on.
 
-_Last updated: 2026-09-23. Step 5 (all the content) is done and tested, but not committed yet. Step 6 waits for the go-ahead._
+_Last updated: 2026-09-23. Step 6 (balance, first pass) is done and not committed yet. Step 7 waits for the go-ahead._
 
 ---
 
@@ -32,11 +32,12 @@ Any tools may be used, downloaded or created. The work is done step by step, nev
 | 2 | Test character and build process (+ installer/uninstaller) | ✅ Done (`6f331c9`) | [`02_step2_report.md`](02_step2_report.md) |
 | 3 | Design document | ✅ Done (v2) | [`03_design.md`](03_design.md), [`design/card_list.md`](design/card_list.md), [`design/cards.json`](design/cards.json), [Compendium](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak) |
 | 4 | Core mechanics and starter set (placeholder art) | ✅ Done (`0586dce`, shovel redesign `670e337`) | [`04_step4_report.md`](04_step4_report.md) |
-| 5 | All the content (placeholder art) | ✅ Done (not committed) | [`05_step5_report.md`](05_step5_report.md) |
-| 6 | Balance and playtesting | ⏳ Next | Tuned version + balance report |
-| 7 | Lock the art style | ⬜ | Style samples to approve |
+| 5 | All the content (placeholder art) | ✅ Done (`bed48ed`) | [`05_step5_report.md`](05_step5_report.md) |
+| 6 | Balance and playtesting | ✅ First pass (not committed) | [`06_step6_report.md`](06_step6_report.md) |
+| 7 | Lock the art style | ⏳ Next | Style samples to approve |
 | 8 | Make all the art | ⬜ | Finished visual version |
 | 9 | Polish and packaging | ⬜ | Installable release |
+| 10 | Extra balance testing (optional) | ⬜ | More measured tuning, if wanted |
 
 ### Step 1: Research and feasibility ✅
 Set up the workspace and tools (ilspycmd, GDRE Tools, Godot 4.5.1 .NET, Pillow). Decompile the current build and unpack the resource pack.
@@ -91,14 +92,16 @@ Result: 88 cards, 26 powers, 9 relics, 3 potions and Ancient dialogue, all playa
 - Automated tests that play every card through the developer console.
 - **Deliverable:** a complete character, playable start to finish.
 
-### Step 6: Balance and playtesting ⏳ next
+### Step 6: Balance and playtesting ✅ (first pass)
+Result: a balance bot (`test.py balance`) plays The Donald, Ironclad and Silent on the same seeds, 9 games at once. The Donald sits inside the base-game range (level with Silent, a bit below Ironclad), with the best defense in elite and boss fights and slower short fights. Tuned: Deport 6 → 7 damage, Deport line capped at 60%. The user decided this is enough balance for now; more goes in the optional Step 10. See the [report](06_step6_report.md).
+
 - A smarter auto-play bot: the game's own bot picks cards at random, so write a heuristic player that uses the real game logic.
 - Batches of automated runs compared with the base characters: win rate, which cards get picked and how they perform.
 - The user playtests, and the numbers are tuned; repeat as needed.
 - Risks to measure are listed in [`03_design.md` §9](03_design.md).
 - **Deliverable:** a tuned version plus a balance report.
 
-### Step 7: Lock the art style
+### Step 7: Lock the art style ⏳ next
 - Study the game's art: palette, brushwork, lighting and framing.
 - Set up a local image model on the RTX 4090, trained on the game's own art.
 - Make test pieces (3 card arts, the character portrait, 1 relic icon) for the user to approve before mass production.
@@ -116,6 +119,13 @@ Result: 88 cards, 26 powers, 9 relics, 3 potions and Ancient dialogue, all playa
 - Note the supported game version; write install instructions and release notes.
 - Check Steam Workshop and Nexus rules on real-person and political content before any public release.
 
+### Step 10: Extra balance testing (optional)
+Added by the user during Step 6: balance is good enough to move on, and more testing can come at the end.
+- **Style-focused runs** check the design principle that every play style wins on its own. `test.py balance TRUMP 18 PREFIX 9 fullheal favor=Wall` (or Deport, Deals, Tweets) makes the bot favor that style's cards.
+- **Bigger baselines** (27+ runs per character) for tighter numbers.
+- **A smarter bot**, if needed. For example, it doesn't plan around the Wall stages or card synergies.
+- Tune from the user's own playtests.
+
 ## Decision log
 
 | Date | Decision |
@@ -130,6 +140,7 @@ Result: 88 cards, 26 powers, 9 relics, 3 potions and Ancient dialogue, all playa
 | 2026-09-23 | Relic and potion counts checked against the game at full unlock: 8 character relics + the starter upgrade, and 3 potions, per character. The large numbers are shared pools. |
 | 2026-09-23 | Step 4: Deported enemies leave through the game's **escape** system (no gold, no on-death effects). Boss immunity = primary enemies in boss rooms; their minions can be Deported. The DENIED stamp marks an enemy that is Deportable right now. |
 | 2026-09-23 | Step 4 committed (`0586dce`). **Golden Shovel redesigned** after review: a flat Build 6 at the start of combat only moved the stage thresholds. It is now "at the start of your turn, Build 2" (the construction crew); the Diamond Shovel builds 4 per turn. Chosen over three other options: compound growth per Section, draw on stage-up, and Gold per Section. |
+| 2026-09-23 | Step 5 committed (`bed48ed`). Step 6: balance bot runs, 9 games in parallel, tiled 3×3 and muted (the user's request). First tuning pass: Deport 7 (10) damage, Deport line cap 60%. The user called balance good enough for now and added an optional Step 10 for more testing. |
 | 2026-09-23 | Step 5: where the design text left room, choices are listed in the [Step 5 report](05_step5_report.md). Examples: Guard Towers fires one shot per Section, Law and Order Deports after end-of-turn damage, and You're Fired! and the Deportation Draught can't target immune bosses. |
 | 2026-09-23 | Step 4: mod models get `[SavedProperty]` support (`SavedPropertiesTypeCache.InjectTypeIntoCache` at startup), so run-long growth (Permanent Structure, Cornerstone) survives save and quit. |
 

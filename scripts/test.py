@@ -8,6 +8,11 @@ Launch the game in the mod's test mode and collect results.
   python scripts/test.py cards       every card base and upgraded, key effects, relics, potions and all their text
   python scripts/test.py cards SEED relics     ...relic and potion checks only
   python scripts/test.py cards SEED A,B        ...relic and potion checks, then only cards A and B
+  python scripts/test.py balance CHARACTERS RUNS [SEED_PREFIX] [PARALLEL] [fullheal] [favor=Wall|Deport|Deals|Tweets]
+                                     RUNS runs per character by the heuristic balance bot; CHARACTERS is e.g.
+                                     TRUMP or TRUMP,IRONCLAD,SILENT (one shared queue). One game launch per run,
+                                     PARALLEL at once, tiled on the main monitor and muted; results per character in
+                                     build/balance/<character>_<time>/
 
 Output: build/test/<mode>_<timestamp>/ with report.json, shots/*.png, godot.log excerpt.
 Test saves live in .../modded_trumptest/, never in real profiles.
@@ -24,11 +29,18 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2"
 USER_DATA = os.path.join(os.environ["APPDATA"], "SlayTheSpire2")
-TIMEOUTS = {"ui": 300, "autoslay": 3600, "deportsweep": 3600, "cards": 1800}
+TIMEOUTS = {"ui": 300, "autoslay": 3600, "deportsweep": 3600, "cards": 1800, "balance": 2400}
 
 
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "ui"
+    if mode == "balance":
+        options = sys.argv[6:]
+        favor = next((o.split("=", 1)[1] for o in options if o.startswith("favor=")), None)
+        balance_batch(sys.argv[2] if len(sys.argv) > 2 else "TRUMP", int(sys.argv[3]) if len(sys.argv) > 3 else 5,
+                      sys.argv[4] if len(sys.argv) > 4 else "BAL", int(sys.argv[5]) if len(sys.argv) > 5 else 1,
+                      fullheal="fullheal" in options, favor=favor)
+        return
     seed = sys.argv[2] if len(sys.argv) > 2 else "TRUMPTEST1"
     extra = []
     if len(sys.argv) > 3:
@@ -76,6 +88,102 @@ def main():
     ok = code == 0 and report is not None and report["ok"] and not any(p.startswith("!") for p in problems)
     print("\nRESULT:", "PASS" if ok else "FAIL")
     sys.exit(0 if ok else 1)
+
+
+def style_cards(style):
+    """Model IDs of The Donald's cards of one play style (the `arch` field in docs/design/cards.json)."""
+    cards = json.load(open(os.path.join(ROOT, "docs", "design", "cards.json"), encoding="utf-8"))["cards"]
+    return [re.sub(r"(?<=[A-Za-z0-9])([A-Z])", r"_\1", c["id"]).upper() for c in cards if c["arch"].lower() == style.lower()]
+
+
+def balance_batch(characters, runs, prefix, parallel=1, fullheal=False, favor=None):
+    """
+    RUNS balance runs per character (seeds PREFIX000, PREFIX001, ...) through one queue, `parallel` games at a time.
+    CHARACTERS is one name or a comma-separated list; every character's runs share the same pool, so the next game
+    starts as soon as any slot frees up. Each slot owns a window tile and a test save folder (modded_bal<slot>),
+    and a run only ever uses a slot nobody else holds.
+    """
+    import queue
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+    hold = os.path.join(ROOT, "build", "balance", "HOLD")
+    if os.path.exists(hold):
+        sys.exit(f"{characters}: skipped, {hold} exists (delete it to run batches again)")
+    if subprocess.run(["tasklist", "/FI", "IMAGENAME eq SlayTheSpire2.exe"], capture_output=True, text=True).stdout.count("SlayTheSpire2.exe"):
+        sys.exit("The game is already running; close it first.")
+    names = [c.strip().upper() for c in characters.split(",") if c.strip()]
+    stamp = time.strftime('%Y%m%d_%H%M%S')
+    tag = f"_{favor.upper()}" if favor else ""
+    batches = {c: os.path.join(ROOT, "build", "balance", f"{c}{tag}_{stamp}") for c in names}
+    favored = ",".join(style_cards(favor)) if favor else None
+    for path in batches.values():
+        os.makedirs(path)
+    slots = queue.Queue()
+    for slot in range(parallel):
+        slots.put(slot)
+    lock = threading.Lock()
+
+    def one(job):
+        character, i = job
+        seed = f"{prefix}{i:03d}"
+        out = os.path.join(batches[character], seed)
+        os.makedirs(out)
+        slot = slots.get()
+        try:
+            env = dict(os.environ, SteamAppId="2868840", SteamGameId="2868840")
+            started = time.time()
+            args = [os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--trump-test", "balance", "--trump-out", out,
+                    "--trump-seed", seed, "--trump-character", character, "--trump-savedir", f"modded_bal{slot}",
+                    "--trump-tile", f"{slot}/{parallel}", "--trump-mute"]
+            if fullheal:
+                args.append("--trump-fullheal")
+            if favored:
+                args += ["--trump-favor", favored]
+            proc = subprocess.Popen(args, cwd=GAME_DIR, env=env)
+            try:
+                proc.wait(timeout=TIMEOUTS["balance"])
+            except subprocess.TimeoutExpired:
+                proc.kill()
+        finally:
+            slots.put(slot)
+        path = os.path.join(out, "balance.json")
+        run = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else {"seed": seed, "character": character, "result": "no data"}
+        with lock:
+            print(f"{character:9} {seed}: {run.get('result'):8} act {run.get('act')} floor {run.get('floor')}  ({time.time() - started:.0f}s, slot {slot})", flush=True)
+        return character, run
+
+    jobs = [(c, i) for c in names for i in range(runs)]
+    with ThreadPoolExecutor(max_workers=parallel) as pool:
+        finished = list(pool.map(one, jobs))
+    for character in names:
+        results = [run for c, run in finished if c == character]
+        with open(os.path.join(batches[character], "runs.json"), "w", encoding="utf-8") as fh:
+            json.dump(results, fh, indent=1)
+        print_balance_summary(character, results)
+        print(f"  Batch: {batches[character]}")
+
+
+def print_balance_summary(character, results):
+    done = [r for r in results if r.get("result") in ("victory", "death")]
+    wins = sum(r["result"] == "victory" for r in done)
+    print(f"\n{character}: {len(done)} finished runs, {wins} wins ({100 * wins / max(1, len(done)):.0f}%), "
+          f"average floor {sum(r.get('floor', 0) for r in done) / max(1, len(done)):.1f}")
+    deaths = {}
+    for r in done:
+        if r["result"] == "death" and r.get("combats"):
+            enc = r["combats"][-1]["encounter"]
+            deaths[enc] = deaths.get(enc, 0) + 1
+    if deaths:
+        print("  Deaths: " + ", ".join(f"{k} x{v}" for k, v in sorted(deaths.items(), key=lambda kv: -kv[1])))
+    by_type = {}
+    for r in done:
+        for c in r.get("combats", []):
+            t = by_type.setdefault(c["type"], [0, 0, 0])
+            t[0] += 1
+            t[1] += c["hpBefore"] - c["hpAfter"]
+            t[2] += c["turns"]
+    for t, (n, lost, turns) in sorted(by_type.items()):
+        print(f"  {t:8} fights {n:3}  HP lost {lost / n:5.1f}  turns {turns / n:4.1f}")
 
 
 def sweep_summary(log, report, out):

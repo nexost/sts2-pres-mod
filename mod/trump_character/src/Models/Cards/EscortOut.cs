@@ -1,6 +1,6 @@
 namespace TrumpMod.Models.Cards;
 
-public sealed class EscortOut : CardModel
+public sealed class EscortOut : CardModel, IDeportingCard
 {
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new DamageVar(14m, ValueProp.Move) };
 

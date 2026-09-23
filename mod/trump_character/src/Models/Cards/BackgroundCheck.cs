@@ -1,7 +1,7 @@
 namespace TrumpMod.Models.Cards;
 
 /// <summary>HP loss ignores Block, so it reaches enemies that stack Block, then Deports.</summary>
-public sealed class BackgroundCheck : CardModel
+public sealed class BackgroundCheck : CardModel, IDeportingCard
 {
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new HpLossVar(7m) };
 

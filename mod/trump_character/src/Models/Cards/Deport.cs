@@ -13,9 +13,9 @@ using TrumpMod.Mechanics;
 namespace TrumpMod.Models.Cards;
 
 /// <summary>Basic: Strike plus the signature clause.</summary>
-public sealed class Deport : CardModel
+public sealed class Deport : CardModel, IDeportingCard
 {
-	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new DamageVar(6m, ValueProp.Move) };
+	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new DamageVar(7m, ValueProp.Move) };
 
 	protected override IEnumerable<IHoverTip> ExtraHoverTips => new[] { TrumpHoverTips.Deport };
 

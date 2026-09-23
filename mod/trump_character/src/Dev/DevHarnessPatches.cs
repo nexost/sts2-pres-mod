@@ -4,8 +4,12 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.AutoSlay;
+using MegaCrit.Sts2.Core.AutoSlay.Handlers.Rooms;
+using MegaCrit.Sts2.Core.AutoSlay.Handlers.Screens;
 using MegaCrit.Sts2.Core.AutoSlay.Helpers;
+using MegaCrit.Sts2.Core.Random;
 using MegaCrit.Sts2.Core.Helpers;
+using MegaCrit.Sts2.Core.Nodes.Audio;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Saves;
 
@@ -44,8 +48,62 @@ public static class TestOnlyModCharactersPatch
 	{
 		if (AutoSlayer.IsActive)
 		{
-			Traverse.Create(__instance).Field("_isLocked").SetValue(!ModContent.IsModCharacter(__instance.Character));
+			// Balance runs can pick any character (--trump-character IRONCLAD); every other test plays ours.
+			string? wanted = DevHarness.BalanceMode ? CommandLineHelper.GetValue("trump-character") ?? "TRUMP" : null;
+			bool unlocked = wanted != null ? __instance.Character.Id.Entry == wanted : ModContent.IsModCharacter(__instance.Character);
+			Traverse.Create(__instance).Field("_isLocked").SetValue(!unlocked);
 		}
+	}
+}
+
+/// <summary>Balance mode only: our heuristic bot plays the fights instead of AutoSlay's random, unkillable one.</summary>
+[HarmonyPatch(typeof(CombatRoomHandler), nameof(CombatRoomHandler.HandleAsync))]
+public static class BalanceCombatPatch
+{
+	public static bool Prepare() => DevHarness.Enabled;
+
+	public static bool Prefix(Rng random, CancellationToken ct, ref Task __result)
+	{
+		if (!DevHarness.BalanceMode)
+		{
+			return true;
+		}
+		__result = DevHarness.BalanceCombat(random, ct);
+		return false;
+	}
+}
+
+/// <summary>Balance mode only: card rewards are picked by rarity and type instead of at random.</summary>
+[HarmonyPatch(typeof(CardRewardScreenHandler), nameof(CardRewardScreenHandler.HandleAsync))]
+public static class BalanceCardRewardPatch
+{
+	public static bool Prepare() => DevHarness.Enabled;
+
+	public static bool Prefix(Rng random, CancellationToken ct, ref Task __result)
+	{
+		if (!DevHarness.BalanceMode)
+		{
+			return true;
+		}
+		__result = DevHarness.BalanceCardReward(random, ct);
+		return false;
+	}
+}
+
+/// <summary>Balance mode only: rest sites heal under half HP and upgrade otherwise.</summary>
+[HarmonyPatch(typeof(RestSiteRoomHandler), nameof(RestSiteRoomHandler.HandleAsync))]
+public static class BalanceRestSitePatch
+{
+	public static bool Prepare() => DevHarness.Enabled;
+
+	public static bool Prefix(Rng random, CancellationToken ct, ref Task __result)
+	{
+		if (!DevHarness.BalanceMode)
+		{
+			return true;
+		}
+		__result = DevHarness.BalanceRestSite(random, ct);
+		return false;
 	}
 }
 
@@ -115,5 +173,46 @@ public static class AutoSlayWatchdogAllowancePatch
 		TimeSpan idle = DateTime.UtcNow - Traverse.Create(__instance).Field<DateTime>("_lastProgressTime").Value;
 		// Within the stretched limit, skip the original (it would throw at 30 s); past it, let it log and throw.
 		return idle <= AutoSlayConfig.watchdogTimeout || idle > AutoSlayConfig.watchdogTimeout * SlowMachineAllowance.Factor;
+	}
+}
+
+/// <summary>Balance mode only: the map path follows HP (rest when hurt, elites when healthy) instead of always going left.</summary>
+[HarmonyPatch(typeof(MapScreenHandler), nameof(MapScreenHandler.HandleAsync))]
+public static class BalanceMapPatch
+{
+	public static bool Prepare() => DevHarness.Enabled;
+
+	public static bool Prefix(Rng random, CancellationToken ct, ref Task __result)
+	{
+		if (!DevHarness.BalanceMode)
+		{
+			return true;
+		}
+		__result = DevHarness.BalanceMap(random, ct);
+		return false;
+	}
+}
+
+/// <summary>
+/// Test mode only: never write the global settings.save. It's the same file the normal game uses, and the game saves
+/// it on quit (window size and position when windowed), so tiled or muted test windows must not leak into it.
+/// </summary>
+[HarmonyPatch(typeof(SaveManager), nameof(SaveManager.SaveSettings))]
+public static class TestNoSettingsSavePatch
+{
+	public static bool Prepare() => DevHarness.Enabled;
+
+	public static bool Prefix() => false;
+}
+
+/// <summary>Test mode with --trump-mute: every master volume change becomes 0, including the un-mute on focus.</summary>
+[HarmonyPatch(typeof(NAudioManager), nameof(NAudioManager.SetMasterVol))]
+public static class TestMutePatch
+{
+	public static bool Prepare() => DevHarness.Enabled && CommandLineHelper.HasArg("trump-mute");
+
+	public static void Prefix(ref float volume)
+	{
+		volume = 0f;
 	}
 }

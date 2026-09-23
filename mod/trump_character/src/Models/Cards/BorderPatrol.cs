@@ -1,6 +1,6 @@
 namespace TrumpMod.Models.Cards;
 
-public sealed class BorderPatrol : CardModel
+public sealed class BorderPatrol : CardModel, IDeportingCard
 {
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new DamageVar(7m, ValueProp.Move) };
 

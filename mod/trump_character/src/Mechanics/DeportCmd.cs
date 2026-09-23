@@ -20,8 +20,11 @@ public static class DeportCmd
 {
 	public const decimal BaseLine = 0.25m;
 
-	/// <summary>Upper bound for the line, whatever the modifiers (watch-list item in the design doc).</summary>
-	public const decimal MaxLine = 1.0m;
+	/// <summary>
+	/// Upper bound for the line, whatever the modifiers. Step 6: Border Control + Border Wall could reach 100%, letting
+	/// Law and Order remove every non-boss enemy at full HP; 60% keeps Deport a finisher.
+	/// </summary>
+	public const decimal MaxLine = 0.6m;
 
 	/// <summary>Raised after an enemy is Deported. Used for the "DEPORTED!" popup.</summary>
 	public static event Action<Creature>? Deported;

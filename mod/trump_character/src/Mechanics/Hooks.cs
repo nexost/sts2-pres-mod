@@ -41,6 +41,13 @@ public interface IAfterWallStage
 	Task AfterWallStageReached(PlayerChoiceContext choiceContext, Creature owner, int stage);
 }
 
+/// <summary>A card whose effect ends with a Deport check. Lets tools (the balance bot) know a hit can remove the target.</summary>
+public interface IDeportingCard
+{
+	/// <summary>Multiplier on the Deport line for this card's check (Mass Deportation doubles it).</summary>
+	decimal DeportLineMultiplier => 1m;
+}
+
 /// <summary>Our hooks are interfaces on the player's own relics and powers (the game's Hook system only knows its own events).</summary>
 internal static class ModHooks
 {

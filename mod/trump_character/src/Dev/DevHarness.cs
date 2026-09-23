@@ -47,9 +47,11 @@ namespace TrumpMod.Dev;
 ///                 (Wall stages and perks, Deport line, Pay Gold, Tariff, Tweet, boss immunity, Orobas upgrade).
 ///   deportsweep : fights every encounter in the game and Deports every enemy (bosses killed) to catch scripted
 ///                 fights that break when an enemy escapes instead of dying.
+///   balance     : one run by a heuristic bot for balance numbers, any character (DevHarness.Balance.cs).
 ///   cards       : plays every card of the character, base and upgraded, in real fights, logs what each one changed,
 ///                 checks the key effects and renders every card, power, relic and potion text (DevHarness.Cards.cs).
-/// Options: --trump-out &lt;dir&gt; (screenshots + report), --trump-seed &lt;seed&gt;, --trump-encounters A,B (deportsweep only).
+/// Options: --trump-out &lt;dir&gt; (screenshots + report), --trump-seed &lt;seed&gt;, --trump-encounters A,B (deportsweep only),
+/// --trump-tile slot/count (window grid for parallel runs), --trump-mute (silence).
 /// While active, saves go to modded_trumptest/ so real (modded) profiles are never touched.
 /// </summary>
 public static partial class DevHarness
@@ -97,12 +99,17 @@ public static partial class DevHarness
 		((SceneTree)Engine.GetMainLoop()).ProcessFrame += Tick;
 		AppDomain.CurrentDomain.UnhandledException += (_, e) => Error("Unhandled: " + e.ExceptionObject);
 		TaskScheduler.UnobservedTaskException += (_, e) => Error("Unobserved task: " + e.Exception);
+		if (_mode == "balance")
+		{
+			DeportCmd.Deported += OnBalanceDeported;
+		}
 	}
 
 	private static void Tick()
 	{
 		try
 		{
+			KeepWindowTiled();
 			if (!_started && NGame.Instance != null)
 			{
 				_started = true;
@@ -164,6 +171,10 @@ public static partial class DevHarness
 			Note("Shared asset preload not reported done after 120 s; starting AutoSlay anyway");
 		}
 		await Task.Delay(2000);
+		if (BalanceMode)
+		{
+			UseAscensionZero();
+		}
 		Note($"Starting AutoSlay with seed {seed}");
 		new AutoSlayer().Start(seed, Path.Combine(_outDir, "autoslay.log"));
 	}
@@ -360,7 +371,7 @@ public static partial class DevHarness
 		await CardCmd.AutoPlay(ctx, deport, enemy);
 		await Task.Delay(300);
 		Screenshot("deported_popup");
-		Check(combat.EscapedCreatures.Contains(enemy), $"Deport card (6 damage) took the enemy under the line and Deported it");
+		Check(combat.EscapedCreatures.Contains(enemy), $"Deport card ({deport.DynamicVars.Damage.IntValue} damage) took the enemy under the line and Deported it");
 		await WaitHelper.Until(() => !CombatManager.Instance.IsInProgress, _ct, TimeSpan.FromSeconds(20));
 		await Task.Delay(2500);
 		Screenshot("rewards_after_deport");
@@ -591,6 +602,10 @@ public static partial class DevHarness
 	/// <summary>Called (via patch) right before AutoSlay quits the game at the end of its run.</summary>
 	internal static void OnAutoSlayQuit(int exitCode)
 	{
+		if (BalanceMode)
+		{
+			EndBalanceRun(exitCode == 0 ? "victory" : "error");
+		}
 		if (exitCode != 0)
 		{
 			Error($"AutoSlay ended with exit code {exitCode} (see autoslay.log)");

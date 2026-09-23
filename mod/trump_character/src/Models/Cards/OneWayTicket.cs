@@ -1,6 +1,6 @@
 namespace TrumpMod.Models.Cards;
 
-public sealed class OneWayTicket : CardModel
+public sealed class OneWayTicket : CardModel, IDeportingCard
 {
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{

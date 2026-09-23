@@ -1,8 +1,10 @@
 namespace TrumpMod.Models.Cards;
 
-public sealed class MassDeportation : CardModel
+public sealed class MassDeportation : CardModel, IDeportingCard
 {
 	public const decimal LineMultiplier = 2m;
+
+	public decimal DeportLineMultiplier => LineMultiplier;
 
 	public override IEnumerable<CardKeyword> CanonicalKeywords => new[] { CardKeyword.Exhaust };
 

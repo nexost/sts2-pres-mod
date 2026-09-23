@@ -1,6 +1,6 @@
 namespace TrumpMod.Models.Cards;
 
-public sealed class ShowThemTheDoor : CardModel
+public sealed class ShowThemTheDoor : CardModel, IDeportingCard
 {
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{

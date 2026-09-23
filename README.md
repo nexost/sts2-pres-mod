@@ -14,6 +14,7 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 | [`docs/03_design.md`](docs/03_design.md) | Step 3: the character design (v2): mechanics, play styles, relics, balance |
 | [`docs/04_step4_report.md`](docs/04_step4_report.md) | Step 4: Wall, Deport, Tariff, Pay Gold and Tweet systems, starter kit, tests |
 | [`docs/05_step5_report.md`](docs/05_step5_report.md) | Step 5: every card, power, relic, potion and Ancient line; the card test |
+| [`docs/06_step6_report.md`](docs/06_step6_report.md) | Step 6: the balance bot, the comparison with Ironclad and Silent, the first tuning pass |
 | [`docs/design/cards.json`](docs/design/cards.json) | **Source of truth** for every card, relic and potion (text, numbers, art direction) |
 | [`docs/design/card_list.md`](docs/design/card_list.md) | Card tables and validation, generated from `cards.json` |
 | [`docs/design/base_game_benchmarks.md`](docs/design/base_game_benchmarks.md) | Balance numbers mined from the 5 base characters |
@@ -44,6 +45,8 @@ python scripts/test.py ui            # scripted walkthrough + every Step 4 mecha
 python scripts/test.py deportsweep SEED A,B,C  # Deport enemies one at a time in the listed encounters (all 80 if no list; ~45 min)
 python scripts/test.py cards         # every card base and upgraded in real fights, key effects, relics, potions, all text (~15 min)
 python scripts/test.py cards SEED relics  # just the relic and potion checks (~1 min)
+python scripts/test.py balance TRUMP,IRONCLAD,SILENT 9 PREFIX 9 fullheal  # balance bot, 9 games at once, tiled + muted
+python scripts/balance_report.py PREFIX   # compare balance batches (floors, HP lost per fight by act, deaths, picks)
 python scripts/test.py autoslay SEED # the game's AutoSlay bot plays a full run as our character (god mode)
 
 python scripts/analyze_cards.py      # mine base-game cards into build/analysis/ (benchmarks, per-character lists)
