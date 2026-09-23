@@ -3,6 +3,8 @@ Launch the game in the mod's test mode and collect results.
 
   python scripts/test.py ui          scripted UI walk-through (char select, run start, card library, combat)
   python scripts/test.py autoslay    AutoSlay bot plays a full run as our character (god mode)
+  python scripts/test.py deportsweep Every encounter: Deport non-boss enemies one at a time, a turn after each
+  python scripts/test.py deportsweep SEED A,B  ...only encounters A and B
 
 Output: build/test/<mode>_<timestamp>/ with report.json, shots/*.png, godot.log excerpt.
 Test saves live in .../modded_trumptest/, never in real profiles.
@@ -19,12 +21,13 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2"
 USER_DATA = os.path.join(os.environ["APPDATA"], "SlayTheSpire2")
-TIMEOUTS = {"ui": 300, "autoslay": 3600}
+TIMEOUTS = {"ui": 300, "autoslay": 3600, "deportsweep": 3600}
 
 
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "ui"
     seed = sys.argv[2] if len(sys.argv) > 2 else "TRUMPTEST1"
+    extra = ["--trump-encounters", sys.argv[3]] if len(sys.argv) > 3 else []
     if subprocess.run(["tasklist", "/FI", "IMAGENAME eq SlayTheSpire2.exe"], capture_output=True, text=True).stdout.count("SlayTheSpire2.exe"):
         sys.exit("The game is already running; close it first.")
     out = os.path.join(ROOT, "build", "test", f"{mode}_{time.strftime('%Y%m%d_%H%M%S')}")
@@ -32,7 +35,7 @@ def main():
     env = dict(os.environ, SteamAppId="2868840", SteamGameId="2868840")
     started = time.time()
     print(f"Launching game: mode={mode} seed={seed}\n  output: {out}", flush=True)
-    proc = subprocess.Popen([os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--trump-test", mode, "--trump-out", out, "--trump-seed", seed],
+    proc = subprocess.Popen([os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--trump-test", mode, "--trump-out", out, "--trump-seed", seed] + extra,
                             cwd=GAME_DIR, env=env)
     try:
         code = proc.wait(timeout=TIMEOUTS.get(mode, 600))
@@ -61,11 +64,39 @@ def main():
     print(f"Log problems: {len(problems)}")
     for p in problems[:60]:
         print("  ", p)
+    if mode == "deportsweep" and log:
+        sweep_summary(log, report, out)
     shots = sorted(glob.glob(os.path.join(out, "shots", "*.png")))
     print(f"Screenshots: {len(shots)} in {os.path.join(out, 'shots')}")
     ok = code == 0 and report is not None and report["ok"] and not any(p.startswith("!") for p in problems)
     print("\nRESULT:", "PASS" if ok else "FAIL")
     sys.exit(0 if ok else 1)
+
+
+def sweep_summary(log, report, out):
+    """Tie every log problem to the encounter that was running (BEGIN/END markers) and list the encounters with any."""
+    per = {}
+    current = None
+    marker = re.compile(r"\[trump_character:sweep\] (BEGIN|END) (\S+)")
+    lines = open(log, encoding="utf-8", errors="replace").read().splitlines()
+    problem_lines = {int(p.split()[1][1:].rstrip(":")) for p in scan_log(log) if p.startswith("!")}
+    for i, line in enumerate(lines, 1):
+        m = marker.search(line)
+        if m:
+            current = m.group(2) if m.group(1) == "BEGIN" else None
+        elif i in problem_lines and current:
+            per.setdefault(current, []).append(f"L{i}: {line.strip()[:200]}")
+    rows = (report or {}).get("sweep", [])
+    deported = sum(d if isinstance(d, int) else len(d) for d in (r.get("deported", []) for r in rows))
+    turns = sum(r.get("turnsAfterDeport", 0) for r in rows)
+    print(f"Sweep: {len(rows)} encounters, {deported} enemies Deported, {turns} enemy turns played after a Deport")
+    print(f"Encounters with problems: {len(per)}")
+    for enc, items in per.items():
+        print(f"  {enc}: {len(items)}")
+        for item in items[:4]:
+            print("     ", item)
+    with open(os.path.join(out, "sweep_problems.json"), "w", encoding="utf-8") as fh:
+        json.dump(per, fh, indent=1)
 
 
 def newest_log(since):

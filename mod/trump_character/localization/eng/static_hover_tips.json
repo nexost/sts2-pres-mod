@@ -1,0 +1,12 @@
+{
+  "TRUMP_BUILD.title": "Build",
+  "TRUMP_BUILD.description": "Raise your [gold]Wall[/gold] by this much. Every [blue]10[/blue] height is a [gold]Section[/gold].",
+  "TRUMP_SECTION.title": "Section",
+  "TRUMP_SECTION.description": "Every [blue]10[/blue] [gold]Wall[/gold] height. Each Section gives [blue]3[/blue] [gold]Block[/gold] at the end of your turn.\nStages at [blue]10[/blue], [blue]25[/blue], [blue]45[/blue] and [blue]70[/blue] unlock perks for the rest of combat.",
+  "TRUMP_DEPORT.title": "Deport",
+  "TRUMP_DEPORT.description": "If the enemy's HP is at or below [blue]25%[/blue] of its Max HP, it leaves combat.\nDeported enemies drop no [gold]Gold[/gold]. Bosses are immune.",
+  "TRUMP_DEPORT.stamp": "DENIED",
+  "TRUMP_DEPORT.popup": "DEPORTED!",
+  "TRUMP_PAY_GOLD.title": "Pay Gold",
+  "TRUMP_PAY_GOLD.description": "Can only be played if you have enough [gold]Gold[/gold]. Pay it when played."
+}

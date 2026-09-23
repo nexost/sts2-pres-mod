@@ -92,7 +92,7 @@ def find_cards():
             text = open(os.path.join(dp, f), encoding="utf-8").read()
             for m in re.finditer(r"public\s+sealed\s+class\s+(\w+)(\([^)]*\))?\s*:\s*(\w+)\s*(\([^;{]*\))?", text):
                 name, base = m.group(1), m.group(3)
-                if base not in ("CardModel", "PlaceholderCard"):
+                if base not in ("CardModel", "PlaceholderCard", "PayGoldCard"):
                     continue
                 args = m.group(4) or ""
                 if not args:  # classic constructor: base(cost, CardType.X, ...)
@@ -127,8 +127,14 @@ def make_images():
         title = re.sub(r"(?<=[a-z0-9])([A-Z])", r" \1", class_name).replace("Placeholder ", "").replace(" Trump", "").upper()
         save(card_portrait(title, card_type), f"images/packed/card_portraits/trump/{slug}.png")
 
-    relic = badge((256, 256), "R", bg=RED, fg=CREAM)
-    save(relic, "images/relics/placeholder_relic_trump.png")
+    # Relics and powers: loose PNGs are picked up by the game's own atlas fallback (images/relics|powers/<id>.png).
+    for slug, text in (("golden_shovel", "GS"), ("diamond_shovel", "DS"), ("permanent_structure", "PS")):
+        save(badge((256, 256), text, bg=RED, fg=CREAM), f"images/relics/{slug}.png")
+    for slug, text in (("wall_power", "W"), ("wall_stage_power", "S"), ("tariff_power", "$")):
+        save(badge((256, 256), text), f"images/powers/{slug}.png")
+
+    # Gold coin that replaces the star-cost badge on Pay-Gold cards (PayGoldBadgePatch).
+    save(badge((64, 64), "$", bg=GOLD, fg=(110, 70, 10)), "trump_character/ui/gold_cost_icon.png")
 
     # Energy icon inside card text ([img] tag) and on the card cost gem (ui_atlas, served by our atlas fallback).
     save(badge((24, 24), "", bg=GOLD, fg=NAVY), "images/packed/sprite_fonts/trump_energy_icon.png")

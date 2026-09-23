@@ -12,6 +12,7 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 | [`docs/01_feasibility_report.md`](docs/01_feasibility_report.md) | Step 1: how the game works, the patches it needs, the asset list, risks |
 | [`docs/02_step2_report.md`](docs/02_step2_report.md) | Step 2: build pipeline, installer and uninstaller, tests, findings |
 | [`docs/03_design.md`](docs/03_design.md) | Step 3: the character design (v2): mechanics, play styles, relics, balance |
+| [`docs/04_step4_report.md`](docs/04_step4_report.md) | Step 4: Wall, Deport, Tariff, Pay Gold and Tweet systems, starter kit, tests |
 | [`docs/design/cards.json`](docs/design/cards.json) | **Source of truth** for every card, relic and potion (text, numbers, art direction) |
 | [`docs/design/card_list.md`](docs/design/card_list.md) | Card tables and validation, generated from `cards.json` |
 | [`docs/design/base_game_benchmarks.md`](docs/design/base_game_benchmarks.md) | Balance numbers mined from the 5 base characters |
@@ -23,7 +24,7 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 | Path | What |
 |---|---|
 | `mod/` | Godot asset project **and** C# project (`TrumpMod.csproj`). Paths inside mirror the game's `res://` layout |
-| `mod/trump_character/src/` | Mod code: `ModEntry.cs` (initializer), `Models/` (character, pools, cards, relics), `Patches/` (Harmony), `Dev/` (test harness, save cleanup) |
+| `mod/trump_character/src/` | Mod code: `ModEntry.cs` (initializer), `Mechanics/` (Wall, Deport, Gold commands and mod hooks), `Models/` (character, pools, cards, relics, powers), `Nodes/` (combat UI), `Patches/` (Harmony), `Dev/` (test harness, save cleanup) |
 | `mod/trump_character/localization/eng/` | Text, merged into the game's tables |
 | `mod/images`, `mod/scenes`, `mod/materials` | Assets at the exact paths the game loads for character `TRUMP` |
 | `scripts/` | Build, test, design and packaging scripts (below); `dist/` holds the installer and uninstaller; `templates/` holds the Compendium page |
@@ -38,7 +39,8 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 ```bash
 python scripts/build.py              # build into build/dist/
 python scripts/build.py --install    # build + install into the game
-python scripts/test.py ui            # scripted walkthrough with screenshots + Deport check (~50 s)
+python scripts/test.py ui            # scripted walkthrough + every Step 4 mechanic, with screenshots (~3 min)
+python scripts/test.py deportsweep   # fights all 80 encounters and Deports every enemy (bosses killed) (~30 min)
 python scripts/test.py autoslay SEED # the game's AutoSlay bot plays a full run as our character (god mode)
 
 python scripts/analyze_cards.py      # mine base-game cards into build/analysis/ (benchmarks, per-character lists)
@@ -65,4 +67,11 @@ Install for players: run `build/dist/install.cmd`. Remove: `build/dist/uninstall
   * P5 `ModEntry`: registers our Godot node scripts (`ScriptManagerBridge.LookupScriptsInAssembly`).
   * P7 `ArchitectDialoguePatch`: gives our character dialogue in the final Architect event (it had none, so a win couldn't finish).
   * `AtlasFallbackPatch`: lets `ui_atlas` sprites fall back to loose PNGs under `res://trump_character/atlas_fallback/`.
+  * `TouchOfOrobasPatch`: the Ancient's starter-relic upgrade maps Golden Shovel to Diamond Shovel.
+  * `PayGoldBadgePatch`: Pay-Gold cards show their gold cost in the star-cost badge, with a coin icon.
+  * `CombatUiPatch`: adds `Nodes/NTrumpCombatUi` to every combat room (Wall display, Deport line and stamp, DEPORTED! popup).
+* `ModEntry` also registers our `[SavedProperty]` members with the save system (the game only knows its own types),
+  so relic counters and permanently grown cards survive save and quit.
+* Mechanics go through `Mechanics/WallCmd`, `DeportCmd` and `GoldCmd`; cards and relics plug in through the interfaces in `Mechanics/Hooks.cs`
+  (`IBuildModifier`, `ISectionBlockModifier`, `IDeportLineModifier`, `IAfterDeport`, `IAfterPayGold`, `IAfterWallStage`).
 * `Dev/DevHarness.cs` only runs with `--trump-test`; `Dev/SaveCleanup.cs` only with `--trump-cleanup` (used by the uninstaller).

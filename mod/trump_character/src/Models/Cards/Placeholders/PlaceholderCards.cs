@@ -77,10 +77,6 @@ public sealed class PlaceholderCommonAttackB() : PlaceholderCard(2, CardType.Att
 public sealed class PlaceholderCommonSkillA() : PlaceholderCard(1, CardType.Skill, CardRarity.Common, 7m);
 public sealed class PlaceholderCommonSkillB() : PlaceholderCard(2, CardType.Skill, CardRarity.Common, 12m);
 public sealed class PlaceholderCommonPower() : PlaceholderCard(1, CardType.Power, CardRarity.Common, 1m);
-// Room Full of Cheese ("Gorge") offers 8 commons at once, so the pool needs at least 8.
-public sealed class PlaceholderCommonAttackC() : PlaceholderCard(0, CardType.Attack, CardRarity.Common, 4m);
-public sealed class PlaceholderCommonSkillC() : PlaceholderCard(0, CardType.Skill, CardRarity.Common, 4m);
-public sealed class PlaceholderCommonAttackD() : PlaceholderCard(1, CardType.Attack, CardRarity.Common, 9m);
 
 public sealed class PlaceholderUncommonAttackA() : PlaceholderCard(1, CardType.Attack, CardRarity.Uncommon, 10m);
 public sealed class PlaceholderUncommonAttackB() : PlaceholderCard(2, CardType.Attack, CardRarity.Uncommon, 16m);

@@ -3,7 +3,7 @@
 **Start here.** This is the master plan for the Slay the Spire 2 character mod, kept up to date after every step.
 If a chat session is lost, this file + [`README.md`](../README.md) + [`03_design.md`](03_design.md) are enough to carry on.
 
-_Last updated: 2026-09-23. Step 3 (design, v2) is done and committed; Step 4 is waiting for the go-ahead._
+_Last updated: 2026-09-23. Step 4 (core mechanics and starter set) is done and tested, but not committed yet. Step 5 waits for the go-ahead._
 
 ---
 
@@ -31,8 +31,8 @@ Any tools may be used, downloaded or created. The work is done step by step, nev
 | 1 | Research and feasibility | ✅ Done | [`01_feasibility_report.md`](01_feasibility_report.md) |
 | 2 | Test character and build process (+ installer/uninstaller) | ✅ Done (`6f331c9`) | [`02_step2_report.md`](02_step2_report.md) |
 | 3 | Design document | ✅ Done (v2) | [`03_design.md`](03_design.md), [`design/card_list.md`](design/card_list.md), [`design/cards.json`](design/cards.json), [Compendium](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak) |
-| 4 | Core mechanics and starter set (placeholder art) | ⏳ Next | Playable Act 1 with the starter deck |
-| 5 | All the content (placeholder art) | ⬜ | Full character, playable start to finish |
+| 4 | Core mechanics and starter set (placeholder art) | ✅ Done (not committed) | [`04_step4_report.md`](04_step4_report.md) |
+| 5 | All the content (placeholder art) | ⏳ Next | Full character, playable start to finish |
 | 6 | Balance and playtesting | ⬜ | Tuned version + balance report |
 | 7 | Lock the art style | ⬜ | Style samples to approve |
 | 8 | Make all the art | ⬜ | Finished visual version |
@@ -58,7 +58,10 @@ Trace how a character is connected through the whole game, list every art asset 
   - Every play style can win on its own and scales without limit.
   - More card flow that doesn't cost gold.
 
-### Step 4: Core mechanics and starter set (placeholder art) ⏳ next
+### Step 4: Core mechanics and starter set (placeholder art) ✅
+Result: everything below is built and tested. `test.py ui` runs 24 checks. The Deport sweep covered all 80 encounters, plus a one-enemy-at-a-time run on 6 linked fights. An AutoSlay full run won. See the [report](04_step4_report.md).
+Permanent Structure (Rare relic) was built early as the first user of the carry-over hook.
+
 - **Wall system:**
   - height, Sections, and end-of-turn Section Block;
   - stages at 10/25/45/70 whose perks survive Demolition;
@@ -77,7 +80,10 @@ Trace how a character is connected through the whole game, list every art asset 
 - Replace the Step 2 test cards (Deport prototype, fillers) as the real cards arrive; the filler cards stay until Step 5 fills the pool.
 - **Deliverable:** a playable Act 1 with the starter deck, where you can feel the Wall and Deport, plus automated tests and screenshots.
 
-### Step 5: All the content (placeholder art)
+### Step 5: All the content (placeholder art) ⏳ next
+- Build on the Step 4 systems: new cards and relics plug into `Mechanics/Hooks.cs`, `WallCmd`, `DeportCmd` and `GoldCmd`.
+  Saved values (Cornerstone's growth) use `[SavedProperty]`, already registered for mod types.
+- Replace the 13 remaining filler cards.
 - Every card with its upgrades, all relics and potions, one power per Power card, and all the text.
 - Ancient dialogue for The Donald (Neow, Darv and the others; optional but good for comedy).
 - Automated tests that play every card through the developer console.
@@ -120,12 +126,16 @@ Trace how a character is connected through the whole game, list every art asset 
 | 2026-09-23 | **Design v2** after review. The Wall no longer soaks damage; it's a construction project with Sections and stages, because it was too close to Necrobinder's Osty. Deport uses a 25% HP line, because depending on the Wall forced a split build. More energy and draw that doesn't cost gold. |
 | 2026-09-23 | Design principles from the user: **each play style must win on its own; scaling must have no ceiling** (like Osty's HP); card flow must not depend on gold. The user loves the Deals/gold play style. |
 | 2026-09-23 | Relic and potion counts checked against the game at full unlock: 8 character relics + the starter upgrade, and 3 potions, per character. The large numbers are shared pools. |
+| 2026-09-23 | Step 4: Deported enemies leave through the game's **escape** system (no gold, no on-death effects). Boss immunity = primary enemies in boss rooms; their minions can be Deported. The DENIED stamp marks an enemy that is Deportable right now. |
+| 2026-09-23 | Step 4: mod models get `[SavedProperty]` support (`SavedPropertiesTypeCache.InjectTypeIntoCache` at startup), so run-long growth (Permanent Structure, Cornerstone) survives save and quit. |
 
 ## Open items
 
 - P8 (stats screen section) and P9 (own unlock timeline) are optional (see the Step 1 report).
 - Watch whether Steam Cloud keeps small `modded_trumptest` test files (`prefs`, `progress`); they're harmless.
 - `.claude/launch.json` in the game folder serves `docs/design` on port 8765 for local page previews.
+- If the game suddenly runs at ~8 fps in tests (the shared preload in `godot.log` takes ~30 s instead of ~2 s), the PC needs a restart. It isn't the mod (checked on 2026-09-23).
+- The full one-at-a-time Deport sweep over all 80 encounters (~45 min) hasn't been run. Targeted lists are the default: `test.py deportsweep SEED A,B,C`.
 
 ## Resuming in a new session
 

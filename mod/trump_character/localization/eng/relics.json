@@ -1,6 +1,12 @@
 {
-  "PLACEHOLDER_RELIC_TRUMP.title": "Placeholder Relic",
-  "PLACEHOLDER_RELIC_TRUMP.description": "At the end of combat, heal [green]{Heal}[/green] HP.",
-  "PLACEHOLDER_RELIC_TRUMP.flavor": "[gold]A temporary relic. The real one will be much, much better.[/gold]",
+  "GOLDEN_SHOVEL.title": "Golden Shovel",
+  "GOLDEN_SHOVEL.description": "At the start of each combat, [gold]Build[/gold] [blue]{Build}[/blue].",
+  "GOLDEN_SHOVEL.flavor": "Used for exactly one groundbreaking ceremony. Very ceremonial. Very gold.",
+  "DIAMOND_SHOVEL.title": "Diamond Shovel",
+  "DIAMOND_SHOVEL.description": "At the start of each combat, [gold]Build[/gold] [blue]{StartOfCombat}[/blue].\nAt the start of your turn, [gold]Build[/gold] [blue]{StartOfTurn}[/blue].",
+  "DIAMOND_SHOVEL.flavor": "Nobody has ever seen a shovel like it. Nobody.",
+  "PERMANENT_STRUCTURE.title": "Permanent Structure",
+  "PERMANENT_STRUCTURE.description": "At the end of combat, keep a quarter of your [gold]Wall[/gold]. Start the next combat with it.",
+  "PERMANENT_STRUCTURE.flavor": "Zoning permits were not obtained.",
   "SEA_GLASS.TRUMP.title": "Gilded Glass"
 }

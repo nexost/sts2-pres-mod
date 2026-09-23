@@ -1,0 +1,23 @@
+{
+  "WALL_POWER.title": "Wall",
+  "WALL_POWER.description": "Your Wall's height. It never takes damage. Every [blue]10[/blue] height is a [gold]Section[/gold] that gives [blue]3[/blue] [gold]Block[/gold] at the end of your turn.",
+  "WALL_POWER.smartDescription": "Your Wall is [blue]{Amount}[/blue] high: [blue]{Sections}[/blue] {Sections:plural:Section|Sections}, [blue]{SectionBlock}[/blue] [gold]Block[/gold] at the end of your turn. It never takes damage.",
+  "WALL_POWER.sectionLabel": "# SECTION",
+  "WALL_POWER.sectionsLabel": "# SECTIONS",
+
+  "WALL_STAGE_POWER.title": "Construction",
+  "WALL_STAGE_POWER.description": "Wall stages reached this combat. Their perks stay even if the Wall is torn down.",
+  "WALL_STAGE_POWER.smartDescription": "{Perks.StringValue}",
+  "WALL_STAGE_POWER.stage1": "[gold]Chain-link Fence[/gold]: the Wall stands.",
+  "WALL_STAGE_POWER.stage2": "[gold]Brick Wall[/gold]: draw [blue]1[/blue] extra card each turn.",
+  "WALL_STAGE_POWER.stage3": "[gold]Concrete Wall[/gold]: gain [blue]1[/blue] extra Energy each turn.",
+  "WALL_STAGE_POWER.stage4": "[gold]Big Beautiful Wall[/gold]: at the end of your turn, deal [blue]1[/blue] damage to ALL enemies per [gold]Section[/gold].",
+  "WALL_STAGE_POWER.name1": "Chain-link Fence",
+  "WALL_STAGE_POWER.name2": "Brick Wall",
+  "WALL_STAGE_POWER.name3": "Concrete Wall",
+  "WALL_STAGE_POWER.name4": "Big Beautiful Wall",
+
+  "TARIFF_POWER.title": "Tariff",
+  "TARIFF_POWER.description": "Whenever this enemy attacks, gain [gold]Gold[/gold].",
+  "TARIFF_POWER.smartDescription": "Whenever [gold]{OwnerName}[/gold] attacks, gain [blue]{Amount}[/blue] [gold]Gold[/gold]."
+}

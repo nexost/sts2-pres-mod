@@ -1,5 +1,10 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using HarmonyLib;
+using MegaCrit.Sts2.Core.Assets;
 using MegaCrit.Sts2.Core.AutoSlay;
+using MegaCrit.Sts2.Core.AutoSlay.Helpers;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
 using MegaCrit.Sts2.Core.Saves;
@@ -53,5 +58,62 @@ public static class TestAutoSlayQuitPatch
 	public static void Prefix(int exitCode)
 	{
 		DevHarness.OnAutoSlayQuit(exitCode);
+	}
+}
+
+/// <summary>
+/// Test mode only: the shared assets finish preloading in the background after the main menu shows. A run started
+/// before that stalls on its own preload, past AutoSlay's 10 s first-room timeout, so the harness waits for this flag.
+/// </summary>
+[HarmonyPatch(typeof(PreloadManager), nameof(PreloadManager.LoadCommonAndMainMenuAssets))]
+public static class CommonPreloadDonePatch
+{
+	public static bool Done { get; private set; }
+
+	public static bool Prepare() => DevHarness.Enabled;
+
+	public static void Postfix(ref Task __result)
+	{
+		__result = MarkDone(__result);
+	}
+
+	private static async Task MarkDone(Task preload)
+	{
+		await preload;
+		Done = true;
+	}
+}
+
+/// <summary>
+/// Test mode only: AutoSlay's time limits (10 s per wait, 30 s stuck-watchdog) assume a fast machine. On 2026-09-23 the
+/// PC got into a state where the game ran at ~8 fps (30 s shared preload instead of 2 s, with or without this mod; a
+/// reboot fixed it) and the bot gave up on healthy runs. Stretch both limits so a slow machine doesn't fail the regression.
+/// </summary>
+public static class SlowMachineAllowance
+{
+	public const int Factor = 3;
+}
+
+[HarmonyPatch(typeof(WaitHelper), nameof(WaitHelper.Until))]
+public static class AutoSlayWaitAllowancePatch
+{
+	public static bool Prepare() => DevHarness.Enabled;
+
+	public static void Prefix(ref TimeSpan? timeout)
+	{
+		timeout = (timeout ?? AutoSlayConfig.nodeWaitTimeout) * SlowMachineAllowance.Factor;
+	}
+}
+
+[HarmonyPatch(typeof(Watchdog), nameof(Watchdog.Check))]
+public static class AutoSlayWatchdogAllowancePatch
+{
+	public static bool Prepare() => DevHarness.Enabled;
+
+	public static bool Prefix(Watchdog __instance)
+	{
+		TimeSpan idle = DateTime.UtcNow - Traverse.Create(__instance).Field<DateTime>("_lastProgressTime").Value;
+		// Within the stretched limit, skip the original (it would throw at 30 s); past it, let it log and throw.
+		return idle <= AutoSlayConfig.watchdogTimeout || idle > AutoSlayConfig.watchdogTimeout * SlowMachineAllowance.Factor;
 	}
 }
