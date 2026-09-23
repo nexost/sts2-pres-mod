@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Art Review</title>
+<style>
+:root {
+  --bg: #16181d; --panel: #1f232b; --panel2: #272c36; --line: #343a46; --text: #e9e4d6; --dim: #9aa1ad;
+  --gold: #e8b73c; --gold2: #f6d77e; --green: #5cc281; --blue: #5aa9e6; --red: #e0605a; --violet: #a98be8;
+  --tile: 250px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.35 system-ui, -apple-system, "Segoe UI", sans-serif; }
+button { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 7px; padding: 6px 11px; cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--gold); }
+button:disabled { opacity: .4; cursor: default; }
+button.primary { background: #3a3220; border-color: #7a6326; color: var(--gold2); }
+button.keep { background: #1f3a2a; border-color: #2f6d47; color: #bff0cf; }
+button.danger { background: #3a2323; border-color: #7a3a36; color: #ffc9c4; }
+input, select, textarea { font: inherit; color: var(--text); background: var(--panel2); border: 1px solid var(--line); border-radius: 7px; padding: 6px 9px; }
+
+header { position: sticky; top: 0; z-index: 20; background: rgba(22,24,29,.97); border-bottom: 1px solid var(--line); padding: 10px 16px 8px; }
+.row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.row + .row { margin-top: 8px; }
+h1 { font-size: 17px; margin: 0 8px 0 0; letter-spacing: .3px; }
+h1 span { color: var(--gold); }
+.pill { display: inline-flex; gap: 6px; align-items: center; padding: 4px 10px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); color: var(--dim); white-space: nowrap; }
+.pill b { color: var(--text); font-weight: 600; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); display: inline-block; }
+.dot.up { background: var(--green); }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tabs button { background: transparent; border-color: transparent; color: var(--dim); padding: 5px 10px; }
+.tabs button.on { background: var(--panel2); border-color: var(--line); color: var(--text); }
+.tabs button small { color: var(--dim); margin-left: 3px; }
+.spacer { flex: 1; }
+.selbar { background: #2a2515; border: 1px solid #5a4a1c; border-radius: 9px; padding: 6px 8px; display: none; }
+.selbar.show { display: flex; }
+label.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--dim); cursor: pointer; user-select: none; }
+.chips button { padding: 3px 9px; border-radius: 999px; font-size: 12.5px; }
+.chips button.on { background: #3a3220; border-color: #7a6326; color: var(--gold2); }
+
+main { padding: 14px 16px 60px; }
+.section-title { margin: 18px 0 8px; color: var(--gold); font-size: 13px; letter-spacing: 1.2px; text-transform: uppercase; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tile), 1fr)); gap: 12px; }
+.tile { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; transition: border-color .1s; }
+.tile:hover, .tile.focus { border-color: #6b7384; }
+.tile.selected { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(232,183,60,.45); }
+.tile.kept { border-color: #2f6d47; }
+.tile.kept.selected { border-color: var(--gold); }
+.pic { position: relative; aspect-ratio: 1100 / 860; background: #111317; cursor: zoom-in; overflow: hidden; }
+.pic.bg-icon { background: #3a322c; }
+.pic.bg-check { background-color: #2a2d33; background-image: linear-gradient(45deg,#33373f 25%,transparent 25%),linear-gradient(-45deg,#33373f 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#33373f 75%),linear-gradient(-45deg,transparent 75%,#33373f 75%); background-size: 20px 20px; background-position: 0 0,0 10px,10px -10px,-10px 0; }
+.pic img.art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.pic.framed img.art { left: 4.545%; top: 0; width: 90.91%; height: 88.37%; object-fit: fill; }
+.pic img.frame { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pic .full { position: absolute; top: 0; bottom: 0; left: 50%; transform: translateX(-50%); aspect-ratio: 606 / 852; height: 100%; }
+.pic .full img.art, .pic .full img.frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; }
+.pic .empty { position: absolute; inset: 0; display: grid; place-items: center; color: #5d6472; font-size: 13px; text-align: center; padding: 10px; }
+.pic .work { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(10,12,16,.55); color: #fff; font-weight: 600; text-shadow: 0 1px 3px #000; }
+.pic .work .spin { width: 34px; height: 34px; border: 3px solid rgba(255,255,255,.2); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 8px; }
+.pic .work.queued .spin { border-top-color: var(--blue); animation-duration: 2.2s; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sel { position: absolute; top: 7px; left: 7px; z-index: 3; width: 24px; height: 24px; border-radius: 6px; background: rgba(0,0,0,.55); border: 1px solid rgba(255,255,255,.35); display: grid; place-items: center; cursor: pointer; color: transparent; font-weight: 800; }
+.tile.selected .sel { background: var(--gold); border-color: var(--gold); color: #2a2106; }
+.badge { position: absolute; top: 7px; right: 7px; z-index: 3; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: rgba(0,0,0,.6); }
+.badge.kept { background: #25603d; color: #d8ffe6; }
+.badge.review { background: #6a531a; color: #ffeebb; }
+.badge.none { color: #9aa1ad; }
+.badge.error { background: #7a2e2a; color: #ffd6d2; }
+.meta { padding: 7px 9px 2px; }
+.meta b { display: block; font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meta span { color: var(--dim); font-size: 12px; }
+.foot { display: flex; align-items: center; gap: 6px; padding: 5px 8px 8px; }
+.vers { display: flex; gap: 3px; flex-wrap: wrap; flex: 1; min-width: 0; }
+.vers button { padding: 1px 6px; font-size: 11.5px; border-radius: 5px; color: var(--dim); }
+.vers button.cur { background: #3a3220; border-color: #7a6326; color: var(--gold2); }
+.vers button.kv::after { content: " ✓"; color: var(--green); }
+.foot .act { padding: 4px 9px; font-size: 12.5px; }
+.err { color: #ffb4ac; font-size: 11.5px; padding: 0 9px 7px; word-break: break-word; }
+
+/* detail view */
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(6,7,10,.86); display: none; }
+.modal.show { display: flex; }
+.mbox { margin: auto; width: min(1500px, 96vw); height: min(940px, 94vh); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: grid; grid-template-columns: 1fr 420px; overflow: hidden; }
+.mview { position: relative; display: flex; flex-direction: column; min-height: 0; background: #101216; }
+.mview .pic { aspect-ratio: auto; flex: 1; cursor: default; }
+.mview .pic.framed-box { display: grid; place-items: center; }
+.mview .stage { position: relative; width: min(100%, calc((94vh - 170px) * 1.279)); aspect-ratio: 1100 / 860; }
+.strip { display: flex; gap: 8px; padding: 10px; overflow-x: auto; border-top: 1px solid var(--line); background: var(--panel); min-height: 104px; }
+.strip .v { flex: 0 0 auto; width: 110px; cursor: pointer; border: 2px solid transparent; border-radius: 8px; background: #111317; padding: 3px; text-align: center; font-size: 11.5px; color: var(--dim); }
+.strip .v img { width: 100%; height: 64px; object-fit: contain; display: block; }
+.strip .v.cur { border-color: var(--gold); color: var(--gold2); }
+.strip .v.kv { box-shadow: inset 0 0 0 1px #2f6d47; }
+.strip .v.pending { display: grid; place-items: center; height: 88px; }
+.mside { padding: 14px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+.mside h2 { margin: 0; font-size: 19px; }
+.mside .sub { color: var(--dim); }
+.mside .box { background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.mside .lbl { color: var(--dim); font-size: 11.5px; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 3px; }
+.mside textarea { width: 100%; min-height: 150px; resize: vertical; font-size: 12.5px; line-height: 1.4; }
+.refs { display: flex; gap: 6px; }
+.refs img { width: 88px; height: 66px; object-fit: cover; border-radius: 5px; border: 1px solid var(--line); }
+.mnav { position: absolute; top: 10px; right: 10px; display: flex; gap: 6px; z-index: 5; }
+.kbd { font-size: 11px; color: var(--dim); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+.toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); background: #2a2f3a; border: 1px solid var(--line); padding: 8px 14px; border-radius: 8px; z-index: 60; opacity: 0; transition: opacity .2s; pointer-events: none; }
+.toast.show { opacity: 1; }
+.help { color: var(--dim); font-size: 12px; }
+@media (max-width: 900px) {
+  :root { --tile: 160px; }
+  .mbox { grid-template-columns: 1fr; grid-template-rows: 55% 45%; height: 96vh; }
+  header { position: static; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="row">
+    <h1>Art Review <span>· The Donald</span></h1>
+    <span class="pill"><span id="comfyDot" class="dot"></span><span id="comfyTxt">ComfyUI</span></span>
+    <span class="pill">Kept <b id="cKept">0</b></span>
+    <span class="pill">To review <b id="cReview">0</b></span>
+    <span class="pill">Not generated <b id="cNone">0</b></span>
+    <span class="pill">Working <b id="cWork">0</b> <span id="eta"></span></span>
+    <span class="spacer"></span>
+    <button id="genMissing" title="Queue one image for every item in this tab that has none yet">Generate missing</button>
+  </div>
+  <div class="row">
+    <div class="tabs" id="tabs"></div>
+    <span class="spacer"></span>
+    <select id="status">
+      <option value="">All statuses</option><option value="review">To review</option><option value="none">Not generated</option>
+      <option value="kept">Kept</option><option value="working">Working</option><option value="error">Errors</option>
+    </select>
+    <input id="search" placeholder="Search…" size="14">
+  </div>
+  <div class="row">
+    <div class="chips" id="chips"></div>
+    <span class="spacer"></span>
+    <label class="chk"><input type="checkbox" id="frameToggle" checked> Card frames</label>
+    <label class="chk">Size <input type="range" id="size" min="150" max="460" value="250"></label>
+    <label class="chk">Per regenerate <select id="count"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
+  </div>
+  <div class="row selbar" id="selbar">
+    <b id="selN">0 selected</b>
+    <button class="keep" id="selKeep">Keep <span class="kbd">K</span></button>
+    <button class="primary" id="selRegen">Regenerate <span class="kbd">R</span></button>
+    <button class="danger" id="selCancel">Cancel queued</button>
+    <span class="spacer"></span>
+    <button id="selAll">Select all shown</button>
+    <button id="selNone">Clear <span class="kbd">Esc</span></button>
+  </div>
+</header>
+<main id="main"></main>
+
+<div class="modal" id="modal">
+  <div class="mbox">
+    <div class="mview">
+      <div class="mnav"><button id="mPrev">← Prev</button><button id="mNext">Next →</button><button id="mClose">✕</button></div>
+      <div class="pic" id="mPic"></div>
+      <div class="strip" id="mStrip"></div>
+    </div>
+    <div class="mside" id="mSide"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const SECTIONS = ["All", "Character", "Cards", "Relics", "Potions", "Powers", "UI & mechanics"];
+const ARCHS = ["Wall", "Deport", "Deals", "Tweets", "General"];
+const ICON_KINDS = new Set(["relic", "potion", "power"]);
+const CHECK_KINDS = new Set(["top_icon", "map_marker", "figure", "hand", "wall", "stamp", "orb", "small_icon", "char_button"]);
+
+const store = (k, v) => { try { v === undefined ? null : localStorage.setItem("artreview." + k, JSON.stringify(v)); } catch (e) {} };
+const load = (k, d) => { try { const v = localStorage.getItem("artreview." + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
+
+let items = new Map(), order = [], summary = {}, clockOffset = 0;
+let tab = load("tab", "All"), arch = load("arch", ""), statusF = load("status", ""), search = "";
+let selected = new Set(), focusId = null, modalId = null, lastClicked = null;
+let showFrames = load("frames", true);
+
+function api(path, body) {
+  return fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+}
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("show"), 1800); }
+function working(it) { return it.pending.length > 0; }
+function effStatus(it) { return it.error ? "error" : working(it) ? "working" : it.status; }
+function count() { return +$("#count").value; }
+
+function visible(it) {
+  if (tab !== "All" && it.section !== tab) return false;
+  if (arch && it.arch !== arch) return false;
+  const s = effStatus(it);
+  if (statusF && !(statusF === s || (statusF === "review" && s === "review") || (statusF === "working" && working(it)))) return false;
+  if (search && !(it.name + " " + it.sub + " " + it.art).toLowerCase().includes(search)) return false;
+  return true;
+}
+
+function picHTML(it, big) {
+  const v = it.versions.find(x => x.v === it.current);
+  const mode = it.frame && showFrames ? it.frameMode : null;  // "window": normal cards; "full": Ancient full-card art
+  const cls = ["pic", ICON_KINDS.has(it.kind) ? "bg-icon" : CHECK_KINDS.has(it.kind) ? "bg-check" : "", mode === "window" ? "framed" : ""].join(" ");
+  let inner = "";
+  if (v) {
+    const art = `<img class="art" src="${big ? v.full : v.thumb}" alt="" draggable="false">`;
+    const frame = mode ? `<img class="frame" src="/files/build/art/ref/frames/${it.frame}.png" alt="">` : "";
+    inner += mode === "full" ? `<div class="full">${art}${frame}</div>` : art + frame;
+  } else {
+    inner += `<div class="empty">Not generated yet<br>${esc(it.sub)}</div>`;
+  }
+  const run = it.pending.find(p => p.state === "running");
+  if (run) inner += `<div class="work"><div><div class="spin"></div>Generating <span data-since="${run.since}">…</span>${it.pending.length > 1 ? ` · +${it.pending.length - 1}` : ""}</div></div>`;
+  else if (it.pending.length) {
+    const p = it.pending[0];
+    inner += `<div class="work queued"><div><div class="spin"></div>${p.state === "waiting" ? "Waiting for ComfyUI" : "Queued" + (p.pos ? " #" + p.pos : "")}${it.pending.length > 1 ? ` · ×${it.pending.length}` : ""}</div></div>`;
+  }
+  return { cls, inner };
+}
+
+function tileHTML(it) {
+  const { cls, inner } = picHTML(it, false);
+  const s = effStatus(it);
+  const badge = { kept: "Kept ✓", review: "To review", none: "Not generated", working: "Working", error: "Error" }[s];
+  const bcls = s === "working" ? (it.status === "none" ? "none" : it.status) : s;
+  const vers = it.versions.map(v => `<button class="${v.v === it.current ? "cur" : ""} ${v.v === it.kept ? "kv" : ""}" data-v="${v.v}" title="seed ${v.seed}">v${v.v}</button>`).join("");
+  return `<div class="${cls}" data-open>${inner}</div>
+    <div class="sel" data-sel>✓</div>
+    <div class="badge ${bcls}">${badge}</div>
+    <div class="meta"><b title="${esc(it.name)}">${esc(it.name)}</b><span>${esc(it.sub)}</span></div>
+    <div class="foot"><div class="vers">${vers}</div>
+      <button class="act keep" data-keep ${!it.current || it.status === "kept" ? "disabled" : ""} title="Keep this version (K)">Keep</button>
+      <button class="act primary" data-regen title="Regenerate (R)">↻</button></div>
+    ${it.error ? `<div class="err">${esc(it.error)}</div>` : ""}`;
+}
+
+function renderTile(id) {
+  const it = items.get(id), el = document.getElementById("t-" + id);
+  if (!el) return;
+  el.className = "tile" + (selected.has(id) ? " selected" : "") + (it.status === "kept" && !working(it) ? " kept" : "") + (focusId === id ? " focus" : "");
+  el.innerHTML = tileHTML(it);
+  el.style.display = visible(it) ? "" : "none";
+}
+
+function renderAll() {
+  const main = $("#main");
+  main.innerHTML = "";
+  const groups = new Map();
+  for (const id of order) { const it = items.get(id); (groups.get(it.section) || groups.set(it.section, []).get(it.section)).push(it); }
+  for (const [sec, list] of groups) {
+    const h = document.createElement("div"); h.className = "section-title"; h.textContent = sec; h.dataset.section = sec;
+    const g = document.createElement("div"); g.className = "grid"; g.dataset.section = sec;
+    for (const it of list) { const t = document.createElement("div"); t.id = "t-" + it.id; t.dataset.id = it.id; g.appendChild(t); }
+    main.append(h, g);
+  }
+  for (const id of order) renderTile(id);
+  applyFilter();
+}
+
+function applyFilter() {
+  for (const id of order) { const el = document.getElementById("t-" + id); if (el) el.style.display = visible(items.get(id)) ? "" : "none"; }
+  document.querySelectorAll(".section-title").forEach(h => {
+    const g = h.nextElementSibling;
+    const any = [...g.children].some(c => c.style.display !== "none");
+    h.style.display = g.style.display = any ? "" : "none";
+  });
+  renderTabs(); renderCounts();
+}
+
+function renderTabs() {
+  $("#tabs").innerHTML = SECTIONS.map(s => {
+    const n = order.filter(id => s === "All" || items.get(id).section === s).length;
+    return `<button class="${s === tab ? "on" : ""}" data-tab="${esc(s)}">${esc(s)}<small>${n}</small></button>`;
+  }).join("");
+  const showArch = tab === "All" || tab === "Cards";
+  $("#chips").innerHTML = showArch ? `<button class="${!arch ? "on" : ""}" data-arch="">All styles</button>` + ARCHS.map(a => `<button class="${arch === a ? "on" : ""}" data-arch="${a}">${a}</button>`).join("") : "";
+}
+
+function renderCounts() {
+  const all = [...items.values()];
+  $("#cKept").textContent = all.filter(i => i.status === "kept").length;
+  $("#cReview").textContent = all.filter(i => i.status === "review").length;
+  $("#cNone").textContent = all.filter(i => i.status === "none").length;
+  $("#cWork").textContent = (summary.running || 0) + (summary.queued || 0);
+  $("#eta").textContent = summary.eta ? `· ~${fmtTime(summary.eta)}` : "";
+  $("#comfyDot").className = "dot" + (summary.comfy ? " up" : "");
+  $("#comfyTxt").textContent = summary.comfy ? "ComfyUI ready" : "ComfyUI starting…";
+  $("#selbar").classList.toggle("show", selected.size > 0);
+  $("#selN").textContent = `${selected.size} selected`;
+}
+
+function fmtTime(s) { s = Math.round(s); return s < 90 ? `${s}s` : s < 5400 ? `${Math.round(s / 60)} min` : `${(s / 3600).toFixed(1)} h`; }
+
+function tick() {
+  const t = Date.now() / 1000 + clockOffset;
+  document.querySelectorAll("[data-since]").forEach(el => el.textContent = Math.max(0, Math.round(t - +el.dataset.since)) + "s");
+}
+setInterval(tick, 1000);
+
+// ---- actions ----
+function targets() { return selected.size ? [...selected] : focusId ? [focusId] : []; }
+async function regen(ids) {
+  if (!ids.length) return;
+  await api("/api/regenerate", { ids, count: count() });
+  toast(`Regenerating ${ids.length} item${ids.length > 1 ? "s" : ""}${count() > 1 ? ` ×${count()}` : ""}`);
+}
+async function keep(ids) {
+  ids = ids.filter(id => items.get(id).current);
+  if (!ids.length) return;
+  await api("/api/keep", { ids });
+  toast(`Kept ${ids.length} item${ids.length > 1 ? "s" : ""} (copied into the mod)`);
+}
+async function cancel(ids) { await api("/api/cancel", { ids }); toast("Cancelled queued jobs"); }
+function toggleSel(id, on) { (on ?? !selected.has(id)) ? selected.add(id) : selected.delete(id); renderTile(id); renderCounts(); }
+function visibleIds() { return order.filter(id => visible(items.get(id))); }
+
+document.addEventListener("click", e => {
+  const tabB = e.target.closest("[data-tab]"); if (tabB) { tab = tabB.dataset.tab; store("tab", tab); if (tab !== "All" && tab !== "Cards") arch = ""; applyFilter(); return; }
+  const archB = e.target.closest("[data-arch]"); if (archB) { arch = archB.dataset.arch; store("arch", arch); applyFilter(); return; }
+  const tile = e.target.closest(".tile"); if (!tile) return;
+  const id = tile.dataset.id;
+  if (e.target.closest("[data-sel]") || e.ctrlKey || e.metaKey) { e.preventDefault(); rangeOrToggle(id, e.shiftKey); return; }
+  if (e.shiftKey) { e.preventDefault(); rangeOrToggle(id, true); return; }
+  const vb = e.target.closest("[data-v]"); if (vb) { api("/api/version", { id, v: +vb.dataset.v }); return; }
+  if (e.target.closest("[data-keep]")) { keep([id]); return; }
+  if (e.target.closest("[data-regen]")) { regen([id]); return; }
+  if (e.target.closest("[data-open]")) openModal(id);
+});
+function rangeOrToggle(id, range) {
+  if (range && lastClicked) {
+    const vis = visibleIds(), a = vis.indexOf(lastClicked), b = vis.indexOf(id);
+    if (a >= 0 && b >= 0) { for (const x of vis.slice(Math.min(a, b), Math.max(a, b) + 1)) toggleSel(x, true); lastClicked = id; return; }
+  }
+  toggleSel(id); lastClicked = id;
+}
+document.addEventListener("mouseover", e => {
+  const t = e.target.closest(".tile"); if (!t || t.dataset.id === focusId) return;
+  const prev = focusId; focusId = t.dataset.id;
+  if (prev) document.getElementById("t-" + prev)?.classList.remove("focus");
+  t.classList.add("focus");
+});
+
+$("#selKeep").onclick = () => keep([...selected]);
+$("#selRegen").onclick = () => regen([...selected]);
+$("#selCancel").onclick = () => cancel([...selected]);
+$("#selAll").onclick = () => { visibleIds().forEach(id => selected.add(id)); order.forEach(renderTile); renderCounts(); };
+$("#selNone").onclick = clearSel;
+function clearSel() { const s = [...selected]; selected.clear(); s.forEach(renderTile); renderCounts(); }
+$("#genMissing").onclick = async () => {
+  const sec = tab === "All" ? "" : tab;
+  const n = order.filter(id => { const it = items.get(id); return !it.versions.length && !working(it) && (!sec || it.section === sec); }).length;
+  if (!n) { toast("Nothing missing here"); return; }
+  if (!confirm(`Generate ${n} missing image${n > 1 ? "s" : ""}${sec ? " in " + sec : ""}? About ${fmtTime(n * (summary.avg || 26))} of GPU time.`)) return;
+  await api("/api/generate_missing", { section: sec });
+  toast(`Queued ${n} images`);
+};
+$("#status").value = statusF;
+$("#status").onchange = e => { statusF = e.target.value; store("status", statusF); applyFilter(); };
+$("#search").oninput = e => { search = e.target.value.trim().toLowerCase(); applyFilter(); };
+$("#frameToggle").checked = showFrames;
+$("#frameToggle").onchange = e => { showFrames = e.target.checked; store("frames", showFrames); order.forEach(renderTile); applyFilter(); if (modalId) renderModal(); };
+$("#size").value = load("size", 250);
+document.documentElement.style.setProperty("--tile", $("#size").value + "px");
+$("#size").oninput = e => { document.documentElement.style.setProperty("--tile", e.target.value + "px"); store("size", e.target.value); };
+$("#count").value = load("count", 1);
+$("#count").onchange = e => store("count", e.target.value);
+
+// ---- detail view ----
+function openModal(id) { modalId = id; $("#modal").classList.add("show"); renderModal(); }
+function closeModal() { modalId = null; $("#modal").classList.remove("show"); }
+function stepModal(d) {
+  const vis = visibleIds(); if (!vis.length) return;
+  let i = vis.indexOf(modalId); i = i < 0 ? 0 : (i + d + vis.length) % vis.length;
+  modalId = vis[i]; renderModal();
+}
+function renderModal() {
+  const it = items.get(modalId); if (!it) return;
+  const { cls, inner } = picHTML(it, true);
+  $("#mPic").className = cls + " framed-box";
+  const windowed = it.frame && showFrames && it.frameMode === "window";
+  $("#mPic").innerHTML = `<div class="stage ${windowed ? "framed" : ""}" style="position:relative">${inner}</div>`;
+  const stage = $("#mPic .stage");
+  if (windowed) stage.classList.add("pic");
+  const pend = it.pending.map(p => `<div class="v pending">${p.state === "running" ? `<div><div class="spin" style="width:22px;height:22px;border:3px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 4px"></div><span data-since="${p.since}"></span></div>` : p.state === "waiting" ? "waiting" : "queued" + (p.pos ? " #" + p.pos : "")}</div>`).join("");
+  $("#mStrip").innerHTML = it.versions.slice().reverse().map(v => `<div class="v ${v.v === it.current ? "cur" : ""} ${v.v === it.kept ? "kv" : ""}" data-mv="${v.v}"><img src="${v.thumb}" alt="">v${v.v}${v.v === it.kept ? " ✓" : ""}${v.custom ? " ✎" : ""}</div>`).join("") + pend || `<div class="help">No versions yet. Press Regenerate.</div>`;
+  const s = effStatus(it);
+  $("#mSide").innerHTML = `
+    <div><h2>${esc(it.name)}</h2><div class="sub">${esc(it.sub)} · <b>${{ kept: "Kept ✓", review: "To review", none: "Not generated", working: "Working…", error: "Error" }[s]}</b></div></div>
+    ${it.text ? `<div class="box"><div class="lbl">Text</div>${esc(it.text)}</div>` : ""}
+    ${it.art ? `<div class="box"><div class="lbl">Art direction</div>${esc(it.art)}</div>` : ""}
+    ${it.note ? `<div class="box"><div class="lbl">Note</div>${esc(it.note)}</div>` : ""}
+    ${it.error ? `<div class="box" style="border-color:#7a3a36"><div class="lbl">Last error</div>${esc(it.error)}</div>` : ""}
+    <div class="row">
+      <button class="keep" id="mKeep" ${!it.current || it.status === "kept" ? "disabled" : ""}>Keep v${it.current || "–"} <span class="kbd">K</span></button>
+      <button class="primary" id="mRegen">Regenerate${count() > 1 ? " ×" + count() : ""} <span class="kbd">R</span></button>
+      ${working(it) ? `<button class="danger" id="mCancel">Cancel</button>` : ""}
+      ${it.kept ? `<button id="mUnkeep" title="Mark as not approved (the mod keeps its current file)">Unkeep</button>` : ""}
+    </div>
+    <div><div class="lbl">Prompt ${it.promptCustom ? "(edited)" : "(default)"}</div>
+      <textarea id="mPrompt">${esc(it.prompt)}</textarea>
+      <div class="row" style="margin-top:6px"><button id="mSavePrompt">Save prompt</button><button id="mResetPrompt" ${it.promptCustom ? "" : "disabled"}>Reset to default</button>
+      <span class="help">Saved prompts are used by the next regenerations.</span></div></div>
+    ${it.refs.length ? `<div><div class="lbl">Style references</div><div class="refs">${it.refs.map(r => `<img src="${r}" alt="">`).join("")}</div></div>` : ""}
+    <div><div class="lbl">Goes to</div><div class="help">${it.outputs.map(o => "mod/" + esc(o)).join("<br>")}</div></div>
+    <div class="help">← → items · 1–9 versions · K keep · R regenerate · Esc close</div>`;
+  $("#mKeep").onclick = () => keep([it.id]);
+  $("#mRegen").onclick = () => regen([it.id]);
+  if ($("#mCancel")) $("#mCancel").onclick = () => cancel([it.id]);
+  if ($("#mUnkeep")) $("#mUnkeep").onclick = () => api("/api/unkeep", { ids: [it.id] });
+  $("#mSavePrompt").onclick = async () => { await api("/api/prompt", { id: it.id, prompt: $("#mPrompt").value }); toast("Prompt saved"); };
+  $("#mResetPrompt").onclick = async () => { await api("/api/prompt", { id: it.id, prompt: null }); toast("Prompt reset"); };
+  tick();
+}
+$("#mStrip").addEventListener("click", e => { const v = e.target.closest("[data-mv]"); if (v) api("/api/version", { id: modalId, v: +v.dataset.mv }); });
+$("#mPrev").onclick = () => stepModal(-1);
+$("#mNext").onclick = () => stepModal(1);
+$("#mClose").onclick = closeModal;
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+
+document.addEventListener("keydown", e => {
+  if (e.target.matches("input, textarea, select")) { if (e.key === "Escape") e.target.blur(); return; }
+  const k = e.key.toLowerCase();
+  if (modalId) {
+    const it = items.get(modalId);
+    if (k === "escape") closeModal();
+    else if (k === "arrowright") stepModal(1);
+    else if (k === "arrowleft") stepModal(-1);
+    else if (k === "k") keep([modalId]);
+    else if (k === "r") regen([modalId]);
+    else if (/^[1-9]$/.test(k)) { const vs = it.versions; const v = vs[vs.length - +k]; if (v) api("/api/version", { id: modalId, v: v.v }); }
+    else return;
+    e.preventDefault(); return;
+  }
+  if (k === "escape") clearSel();
+  else if (k === "k") keep(targets());
+  else if (k === "r") regen(targets());
+  else if (k === " " && focusId) toggleSel(focusId);
+  else if (k === "enter" && focusId) openModal(focusId);
+  else if (k === "a" && (e.ctrlKey || e.metaKey)) { visibleIds().forEach(id => selected.add(id)); order.forEach(renderTile); renderCounts(); }
+  else return;
+  e.preventDefault();
+});
+
+// ---- data ----
+async function init() {
+  const res = await fetch("/api/state"); const data = await res.json();
+  clockOffset = (data.summary.now || Date.now() / 1000) - Date.now() / 1000;
+  summary = data.summary; order = data.items.map(i => i.id); items = new Map(data.items.map(i => [i.id, i]));
+  renderAll();
+  const es = new EventSource("/api/events");
+  es.onmessage = ev => {
+    const m = JSON.parse(ev.data);
+    if (m.type === "item") {
+      items.set(m.item.id, m.item); renderTile(m.item.id);
+      if (modalId === m.item.id) renderModal();
+      renderCounts();
+    } else if (m.type === "summary") { summary = m.summary; renderCounts(); }
+  };
+  es.onerror = () => { $("#comfyTxt").textContent = "Review server offline"; $("#comfyDot").className = "dot"; };
+  es.onopen = () => { fetch("/api/state").then(r => r.json()).then(d => { d.items.forEach(i => items.set(i.id, i)); summary = d.summary; order.forEach(renderTile); applyFilter(); }); };
+}
+init();
+</script>
+</body>
+</html>

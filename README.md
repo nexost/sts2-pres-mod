@@ -2,7 +2,7 @@
 
 Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 
-**Start with [`docs/00_project_plan.md`](docs/00_project_plan.md)**: the 9-step plan, current status, decision log and how to resume.
+**Start with [`docs/00_project_plan.md`](docs/00_project_plan.md)**: the step-by-step plan, current status, decision log and how to resume.
 
 ## Documents
 
@@ -15,7 +15,9 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 | [`docs/04_step4_report.md`](docs/04_step4_report.md) | Step 4: Wall, Deport, Tariff, Pay Gold and Tweet systems, starter kit, tests |
 | [`docs/05_step5_report.md`](docs/05_step5_report.md) | Step 5: every card, power, relic, potion and Ancient line; the card test |
 | [`docs/06_step6_report.md`](docs/06_step6_report.md) | Step 6: the balance bot, the comparison with Ironclad and Silent, the first tuning pass |
+| [`docs/07_step7_report.md`](docs/07_step7_report.md) | Step 7: the game's art style, the art method and recipe (Krea 2 + style reference), the test pieces |
 | [`docs/design/cards.json`](docs/design/cards.json) | **Source of truth** for every card, relic and potion (text, numbers, art direction) |
+| [`docs/design/art_assets.json`](docs/design/art_assets.json) | Art direction for everything that isn't a card portrait (relics, potions, powers, character screens, UI) |
 | [`docs/design/card_list.md`](docs/design/card_list.md) | Card tables and validation, generated from `cards.json` |
 | [`docs/design/base_game_benchmarks.md`](docs/design/base_game_benchmarks.md) | Balance numbers mined from the 5 base characters |
 | [`docs/design/compendium.html`](docs/design/compendium.html) | The review page, published as the [Compendium](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak) |
@@ -30,10 +32,11 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 | `mod/trump_character/localization/eng/` | Text, merged into the game's tables |
 | `mod/images`, `mod/scenes`, `mod/materials` | Assets at the exact paths the game loads for character `TRUMP` |
 | `scripts/` | Build, test, design and packaging scripts (below); `dist/` holds the installer and uninstaller; `templates/` holds the Compendium page |
-| `docs/` | Plan, step reports and design |
+| `docs/` | Plan, step reports and design; `docs/art/` holds the art review boards |
+| `art/jobs/` | Art generation job lists for `scripts/art_gen.py` (prompts, style references, sizes) |
 | `re/` | Decompiled game code (`re/code`) and recovered Godot project (`re/pck`); git-ignored |
 | `tools/` | GDRE Tools, Godot 4.5.1 .NET; git-ignored |
-| `build/` | Output (git-ignored): `dist/` mod + installer, `test/` test runs, `analysis/` base-game card data |
+| `build/` | Output (git-ignored): `dist/` mod + installer, `test/` test runs, `analysis/` base-game card data, `art/` ComfyUI input/output and raw generations |
 | `backups/` | Save backups taken before testing; git-ignored |
 
 ## Commands
@@ -53,6 +56,13 @@ python scripts/analyze_cards.py      # mine base-game cards into build/analysis/
 python scripts/render_design.py      # cards.json -> docs/design/card_list.md + validation report
 python scripts/render_gallery.py     # cards.json -> docs/design/gallery.html
 python scripts/render_compendium.py  # cards.json -> docs/design/compendium.html (then republish the Compendium)
+
+# Art
+python scripts/art_review.py                                       # review page for all 152 art items: keep / regenerate live (starts ComfyUI)
+# (the scripts below need the headless ComfyUI on port 8189; launch command in docs/07_step7_report.md)
+python scripts/art_gen.py art/jobs/step7_styleref.json --seeds 3   # Krea 2 + style reference, 3 seeds per job
+python scripts/art_post.py card|relic|portrait SRC DST             # game-ready sizes, relic keying + outline, button mask
+python scripts/art_train.py dataset|caption|train                  # optional Step 11: style LoRA on the game's art
 ```
 
 Test output lands in `build/test/<mode>_<time>/` (report.json, screenshots, godot.log).

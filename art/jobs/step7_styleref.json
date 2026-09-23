@@ -1,0 +1,79 @@
+[
+ {
+  "name": "build_the_wall",
+  "size": [
+   1216,
+   928
+  ],
+  "style": [
+   "re/pck/images/packed/card_portraits/regent/heirloom_hammer.png",
+   "re/pck/images/packed/card_portraits/ironclad/inflame.png",
+   "re/pck/images/packed/card_portraits/ironclad/bludgeon.png"
+  ],
+  "prompt": "Slay the Spire card illustration. Donald Trump as a comic caricature, with his iconic swooping blond comb-over, orange-tan face, pouting lips, navy suit and an extra-long red tie flapping, proudly slapping a shiny gold-trimmed brick onto a growing stone wall. Low angle, dynamic diagonal composition, radial red and orange burst background. Flat cel-shaded digital painting with hard-edged dark shadow shapes, dark outlines, strong readable silhouette, saturated limited palette, in the exact painting style of the reference images.",
+  "method": "styleref",
+  "seed": 1,
+  "out": "build/art/test/B_build_the_wall.png"
+ },
+ {
+  "name": "deport",
+  "size": [
+   1216,
+   928
+  ],
+  "style": [
+   "re/pck/images/packed/card_portraits/colorless/rolling_boulder.png",
+   "re/pck/images/packed/card_portraits/silent/snakebite.png",
+   "re/pck/images/packed/card_portraits/ironclad/break.png"
+  ],
+  "prompt": "Slay the Spire card illustration. A startled hooded cultist monster with a pale teal bird-skull head and long beak, in ragged dark blue robes, being shoved through a metal turnstile under a glowing red sign that reads \"EXIT\". A big hand in a navy suit sleeve pushes it from the left. Motion streaks, dynamic diagonal composition, deep purple and red background. Flat cel-shaded digital painting with hard-edged dark shadow shapes, dark outlines, strong readable silhouette, saturated limited palette, in the exact painting style of the reference images.",
+  "method": "styleref",
+  "seed": 1,
+  "out": "build/art/test/B_deport.png"
+ },
+ {
+  "name": "net_worth",
+  "size": [
+   1216,
+   928
+  ],
+  "style": [
+   "re/pck/images/packed/card_portraits/colorless/hand_of_greed.png",
+   "re/pck/images/packed/card_portraits/colorless/the_bomb.png",
+   "re/pck/images/packed/card_portraits/ironclad/sword_boomerang.png"
+  ],
+  "prompt": "Slay the Spire card illustration. A huge heavy golden safe with a big dollar sign on its door falling from above onto a small panicking green goblin monster, gold coins bursting out, impact lines and dust. Dramatic low angle, dark purple background with an orange burst. Flat cel-shaded digital painting with hard-edged dark shadow shapes, dark outlines, strong readable silhouette, saturated limited palette, in the exact painting style of the reference images.",
+  "method": "styleref",
+  "seed": 1,
+  "out": "build/art/test/B_net_worth.png"
+ },
+ {
+  "name": "portrait",
+  "size": [
+   832,
+   1216
+  ],
+  "style": [
+   "build/art/ref/crops/cs_ironclad_bust.png"
+  ],
+  "prompt": "Character select portrait bust of Donald Trump as a comic caricature, with his iconic swooping blond comb-over, orange-tan face, pouting lips, navy suit and an extra-long red tie, three-quarter view, chin raised with a smug confident expression, a small gold hard hat pin on the lapel. Solid flat deep gold-orange background. Painterly digital painting with visible brush strokes, strong warm rim light, dramatic shadow on one side of the face, in the exact painting style of the reference image.",
+  "method": "styleref",
+  "seed": 1,
+  "out": "build/art/test/B_portrait.png"
+ },
+ {
+  "name": "golden_shovel",
+  "size": [
+   1024,
+   1024
+  ],
+  "style": [
+   "build/art/ref/crops/relic_shovel_big.png",
+   "build/art/ref/crops/relic_golden_compass_big.png"
+  ],
+  "prompt": "Game item icon of a single ceremonial groundbreaking shovel made of polished gold, with a red ribbon bow tied on the handle, lying diagonally, centered, isolated on a plain flat light gray background, no shadow. Hand-painted digital painting with soft brush texture and simple shading, in the exact style of the reference images.",
+  "method": "styleref",
+  "seed": 1,
+  "out": "build/art/test/B_golden_shovel.png"
+ }
+]

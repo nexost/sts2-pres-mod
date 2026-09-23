@@ -8,3 +8,4 @@ bin/
 obj/
 .godot/
 backups/
+__pycache__/

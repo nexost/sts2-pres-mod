@@ -3,7 +3,7 @@
 **Start here.** This is the master plan for the Slay the Spire 2 character mod, kept up to date after every step.
 If a chat session is lost, this file + [`README.md`](../README.md) + [`03_design.md`](03_design.md) are enough to carry on.
 
-_Last updated: 2026-09-23. Step 6 (balance, first pass) is done and not committed yet. Step 7 waits for the go-ahead._
+_Last updated: 2026-09-23. Steps 7 and 7.5 (art style, art review tool) are done and not committed yet. Step 8 waits for the go-ahead._
 
 ---
 
@@ -24,7 +24,7 @@ Any tools may be used, downloaded or created. The work is done step by step, nev
 - Never touch real saves: tests run in the separate `modded_trumptest` save folder; back up saves before anything risky.
 - Tone: jokes target the **persona** only. Deportation and walls apply to Spire monsters. No jokes about immigrants, ethnic or religious groups, real tragedies, or real people other than him.
 
-## The 9 steps
+## The steps
 
 | # | Step | Status | Deliverable |
 |---|---|---|---|
@@ -33,11 +33,13 @@ Any tools may be used, downloaded or created. The work is done step by step, nev
 | 3 | Design document | ✅ Done (v2) | [`03_design.md`](03_design.md), [`design/card_list.md`](design/card_list.md), [`design/cards.json`](design/cards.json), [Compendium](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak) |
 | 4 | Core mechanics and starter set (placeholder art) | ✅ Done (`0586dce`, shovel redesign `670e337`) | [`04_step4_report.md`](04_step4_report.md) |
 | 5 | All the content (placeholder art) | ✅ Done (`bed48ed`) | [`05_step5_report.md`](05_step5_report.md) |
-| 6 | Balance and playtesting | ✅ First pass (not committed) | [`06_step6_report.md`](06_step6_report.md) |
-| 7 | Lock the art style | ⏳ Next | Style samples to approve |
-| 8 | Make all the art | ⬜ | Finished visual version |
+| 6 | Balance and playtesting | ✅ First pass (`6964d20`) | [`06_step6_report.md`](06_step6_report.md) |
+| 7 | Lock the art style | ✅ Done (not committed) | [`07_step7_report.md`](07_step7_report.md), boards in [`art/`](art/) |
+| 7.5 | Art review tool | ✅ Done (not committed) | `python scripts/art_review.py`, see [`07_step7_report.md`](07_step7_report.md) §6 |
+| 8 | Make all the art | ⏳ Next | Finished visual version |
 | 9 | Polish and packaging | ⬜ | Installable release |
 | 10 | Extra balance testing (optional) | ⬜ | More measured tuning, if wanted |
+| 11 | Custom style LoRA art (optional) | ⬜ | Art regenerated with a LoRA trained on the game's art, if wanted |
 
 ### Step 1: Research and feasibility ✅
 Set up the workspace and tools (ilspycmd, GDRE Tools, Godot 4.5.1 .NET, Pillow). Decompile the current build and unpack the resource pack.
@@ -101,15 +103,45 @@ Result: a balance bot (`test.py balance`) plays The Donald, Ironclad and Silent 
 - Risks to measure are listed in [`03_design.md` §9](03_design.md).
 - **Deliverable:** a tuned version plus a balance report.
 
-### Step 7: Lock the art style ⏳ next
+### Step 7: Lock the art style ✅
+Result:
+- **The method:** Krea 2 Turbo + image style reference in a headless ComfyUI. The game's own art goes in as the reference images.
+- **Tools:** `scripts/art_gen.py` generates, `scripts/art_post.py` produces the game-ready files.
+- **Test pieces**, now in the mod and checked in game: Build the Wall, Deport, Net Worth, the Golden Shovel and the character select button.
+- The style guide, the recipe per asset type and the method comparison are in the [report](07_step7_report.md).
+- The trained-LoRA method moved to the optional Step 11.
+
 - Study the game's art: palette, brushwork, lighting and framing.
-- Set up a local image model on the RTX 4090, trained on the game's own art.
+- Try both methods the user suggested: a style LoRA trained on the game's art, and Krea 2 with image style reference.
 - Make test pieces (3 card arts, the character portrait, 1 relic icon) for the user to approve before mass production.
 - The art direction for each card is in `cards.json` (`art` field).
 
-### Step 8: Make all the art
+### Step 7.5: Art review tool ✅
+Added by the user after Step 7: one page to review every piece of art, keep it or regenerate it, with live updates.
+- `python scripts/art_review.py` opens a local web page (starts the headless ComfyUI itself).
+- It lists **everything the mod needs**, 152 items:
+  - 89 card portraits (2 of them Ancient full-art);
+  - 9 relics, 3 potions and 26 power icons;
+  - the character items: select button, select screen, top-bar icon, map marker, 4 combat poses, the shop and rest-site poses, 4 co-op hands, and the screen transition;
+  - the UI items: 3 energy orb pieces, the energy and gold icons, 4 Wall stages and the DENIED stamp.
+- **Per item:** Keep (copies the game-ready files into `mod/`), Regenerate (several at once, ×1–4 each), switch between versions, edit the prompt, cancel. Card art shows inside its real frame.
+- The recipes (references, prompts, sizes, post-processing, output paths) are in `scripts/art_recipes.py`. What to draw is in `cards.json` (cards) and `docs/design/art_assets.json` (everything else).
+
+### Step 8: Make all the art ⏳ next
+- Use the Step 7 recipe (see the [report](07_step7_report.md) §3 and §5): 3 seeds per piece, pick the best, and batch cards by archetype with fixed references.
 - All card art, the character select screen, relic, potion and power icons, the energy orb, and the map, shop and rest-site art.
 - **The four Wall stage visuals** and the Deport stamp.
+- Generate and review everything in the Step 7.5 tool, then wire the new files in:
+  - the character select screen (a static painting instead of the copied Ironclad scene);
+  - the energy orb layers;
+  - the transition material;
+  - the combat, shop and rest-site figures;
+  - the Wall stages and the stamp.
+- **VFX** (Godot scenes, not image generation):
+  - the card trail and energy orb glow recoloured gold;
+  - a dust-and-bricks puff on Build;
+  - the stamp slam and poof on Deport.
+  All built from the game's own particle textures.
 - The combat character as a Spine rig, generated with code (idle, attack, cast, hurt, die); a plain-sprite fallback if needed.
 - Sounds: reuse the game's own.
 - **Deliverable:** the finished visual version.
@@ -125,6 +157,18 @@ Added by the user during Step 6: balance is good enough to move on, and more tes
 - **Bigger baselines** (27+ runs per character) for tighter numbers.
 - **A smarter bot**, if needed. For example, it doesn't plan around the Wall stages or card synergies.
 - Tune from the user's own playtests.
+
+### Step 11: Custom style LoRA art (optional)
+Added by the user during Step 7: the art is made with Krea 2 + style reference for now. Later, a LoRA trained on the game's own art can replace it if it looks better.
+- **Base model:** train on **Krea 2 Raw** (the undistilled base) and run the LoRA on Turbo at 8 steps. Training on Turbo without the de-distill adapter breaks its 8-step speed.
+  The download is `krea2_raw_fp8_scaled.safetensors` (13.1 GB) from `huggingface.co/Comfy-Org/Krea-2`, which is ungated. Ask before downloading. bf16 Raw (26.3 GB) doesn't fit in 24 GB and trains about 2–3× slower.
+- **Ready to use:**
+  - `scripts/art_train.py` (captioning plus ComfyUI's built-in trainer, no extra tools);
+  - a captioned set of 72 game images (52 cards, 20 relics) in `build/art/comfy_in/sts2_style`, rebuilt by the snippet in the [Step 7 report](07_step7_report.md).
+- **Measured on the 4090:**
+  - about 2.4–2.6 s/step with an fp8 base, gradient checkpointing depth 2 and bypass mode, so ~65 min for 1,500 steps;
+  - depth 1 overflows the 24 GB of VRAM and stalls.
+- Then regenerate a few cards with the LoRA, compare them with the Step 8 art, and swap in the better set.
 
 ## Decision log
 
@@ -142,6 +186,7 @@ Added by the user during Step 6: balance is good enough to move on, and more tes
 | 2026-09-23 | Step 4 committed (`0586dce`). **Golden Shovel redesigned** after review: a flat Build 6 at the start of combat only moved the stage thresholds. It is now "at the start of your turn, Build 2" (the construction crew); the Diamond Shovel builds 4 per turn. Chosen over three other options: compound growth per Section, draw on stage-up, and Gold per Section. |
 | 2026-09-23 | Step 5 committed (`bed48ed`). Step 6: balance bot runs, 9 games in parallel, tiled 3×3 and muted (the user's request). First tuning pass: Deport 7 (10) damage, Deport line cap 60%. The user called balance good enough for now and added an optional Step 10 for more testing. |
 | 2026-09-23 | Step 5: where the design text left room, choices are listed in the [Step 5 report](05_step5_report.md). Examples: Guard Towers fires one shot per Section, Law and Order Deports after end-of-turn damage, and You're Fired! and the Deportation Draught can't target immune bosses. |
+| 2026-09-23 | Step 6 committed (`6964d20`). Step 7: the user asked to try two methods, training a style LoRA and Krea 2 with image style reference. The user chose **Krea 2 Turbo + style reference** (ComfyUI, the game's own art as reference images). The LoRA route moved to the optional Step 11, to be trained on Krea 2 Raw rather than Turbo. |
 | 2026-09-23 | Step 4: mod models get `[SavedProperty]` support (`SavedPropertiesTypeCache.InjectTypeIntoCache` at startup), so run-long growth (Permanent Structure, Cornerstone) survives save and quit. |
 
 ## Open items
