@@ -1,9 +1,9 @@
 {
   "GOLDEN_SHOVEL.title": "Golden Shovel",
-  "GOLDEN_SHOVEL.description": "At the start of each combat, [gold]Build[/gold] [blue]{Build}[/blue].",
-  "GOLDEN_SHOVEL.flavor": "Used for exactly one groundbreaking ceremony. Very ceremonial. Very gold.",
+  "GOLDEN_SHOVEL.description": "At the start of your turn, [gold]Build[/gold] [blue]{Build}[/blue].",
+  "GOLDEN_SHOVEL.flavor": "The crew never stops digging. The shovel mostly supervises.",
   "DIAMOND_SHOVEL.title": "Diamond Shovel",
-  "DIAMOND_SHOVEL.description": "At the start of each combat, [gold]Build[/gold] [blue]{StartOfCombat}[/blue].\nAt the start of your turn, [gold]Build[/gold] [blue]{StartOfTurn}[/blue].",
+  "DIAMOND_SHOVEL.description": "At the start of your turn, [gold]Build[/gold] [blue]{Build}[/blue].",
   "DIAMOND_SHOVEL.flavor": "Nobody has ever seen a shovel like it. Nobody.",
   "PERMANENT_STRUCTURE.title": "Permanent Structure",
   "PERMANENT_STRUCTURE.description": "At the end of combat, keep a quarter of your [gold]Wall[/gold]. Start the next combat with it.",

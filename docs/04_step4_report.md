@@ -42,8 +42,8 @@ In combat:
 | Common Attack | Mean Tweet | 1 Energy: deal 6 (9) damage, add a Tweet to your hand. |
 | Common Skill | Small Loan | 0 Energy: Pay 10 Gold, gain 1 Energy, draw 1 (2). |
 | Token | Tweet | 0 Energy: deal 3 (5) damage to ALL enemies. Exhaust. |
-| Starter relic | Golden Shovel | At the start of each combat, Build 6. |
-| Ancient upgrade | Diamond Shovel | At the start of each combat, Build 10; at the start of your turn, Build 2. |
+| Starter relic | Golden Shovel | At the start of your turn, Build 2. (Redesigned after the step; see below.) |
+| Ancient upgrade | Diamond Shovel | At the start of your turn, Build 4. |
 | Rare relic | Permanent Structure | Keep a quarter of your Wall at the end of combat and start the next one with it. Built now as the first user of the carry-over hook. |
 
 Removed: the Step 2 Deport prototype, the placeholder relic and 4 filler cards. **13 filler cards remain** so every reward rarity
@@ -59,7 +59,7 @@ has cards; Step 5 replaces them.
 | `test.py autoslay`: full run by the game's bot | **Victory**: all 3 acts and the ending, back to the main menu in 4 min 39 s, 0 mod log problems |
 
 The UI test checks:
-- the Golden Shovel starts the Wall at 6, and Max HP is 70;
+- the Golden Shovel builds 2 on turn 1 and 2 more each turn after, and Max HP is 70;
 - Small Loan can't be played at 5 Gold, can at 99, pays 10 and gives 1 Energy;
 - Mean Tweet adds a Tweet, and the Tweet hits all enemies;
 - Slap a Tariff applies 2 Tariff, and Tariff pays 2 Gold when the enemy attacks;
@@ -67,7 +67,7 @@ The UI test checks:
 - next turn there's 4 max Energy and a 6-card hand;
 - Demolition to 0 keeps stage 4;
 - the Deport line is right on both sides of 25%, and the Deport card deports and ends the fight;
-- Permanent Structure keeps 10 of 40, writes it to the save data, and the next fight's Wall starts at 16;
+- Permanent Structure keeps 10 of 40 and writes it to the save data. With the Diamond Shovel swapped in, the next fight's Wall starts at 14 (4 + 10);
 - the boss is immune;
 - Touch of Orobas gives the Diamond Shovel.
 
@@ -95,6 +95,15 @@ Bugs found and fixed during the step:
 
 **Slow PC, not the mod:** midway through the step the game started running at ~8 fps. The shared asset preload took 30 s instead of 2 s. The Step 3 build was just as slow (checked in a separate worktree), so the mod wasn't the cause, and a PC restart fixed it.
 The AutoSlay harness now waits for the menu and preload and allows 3× the bot's time limits (test mode only). That way a slow machine doesn't fail the regression.
+
+## Starter relic redesign (after review)
+
+The first Golden Shovel built 6 once, at the start of each combat. The user pointed out that this is the same as moving every stage
+threshold down by 6: no decision, and nothing that grows. It now builds 2 at the start of every turn, the construction crew that never stops.
+The Wall rises on its own through a fight, stage-ups happen mid-fight even without Build cards, and longer fights mean a taller Wall.
+The Diamond Shovel builds 4 per turn.
+It uses the same timing as the Necrobinder's Bound Phylactery: turn 1 before combat starts, later turns right after the energy reset.
+Re-tested with `test.py ui`: all checks pass.
 
 ## Card frame vs the Regent
 

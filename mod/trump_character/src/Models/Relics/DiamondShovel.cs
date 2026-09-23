@@ -6,42 +6,38 @@ using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.HoverTips;
 using MegaCrit.Sts2.Core.Localization.DynamicVars;
 using MegaCrit.Sts2.Core.Models;
-using MegaCrit.Sts2.Core.Rooms;
 using TrumpMod.Mechanics;
 
 namespace TrumpMod.Models.Relics;
 
 /// <summary>
-/// Ancient version of the Golden Shovel, given by Touch of Orobas (TouchOfOrobasPatch).
+/// Ancient version of the Golden Shovel, given by Touch of Orobas (TouchOfOrobasPatch): at the start of your turn, Build 4.
 /// Starter rarity like Black Blood, so it's never offered as a random reward.
 /// </summary>
 public sealed class DiamondShovel : RelicModel
 {
 	public override RelicRarity Rarity => RelicRarity.Starter;
 
-	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
-	{
-		new DynamicVar("StartOfCombat", 10m),
-		new DynamicVar("StartOfTurn", 2m)
-	};
+	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new DynamicVar("Build", 4m) };
 
 	protected override IEnumerable<IHoverTip> ExtraHoverTips => new[] { TrumpHoverTips.Build, TrumpHoverTips.Wall };
 
-	public override async Task AfterRoomEntered(AbstractRoom room)
+	public override async Task BeforeCombatStart()
 	{
-		if (room is CombatRoom)
+		await Dig();
+	}
+
+	public override async Task AfterEnergyResetLate(Player player)
+	{
+		if (player == Owner && Owner.PlayerCombatState?.TurnNumber != 1)
 		{
-			Flash();
-			await WallCmd.Build(new ThrowingPlayerChoiceContext(), Owner.Creature, DynamicVars["StartOfCombat"].BaseValue);
+			await Dig();
 		}
 	}
 
-	public override async Task AfterPlayerTurnStart(PlayerChoiceContext choiceContext, Player player)
+	private async Task Dig()
 	{
-		if (player == Owner)
-		{
-			Flash();
-			await WallCmd.Build(choiceContext, Owner.Creature, DynamicVars["StartOfTurn"].BaseValue);
-		}
+		Flash();
+		await WallCmd.Build(new ThrowingPlayerChoiceContext(), Owner.Creature, DynamicVars["Build"].BaseValue);
 	}
 }

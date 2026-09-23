@@ -211,10 +211,15 @@ public static class DevHarness
 		int saved = structure == null ? -1 : SavedProperties.From(structure)?.ints?.FirstOrDefault(p => p.name == nameof(PermanentStructure.StoredHeight)).value ?? -1;
 		Check(saved == 10, $"Permanent Structure height is in the save data ({saved})");
 
+		// Swap in the Ancient version for the boss fight: Diamond Shovel builds 4 per turn.
+		RunConsole("relic remove GOLDEN_SHOVEL");
+		RunConsole("relic add DIAMOND_SHOVEL");
+		await Task.Delay(600);
+
 		// Boss immunity: primary enemies in boss rooms can't be Deported, minions can.
 		EncounterModel boss = ModelDb.Acts.First().AllEncounters.First(e => e.RoomType == RoomType.Boss);
 		await Fight(boss.Id.Entry);
-		Check(WallCmd.GetHeight(Me.Creature) == 16, $"Next combat's Wall starts at {WallCmd.GetHeight(Me.Creature)} (Golden Shovel 6 + kept 10)");
+		Check(WallCmd.GetHeight(Me.Creature) == 14, $"Next combat's Wall starts at {WallCmd.GetHeight(Me.Creature)} (Diamond Shovel 4 + kept 10)");
 		foreach (Creature enemy in Me.Creature.CombatState!.Enemies.Where(e => e.IsAlive))
 		{
 			Check(DeportCmd.IsImmune(enemy) == enemy.IsPrimaryEnemy, $"boss room {boss.Id.Entry}: {enemy.Monster?.Id.Entry} primary={enemy.IsPrimaryEnemy} immune={DeportCmd.IsImmune(enemy)}");
@@ -235,7 +240,7 @@ public static class DevHarness
 		ICombatState combat = donald.CombatState!;
 		var ctx = new BlockingPlayerChoiceContext();
 
-		Check(WallCmd.GetHeight(donald) == 6, $"Golden Shovel: Wall starts at {WallCmd.GetHeight(donald)} (expected 6)");
+		Check(WallCmd.GetHeight(donald) == 2, $"Golden Shovel: Wall is {WallCmd.GetHeight(donald)} on turn 1 (expected 2)");
 		Check(me.Character.StartingHp == 70 && donald.MaxHp == 70, $"Max HP {donald.MaxHp} (expected 70)");
 
 		// Pay Gold: unplayable when broke, pays and works when not.
@@ -299,6 +304,7 @@ public static class DevHarness
 		int expectedLoss = Math.Max(0, 7 - enemy.Block);
 		int gold = me.Gold;
 		int round = combat.RoundNumber;
+		int heightBefore = WallCmd.GetHeight(donald);
 		bool enemyAttacks = enemy.Monster?.NextMove?.Intents?.Any(i => i.GetType().Name.Contains("Attack")) ?? false;
 		PlayerCmd.EndTurn(me, canBackOut: false);
 		await WaitHelper.Until(() => donald.Block > 0 || combat.RoundNumber > round, _ct, TimeSpan.FromSeconds(15));
@@ -309,6 +315,7 @@ public static class DevHarness
 		Check(enemy.CurrentHp <= enemyHp - expectedLoss || !enemy.IsAlive, $"Big Beautiful Wall stage hit the enemy for 7 ({enemyHp} -> {enemy.CurrentHp}, expected -{expectedLoss} after its Block)");
 		await WaitHelper.Until(() => combat.RoundNumber > round && me.PlayerCombatState.Phase == PlayerTurnPhase.Play, _ct, TimeSpan.FromSeconds(30));
 		await Task.Delay(1500);
+		Check(WallCmd.GetHeight(donald) == heightBefore + 2, $"Golden Shovel built 2 at the start of the turn ({heightBefore} -> {WallCmd.GetHeight(donald)})");
 		Check(me.PlayerCombatState.MaxEnergy == 4, $"Concrete stage: max energy {me.PlayerCombatState.MaxEnergy} (expected 4)");
 		Check(PileType.Hand.GetPile(me).Cards.Count >= 6, $"Brick stage: drew {PileType.Hand.GetPile(me).Cards.Count} cards (expected 6)");
 		if (enemyAttacks)

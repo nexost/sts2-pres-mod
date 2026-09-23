@@ -3,7 +3,7 @@
 **Start here.** This is the master plan for the Slay the Spire 2 character mod, kept up to date after every step.
 If a chat session is lost, this file + [`README.md`](../README.md) + [`03_design.md`](03_design.md) are enough to carry on.
 
-_Last updated: 2026-09-23. Step 4 (core mechanics and starter set) is done and tested, but not committed yet. Step 5 waits for the go-ahead._
+_Last updated: 2026-09-23. Step 4 is done and committed (`0586dce`); the starter relic was redesigned afterwards. Step 5 waits for the go-ahead._
 
 ---
 
@@ -31,7 +31,7 @@ Any tools may be used, downloaded or created. The work is done step by step, nev
 | 1 | Research and feasibility | ✅ Done | [`01_feasibility_report.md`](01_feasibility_report.md) |
 | 2 | Test character and build process (+ installer/uninstaller) | ✅ Done (`6f331c9`) | [`02_step2_report.md`](02_step2_report.md) |
 | 3 | Design document | ✅ Done (v2) | [`03_design.md`](03_design.md), [`design/card_list.md`](design/card_list.md), [`design/cards.json`](design/cards.json), [Compendium](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak) |
-| 4 | Core mechanics and starter set (placeholder art) | ✅ Done (not committed) | [`04_step4_report.md`](04_step4_report.md) |
+| 4 | Core mechanics and starter set (placeholder art) | ✅ Done (`0586dce`) | [`04_step4_report.md`](04_step4_report.md) |
 | 5 | All the content (placeholder art) | ⏳ Next | Full character, playable start to finish |
 | 6 | Balance and playtesting | ⬜ | Tuned version + balance report |
 | 7 | Lock the art style | ⬜ | Style samples to approve |
@@ -127,6 +127,7 @@ Permanent Structure (Rare relic) was built early as the first user of the carry-
 | 2026-09-23 | Design principles from the user: **each play style must win on its own; scaling must have no ceiling** (like Osty's HP); card flow must not depend on gold. The user loves the Deals/gold play style. |
 | 2026-09-23 | Relic and potion counts checked against the game at full unlock: 8 character relics + the starter upgrade, and 3 potions, per character. The large numbers are shared pools. |
 | 2026-09-23 | Step 4: Deported enemies leave through the game's **escape** system (no gold, no on-death effects). Boss immunity = primary enemies in boss rooms; their minions can be Deported. The DENIED stamp marks an enemy that is Deportable right now. |
+| 2026-09-23 | Step 4 committed (`0586dce`). **Golden Shovel redesigned** after review: a flat Build 6 at the start of combat only moved the stage thresholds. It is now "at the start of your turn, Build 2" (the construction crew); the Diamond Shovel builds 4 per turn. Chosen over three other options: compound growth per Section, draw on stage-up, and Gold per Section. |
 | 2026-09-23 | Step 4: mod models get `[SavedProperty]` support (`SavedPropertiesTypeCache.InjectTypeIntoCache` at startup), so run-long growth (Permanent Structure, Cornerstone) survives save and quit. |
 
 ## Open items

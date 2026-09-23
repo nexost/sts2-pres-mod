@@ -24,7 +24,7 @@ A lighthearted caricature built around three ideas: **build a big beautiful wall
 | **HP / Gold / Energy** | 70 / 99 / 3 |
 | **Card colour** | Bright metallic gold |
 | **Starting deck** (10) | 4 Strike, 4 Defend, 1 **Build the Wall**, 1 **Deport** |
-| **Starter relic** | **Golden Shovel**: at the start of each combat, Build 6 |
+| **Starter relic** | **Golden Shovel**: at the start of your turn, Build 2 |
 | **Signature** | **The Wall**, a construction project in front of him that grows in stages |
 
 Decisions confirmed: the name, gold colour, 70 HP, Deport rules (elites yes, bosses no) and the edgier card names all stay.
@@ -154,8 +154,8 @@ plus an Ancient upgrade of the starter, plus 3 potions. The large relic and poti
 
 | Relic | Rarity | Effect |
 |---|---|---|
-| **Golden Shovel** | Starter | At the start of each combat, Build 6. |
-| **Diamond Shovel** | Ancient upgrade (Touch of Orobas) | At the start of each combat, Build 10. At the start of your turn, Build 2. |
+| **Golden Shovel** | Starter | At the start of your turn, Build 2. |
+| **Diamond Shovel** | Ancient upgrade (Touch of Orobas) | At the start of your turn, Build 4. |
 | **Hard Hat** | Common | Whenever you Build, Build 1 additional. |
 | **Long Red Tie** | Uncommon | Whenever you Deport an enemy, gain 1 Energy. |
 | **Gold-Plated Bricks** | Uncommon | At the end of combat, gain 2 Gold for each Section. |
