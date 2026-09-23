@@ -1,0 +1,210 @@
+"""
+One-command build for the Trump character mod.
+
+  python scripts/build.py              build into build/dist/
+  python scripts/build.py --install    build, then install into the game (runs dist/install.ps1)
+
+Steps: placeholders -> model ID check -> C# build -> Godot import -> pack PCK -> assemble dist/ (mod + installer).
+"""
+import argparse
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+MOD = os.path.join(ROOT, "mod")
+SRC = os.path.join(MOD, "trump_character", "src")
+BUILD = os.path.join(ROOT, "build")
+DIST = os.path.join(BUILD, "dist")
+GAME_CODE = os.path.join(ROOT, "re", "code", "MegaCrit", "sts2", "Core", "Models")
+GODOT = os.path.join(ROOT, "tools", "godot", "Godot_v4.5.1-stable_mono_win64", "Godot_v4.5.1-stable_mono_win64_console.exe")
+
+MOD_ID = "trump_character"
+MANIFEST = {
+    "id": MOD_ID,
+    "name": "The Donald",
+    "author": "exeet",
+    "description": "Adds The Donald, a new playable character who builds walls, makes deals and deports the Spire's riff-raff.",
+    "version": "0.2.0",
+    "has_dll": True,
+    "has_pck": True,
+    "affects_gameplay": True,
+    "min_game_version": "0.107.1",
+    "dependencies": [],
+}
+
+# Files in mod/ that are never packed.
+SKIP_DIRS = {".godot", "obj", "bin"}
+SKIP_FILES = {"project.godot", "TrumpMod.csproj", "icon.svg"}
+# Imported source assets: the PCK gets their .import remap + the imported file, not the source.
+IMPORTED_EXT = {".png", ".jpg", ".jpeg", ".webp", ".svg", ".wav", ".ogg", ".mp3", ".ttf", ".otf"}
+# Folder whose .cs files are Godot Node scripts; the PCK needs a stub at each res:// path (like the base game).
+NODE_SCRIPT_DIR = os.path.join(SRC, "Nodes")
+
+
+def step(name):
+    print(f"\n== {name}", flush=True)
+
+
+def run(cmd, **kw):
+    print("  $", " ".join(f'"{c}"' if " " in c else c for c in cmd), flush=True)
+    result = subprocess.run(cmd, **kw)
+    if result.returncode != 0:
+        sys.exit(f"FAILED ({result.returncode}): {cmd[0]}")
+    return result
+
+
+# ---------- model IDs ----------
+
+def slugify(name):
+    """Mirror of MegaCrit StringHelper.Slugify for plain class names."""
+    s = re.sub(r"(?<=[A-Za-z0-9])([A-Z])", r"_\1", name.strip())
+    s = re.sub(r"\s+", "_", s.upper())
+    return re.sub(r"[^A-Z0-9_]", "", s)
+
+
+def category_of(base):
+    s = slugify(base)
+    return s[: -len("_MODEL")] if s.endswith("_MODEL") else s
+
+
+def our_models():
+    classes = {}
+    for dp, _, files in os.walk(SRC):
+        for f in files:
+            if f.endswith(".cs"):
+                text = open(os.path.join(dp, f), encoding="utf-8").read()
+                for m in re.finditer(r"^\s*public\s+(?:sealed\s+|abstract\s+|partial\s+)*class\s+(\w+)(?:\s*\([^)]*\))?\s*:\s*(\w+)", text, re.M):
+                    abstract = "abstract" in m.group(0)
+                    classes[m.group(1)] = (m.group(2), abstract)
+    models = []
+    for name, (base, abstract) in classes.items():
+        if abstract:
+            continue
+        root = base
+        while root in classes:
+            root = classes[root][0]
+        if root.endswith("Model") and root != "AbstractModel":
+            models.append((name, f"{category_of(root)}.{slugify(name)}"))
+    return sorted(models, key=lambda m: m[1])
+
+
+def check_ids():
+    step("Model ID check")
+    models = our_models()
+    game_entries = set()
+    if os.path.isdir(GAME_CODE):
+        for dp, _, files in os.walk(GAME_CODE):
+            game_entries.update(slugify(f[:-3]) for f in files if f.endswith(".cs"))
+    else:
+        print("  (re/code missing, skipping collision check; the mod still checks at runtime)")
+    clashes = [(n, i) for n, i in models if i.split(".", 1)[1] in game_entries]
+    for n, i in models:
+        print(f"  {i:<40} {n}")
+    if clashes:
+        sys.exit("ID collision with base game: " + ", ".join(f"{n} ({i})" for n, i in clashes))
+    return [i for _, i in models]
+
+
+# ---------- build ----------
+
+def build_dll():
+    step("C# build")
+    run(["dotnet", "build", os.path.join(MOD, "TrumpMod.csproj"), "-c", "ExportRelease", "-nologo", "-v", "q"])
+    return os.path.join(MOD, ".godot", "mono", "temp", "bin", "ExportRelease", f"{MOD_ID}.dll")
+
+
+def godot_import():
+    step("Godot import")
+    run([GODOT, "--headless", "--path", MOD, "--import"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+
+
+def pack_list():
+    entries = []
+    for dp, dirs, files in os.walk(MOD):
+        dirs[:] = [d for d in dirs if d not in SKIP_DIRS]
+        rel_dir = os.path.relpath(dp, MOD).replace("\\", "/")
+        rel_dir = "" if rel_dir == "." else rel_dir + "/"
+        in_src = os.path.abspath(dp).startswith(os.path.abspath(SRC))
+        for f in files:
+            full = os.path.join(dp, f)
+            rel = rel_dir + f
+            ext = os.path.splitext(f)[1].lower()
+            if f in SKIP_FILES or ext in IMPORTED_EXT:
+                continue
+            if in_src:
+                if ext == ".cs" and os.path.abspath(dp).startswith(os.path.abspath(NODE_SCRIPT_DIR)):
+                    entries.append((rel, "STUB"))
+                continue
+            if ext == ".import":
+                entries.append((rel, full))
+                text = open(full, encoding="utf-8").read()
+                for imported in set(re.findall(r'"res://(\.godot/imported/[^"]+)"', text)):
+                    entries.append((imported, os.path.join(MOD, imported.replace("/", os.sep))))
+                continue
+            entries.append((rel, full))
+    return sorted(set(entries))
+
+
+def pack(pck_path):
+    step("Pack PCK")
+    entries = pack_list()
+    stub = os.path.join(BUILD, "stub.cs")
+    with open(stub, "w") as fh:
+        fh.write("\n")
+    list_path = os.path.join(BUILD, "pack_list.txt")
+    with open(list_path, "w", encoding="utf-8") as fh:
+        for rel, src in entries:
+            if src != "STUB" and not os.path.exists(src):
+                sys.exit(f"Missing file for PCK: {src}")
+            fh.write(f"{rel}|{stub if src == 'STUB' else src}\n")
+    print(f"  {len(entries)} files")
+    run([GODOT, "--headless", "--path", MOD, "--script", os.path.join(ROOT, "scripts", "pack.gd"), "--",
+         f"--list={list_path}", f"--out={pck_path}"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    if not os.path.exists(pck_path):
+        sys.exit("PCK was not written")
+
+
+def assemble(dll, ids):
+    step("Assemble dist/")
+    mod_dir = os.path.join(DIST, MOD_ID)
+    shutil.copy2(dll, os.path.join(mod_dir, f"{MOD_ID}.dll"))
+    # The game treats every .json in a mod folder as a manifest, so this must stay the only one.
+    with open(os.path.join(mod_dir, "manifest.json"), "w", encoding="utf-8") as fh:
+        json.dump(MANIFEST, fh, indent=2)
+    # Used by the uninstaller to find saves that reference this mod's content.
+    with open(os.path.join(mod_dir, "mod_ids.txt"), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(ids) + "\n")
+    for f in ("install.ps1", "install.cmd", "uninstall.ps1", "uninstall.cmd", "README.txt"):
+        shutil.copy2(os.path.join(ROOT, "scripts", "dist", f), os.path.join(DIST, f))
+    for f in sorted(os.listdir(mod_dir)):
+        print(f"  {MOD_ID}/{f:<28} {os.path.getsize(os.path.join(mod_dir, f)):>10,} bytes")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--install", action="store_true", help="install into the game after building")
+    args = ap.parse_args()
+
+    shutil.rmtree(DIST, ignore_errors=True)
+    os.makedirs(os.path.join(DIST, MOD_ID))
+
+    step("Placeholders (only missing files)")
+    run([sys.executable, os.path.join(ROOT, "scripts", "make_placeholders.py")])
+    ids = check_ids()
+    dll = build_dll()
+    godot_import()
+    pack(os.path.join(DIST, MOD_ID, f"{MOD_ID}.pck"))
+    assemble(dll, ids)
+    print(f"\nBuild OK -> {DIST}")
+
+    if args.install:
+        step("Install")
+        run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", os.path.join(DIST, "install.ps1"), "-Quiet"])
+
+
+if __name__ == "__main__":
+    main()

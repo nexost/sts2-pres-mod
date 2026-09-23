@@ -1,0 +1,41 @@
+<Project Sdk="Godot.NET.Sdk/4.5.1">
+  <!--
+    Mod code for the Trump character. Built against the game's own sts2.dll / 0Harmony.dll (never copied).
+    Godot.NET.Sdk supplies the source generators that let our Node scripts be registered with Godot,
+    and GodotProjectDir makes their [ScriptPath] come out as res://trump_character/src/...
+  -->
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>trump_character</AssemblyName>
+    <RootNamespace>TrumpMod</RootNamespace>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <GodotProjectDir>$(MSBuildProjectDirectory)</GodotProjectDir>
+    <!-- We're a mod, not a game: don't emit a second GodotPlugins.Game.Main entry point. -->
+    <GodotDisabledSourceGenerators>GodotPluginsInitializer</GodotDisabledSourceGenerators>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Default install location; override with -p:GameDir=... -->
+    <GameDir Condition="'$(GameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2</GameDir>
+    <GameData>$(GameDir)\data_sts2_windows_x86_64</GameData>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="sts2">
+      <HintPath>$(GameData)\sts2.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(GameData)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Only the C# under trump_character/src is mod code; keep the Godot asset folders out of compilation. -->
+  <ItemGroup>
+    <Compile Remove="**\*.cs" />
+    <Compile Include="trump_character\src\**\*.cs" />
+  </ItemGroup>
+</Project>

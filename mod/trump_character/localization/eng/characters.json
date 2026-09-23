@@ -1,0 +1,17 @@
+{
+  "TRUMP.title": "The Donald",
+  "TRUMP.titleObject": "The Donald",
+  "TRUMP.description": "A tremendous businessman. The best, many people are saying.\nBuilds walls, makes deals, sends the Spire's riff-raff packing.",
+  "TRUMP.pronounSubject": "he",
+  "TRUMP.pronounObject": "him",
+  "TRUMP.pronounPossessive": "his",
+  "TRUMP.possessiveAdjective": "his",
+  "TRUMP.cardsModifierTitle": "The Donald Cards",
+  "TRUMP.cardsModifierDescription": "The Donald cards will now appear in rewards and shops.",
+  "TRUMP.eventDeathPrevention": "Nobody quits like me. I never quit. Never.",
+  "TRUMP.goldMonologue": "[sine]Beautiful gold. The best gold. Somebody else will pay for the wall anyway...[/sine]",
+  "TRUMP.aromaPrinciple": "[sine][gold]We're going to climb this Spire, and it's going to be huge.[/gold][/sine]",
+  "TRUMP.banter.alive.endTurnPing": "Let's go, let's go. Time is money.",
+  "TRUMP.banter.dead.endTurnPing": "...rigged.",
+  "TRUMP.unlockText": "Play a run as {Prerequisite} to unlock."
+}

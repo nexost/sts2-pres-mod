@@ -1,0 +1,10 @@
+# Decompiled game code and extracted assets (Mega Crit's, never commit)
+re/
+# Downloaded tools
+tools/
+# Build output
+build/
+bin/
+obj/
+.godot/
+backups/

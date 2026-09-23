@@ -1,0 +1,95 @@
+"""
+Launch the game in the mod's test mode and collect results.
+
+  python scripts/test.py ui          scripted UI walk-through (char select, run start, card library, combat)
+  python scripts/test.py autoslay    AutoSlay bot plays a full run as our character (god mode)
+
+Output: build/test/<mode>_<timestamp>/ with report.json, shots/*.png, godot.log excerpt.
+Test saves live in .../modded_trumptest/, never in real profiles.
+"""
+import glob
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+GAME_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2"
+USER_DATA = os.path.join(os.environ["APPDATA"], "SlayTheSpire2")
+TIMEOUTS = {"ui": 300, "autoslay": 3600}
+
+
+def main():
+    mode = sys.argv[1] if len(sys.argv) > 1 else "ui"
+    seed = sys.argv[2] if len(sys.argv) > 2 else "TRUMPTEST1"
+    if subprocess.run(["tasklist", "/FI", "IMAGENAME eq SlayTheSpire2.exe"], capture_output=True, text=True).stdout.count("SlayTheSpire2.exe"):
+        sys.exit("The game is already running; close it first.")
+    out = os.path.join(ROOT, "build", "test", f"{mode}_{time.strftime('%Y%m%d_%H%M%S')}")
+    os.makedirs(out)
+    env = dict(os.environ, SteamAppId="2868840", SteamGameId="2868840")
+    started = time.time()
+    print(f"Launching game: mode={mode} seed={seed}\n  output: {out}", flush=True)
+    proc = subprocess.Popen([os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--trump-test", mode, "--trump-out", out, "--trump-seed", seed],
+                            cwd=GAME_DIR, env=env)
+    try:
+        code = proc.wait(timeout=TIMEOUTS.get(mode, 600))
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        code = "TIMEOUT"
+    elapsed = time.time() - started
+
+    log = newest_log(started)
+    problems = []
+    if log:
+        shutil.copy2(log, os.path.join(out, "godot.log"))
+        problems = scan_log(log)
+    report_path = os.path.join(out, "report.json")
+    report = json.load(open(report_path, encoding="utf-8")) if os.path.exists(report_path) else None
+
+    print(f"\nExit code: {code}   ({elapsed:.0f}s)")
+    if report:
+        print(f"Harness: {'OK' if report['ok'] else 'ERRORS'}")
+        for e in report["events"]:
+            print("  ", e)
+        for e in report["errors"]:
+            print("  ERROR", e)
+    else:
+        print("Harness: no report written (game crashed or harness never started)")
+    print(f"Log problems: {len(problems)}")
+    for p in problems[:60]:
+        print("  ", p)
+    shots = sorted(glob.glob(os.path.join(out, "shots", "*.png")))
+    print(f"Screenshots: {len(shots)} in {os.path.join(out, 'shots')}")
+    ok = code == 0 and report is not None and report["ok"] and not any(p.startswith("!") for p in problems)
+    print("\nRESULT:", "PASS" if ok else "FAIL")
+    sys.exit(0 if ok else 1)
+
+
+def newest_log(since):
+    logs = glob.glob(os.path.join(USER_DATA, "logs", "godot*.log"))
+    logs = [l for l in logs if os.path.getmtime(l) >= since - 5]
+    return max(logs, key=os.path.getmtime) if logs else None
+
+
+def scan_log(path):
+    """Errors/exceptions, plus anything mentioning our mod. Lines starting with '!' are treated as failures."""
+    problems = []
+    # Case-sensitive on purpose: the test save folder "modded_trumptest" is not a mod error.
+    ours = re.compile(r"trump_character|TRUMP|Trump")
+    bad = re.compile(r"(Exception|\bERROR\b|\[ERROR\]|USER ERROR|SCRIPT ERROR|Failed to|Missing sprite|not found)", re.I)
+    # Godot's leak report at process exit happens in the unmodded game too.
+    exit_noise = re.compile(r"RID allocations of type|shaders of type .* were never freed|resources still in use at exit|RIDs of type .* were leaked")
+    lines = open(path, encoding="utf-8", errors="replace").read().splitlines()
+    for i, line in enumerate(lines):
+        if bad.search(line) and not exit_noise.search(line):
+            context = " ".join(lines[i:i + 3])
+            tag = "!" if ours.search(context) or "Exception" in line else " "
+            problems.append(f"{tag} L{i + 1}: {line.strip()[:300]}")
+    return problems
+
+
+if __name__ == "__main__":
+    main()

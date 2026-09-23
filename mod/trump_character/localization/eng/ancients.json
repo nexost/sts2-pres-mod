@@ -1,0 +1,19 @@
+{
+  "THE_ARCHITECT.talk.TRUMP.0-0r.ancient": "So the salesman has climbed my Spire.",
+  "THE_ARCHITECT.talk.TRUMP.0-0r.next": "Brag",
+  "THE_ARCHITECT.talk.TRUMP.0-1r.char": "Your Spire? Sad. Very low energy.\nI'd have built it taller. Gold lobby. Beautiful.",
+  "THE_ARCHITECT.talk.TRUMP.0-1r.next": "Continue",
+  "THE_ARCHITECT.talk.TRUMP.0-2r.ancient": "Then show me what you have built.",
+
+  "THE_ARCHITECT.talk.TRUMP.1-0r.ancient": "You again. Still talking.",
+  "THE_ARCHITECT.talk.TRUMP.1-0r.next": "Negotiate",
+  "THE_ARCHITECT.talk.TRUMP.1-1r.char": "Let's make a deal. You step aside,\nI put my name on the tower. In gold. Very classy.",
+  "THE_ARCHITECT.talk.TRUMP.1-1r.next": "Continue",
+  "THE_ARCHITECT.talk.TRUMP.1-2r.ancient": "I do not negotiate.",
+
+  "THE_ARCHITECT.talk.TRUMP.2-0r.ancient": "Every climb, the same bluster.",
+  "THE_ARCHITECT.talk.TRUMP.2-0r.next": "Brag",
+  "THE_ARCHITECT.talk.TRUMP.2-1r.char": "Tremendous climb. The best climb.\nMany monsters are saying so.",
+  "THE_ARCHITECT.talk.TRUMP.2-1r.next": "Continue",
+  "THE_ARCHITECT.talk.TRUMP.2-2r.ancient": "Return to the bottom, Donald."
+}
