@@ -59,7 +59,8 @@ public partial class NTrumpCombatUi : Node
 				continue;
 			}
 			Creature creature = node.Entity;
-			if (creature.IsPlayer && ModContent.IsModCharacter(creature.Player?.Character))
+			// The Donald always shows his Wall; other players only once they have one (Coalition Wall in co-op).
+			if (creature.IsPlayer && (ModContent.IsModCharacter(creature.Player?.Character) || _walls.ContainsKey(creature) || WallCmd.GetHeight(creature) > 0))
 			{
 				EnsureWall(node, creature);
 			}

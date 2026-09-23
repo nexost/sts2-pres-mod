@@ -47,10 +47,12 @@ namespace TrumpMod.Dev;
 ///                 (Wall stages and perks, Deport line, Pay Gold, Tariff, Tweet, boss immunity, Orobas upgrade).
 ///   deportsweep : fights every encounter in the game and Deports every enemy (bosses killed) to catch scripted
 ///                 fights that break when an enemy escapes instead of dying.
+///   cards       : plays every card of the character, base and upgraded, in real fights, logs what each one changed,
+///                 checks the key effects and renders every card, power, relic and potion text (DevHarness.Cards.cs).
 /// Options: --trump-out &lt;dir&gt; (screenshots + report), --trump-seed &lt;seed&gt;, --trump-encounters A,B (deportsweep only).
 /// While active, saves go to modded_trumptest/ so real (modded) profiles are never touched.
 /// </summary>
-public static class DevHarness
+public static partial class DevHarness
 {
 	public const string ArgMode = "trump-test";
 
@@ -112,6 +114,9 @@ public static class DevHarness
 						break;
 					case "deportsweep":
 						TaskHelper.RunSafely(Guarded(RunDeportSweep));
+						break;
+					case "cards":
+						TaskHelper.RunSafely(Guarded(RunCardTest));
 						break;
 					default:
 						TaskHelper.RunSafely(StartAutoSlayWhenMenuReady(seed));

@@ -5,6 +5,9 @@ Launch the game in the mod's test mode and collect results.
   python scripts/test.py autoslay    AutoSlay bot plays a full run as our character (god mode)
   python scripts/test.py deportsweep Every encounter: Deport non-boss enemies one at a time, a turn after each
   python scripts/test.py deportsweep SEED A,B  ...only encounters A and B
+  python scripts/test.py cards       every card base and upgraded, key effects, relics, potions and all their text
+  python scripts/test.py cards SEED relics     ...relic and potion checks only
+  python scripts/test.py cards SEED A,B        ...relic and potion checks, then only cards A and B
 
 Output: build/test/<mode>_<timestamp>/ with report.json, shots/*.png, godot.log excerpt.
 Test saves live in .../modded_trumptest/, never in real profiles.
@@ -21,13 +24,15 @@ import time
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAME_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2"
 USER_DATA = os.path.join(os.environ["APPDATA"], "SlayTheSpire2")
-TIMEOUTS = {"ui": 300, "autoslay": 3600, "deportsweep": 3600}
+TIMEOUTS = {"ui": 300, "autoslay": 3600, "deportsweep": 3600, "cards": 1800}
 
 
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "ui"
     seed = sys.argv[2] if len(sys.argv) > 2 else "TRUMPTEST1"
-    extra = ["--trump-encounters", sys.argv[3]] if len(sys.argv) > 3 else []
+    extra = []
+    if len(sys.argv) > 3:
+        extra = ["--trump-only", sys.argv[3]] if mode == "cards" else ["--trump-encounters", sys.argv[3]]
     if subprocess.run(["tasklist", "/FI", "IMAGENAME eq SlayTheSpire2.exe"], capture_output=True, text=True).stdout.count("SlayTheSpire2.exe"):
         sys.exit("The game is already running; close it first.")
     out = os.path.join(ROOT, "build", "test", f"{mode}_{time.strftime('%Y%m%d_%H%M%S')}")
@@ -64,7 +69,7 @@ def main():
     print(f"Log problems: {len(problems)}")
     for p in problems[:60]:
         print("  ", p)
-    if mode == "deportsweep" and log:
+    if mode in ("deportsweep", "cards") and log:
         sweep_summary(log, report, out)
     shots = sorted(glob.glob(os.path.join(out, "shots", "*.png")))
     print(f"Screenshots: {len(shots)} in {os.path.join(out, 'shots')}")

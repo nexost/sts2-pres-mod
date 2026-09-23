@@ -30,7 +30,7 @@ public abstract class PayGoldCard : CardModel
 
 	protected sealed override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
-		await GoldCmd.Pay(Owner, GoldCost);
+		await GoldCmd.Pay(choiceContext, Owner, GoldCost);
 		await OnPaidPlay(choiceContext, cardPlay);
 	}
 

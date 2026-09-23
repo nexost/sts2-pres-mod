@@ -81,6 +81,27 @@ def card_portrait(title, kind):
     return img
 
 
+def find_models(bases):
+    """Class names of every concrete model in the mod source deriving directly from one of the given base classes."""
+    names = []
+    src = os.path.join(MOD, "trump_character", "src")
+    for dp, _, files in os.walk(src):
+        for f in files:
+            if f.endswith(".cs"):
+                text = open(os.path.join(dp, f), encoding="utf-8").read()
+                names += [m.group(1) for m in re.finditer(r"public\s+sealed\s+class\s+(\w+)\s*:\s*(\w+)", text) if m.group(2) in bases]
+    return sorted(set(names))
+
+
+def slug(class_name):
+    """The game's model ID entry, lowercased: GoldenShovel -> golden_shovel."""
+    return re.sub(r"(?<=[A-Za-z0-9])([A-Z])", r"_\1", class_name).lower()
+
+
+def initials(class_name):
+    return "".join(re.findall(r"[A-Z0-9]", class_name))[:3] or class_name[:2].upper()
+
+
 def find_cards():
     """(class name, 'attack'|'skill'|'power') for every concrete card class in the mod source."""
     cards = []
@@ -92,7 +113,7 @@ def find_cards():
             text = open(os.path.join(dp, f), encoding="utf-8").read()
             for m in re.finditer(r"public\s+sealed\s+class\s+(\w+)(\([^)]*\))?\s*:\s*(\w+)\s*(\([^;{]*\))?", text):
                 name, base = m.group(1), m.group(3)
-                if base not in ("CardModel", "PlaceholderCard", "PayGoldCard"):
+                if base not in ("CardModel", "PayGoldCard"):
                     continue
                 args = m.group(4) or ""
                 if not args:  # classic constructor: base(cost, CardType.X, ...)
@@ -123,15 +144,16 @@ def make_images():
     save(marker, "images/packed/map/icons/map_marker_trump.png")
 
     for class_name, card_type in find_cards():
-        slug = re.sub(r"(?<=[A-Za-z0-9])([A-Z])", r"_\1", class_name).lower()
-        title = re.sub(r"(?<=[a-z0-9])([A-Z])", r" \1", class_name).replace("Placeholder ", "").replace(" Trump", "").upper()
-        save(card_portrait(title, card_type), f"images/packed/card_portraits/trump/{slug}.png")
+        title = re.sub(r"(?<=[a-z0-9])([A-Z])", r" \1", class_name).replace(" Trump", "").upper()
+        save(card_portrait(title, card_type), f"images/packed/card_portraits/trump/{slug(class_name)}.png")
 
-    # Relics and powers: loose PNGs are picked up by the game's own atlas fallback (images/relics|powers/<id>.png).
-    for slug, text in (("golden_shovel", "GS"), ("diamond_shovel", "DS"), ("permanent_structure", "PS")):
-        save(badge((256, 256), text, bg=RED, fg=CREAM), f"images/relics/{slug}.png")
-    for slug, text in (("wall_power", "W"), ("wall_stage_power", "S"), ("tariff_power", "$")):
-        save(badge((256, 256), text), f"images/powers/{slug}.png")
+    # Relics, powers and potions: loose PNGs are picked up by the game's own atlas fallback (images/<kind>/<id>.png).
+    for name in find_models(("RelicModel",)):
+        save(badge((256, 256), initials(name), bg=RED, fg=CREAM), f"images/relics/{slug(name)}.png")
+    for name in find_models(("PowerModel", "TemporaryStrengthPower")):
+        save(badge((256, 256), initials(name.removesuffix("Power"))), f"images/powers/{slug(name)}.png")
+    for name in find_models(("PotionModel",)):
+        save(badge((256, 256), initials(name), bg=(40, 110, 90), fg=CREAM), f"images/potions/{slug(name)}.png")
 
     # Gold coin that replaces the star-cost badge on Pay-Gold cards (PayGoldBadgePatch).
     save(badge((64, 64), "$", bg=GOLD, fg=(110, 70, 10)), "trump_character/ui/gold_cost_icon.png")

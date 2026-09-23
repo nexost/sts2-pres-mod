@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using MegaCrit.Sts2.Core.Combat;
 using MegaCrit.Sts2.Core.Commands;
@@ -24,6 +25,13 @@ public static class DeportCmd
 
 	/// <summary>Raised after an enemy is Deported. Used for the "DEPORTED!" popup.</summary>
 	public static event Action<Creature>? Deported;
+
+	/// <summary>Enemies that left through Deport, as opposed to the game's own escapes (Rubber Stamp pays for these).</summary>
+	private static readonly ConditionalWeakTable<Creature, object> _deported = new ConditionalWeakTable<Creature, object>();
+
+	private static readonly object _marker = new object();
+
+	public static bool WasDeported(Creature creature) => _deported.TryGetValue(creature, out _);
 
 	public static decimal GetLine(Player player)
 	{
@@ -69,6 +77,7 @@ public static class DeportCmd
 			return false;
 		}
 		Deported?.Invoke(target);
+		_deported.AddOrUpdate(target, _marker);
 		await CreatureCmd.Escape(target);
 		foreach (IAfterDeport listener in ModHooks.ListenersOf<IAfterDeport>(deporter.Creature))
 		{

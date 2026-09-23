@@ -33,7 +33,7 @@ public interface IAfterDeport
 
 public interface IAfterPayGold
 {
-	Task AfterPayGold(Player player, int amount);
+	Task AfterPayGold(PlayerChoiceContext choiceContext, Player player, int amount);
 }
 
 public interface IAfterWallStage

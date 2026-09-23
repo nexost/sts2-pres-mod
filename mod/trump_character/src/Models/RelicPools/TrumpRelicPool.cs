@@ -14,6 +14,17 @@ public sealed class TrumpRelicPool : RelicPoolModel
 	protected override IEnumerable<RelicModel> GenerateAllRelics()
 	{
 		// Diamond Shovel sits here like Burning Blood does: Starter rarity, never rolled as a reward.
-		return new RelicModel[] { ModelDb.Relic<GoldenShovel>(), ModelDb.Relic<DiamondShovel>(), ModelDb.Relic<PermanentStructure>() };
+		return new RelicModel[]
+		{
+			ModelDb.Relic<GoldenShovel>(),
+			ModelDb.Relic<DiamondShovel>(),
+			ModelDb.Relic<HardHat>(),
+			ModelDb.Relic<LongRedTie>(),
+			ModelDb.Relic<GoldPlatedBricks>(),
+			ModelDb.Relic<RubberStamp>(),
+			ModelDb.Relic<PermanentStructure>(),
+			ModelDb.Relic<LateNightPhone>(),
+			ModelDb.Relic<GoldPlatedToilet>()
+		};
 	}
 }

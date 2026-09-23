@@ -57,6 +57,12 @@ public static class WallCmd
 		await PowerCmd.ModifyAmount(choiceContext, wall, -Math.Min(amount, wall.Amount), builder, null);
 	}
 
+	/// <summary>Demolition and Wrecking Ball: lose half the Wall, rounded down.</summary>
+	public static async Task LoseHalf(PlayerChoiceContext choiceContext, Creature builder)
+	{
+		await LoseHeight(choiceContext, builder, GetHeight(builder) / 2);
+	}
+
 	private static async Task RefreshStage(PlayerChoiceContext choiceContext, Creature builder)
 	{
 		int reached = WallRules.StageFor(GetHeight(builder));

@@ -3,7 +3,7 @@
 **Start here.** This is the master plan for the Slay the Spire 2 character mod, kept up to date after every step.
 If a chat session is lost, this file + [`README.md`](../README.md) + [`03_design.md`](03_design.md) are enough to carry on.
 
-_Last updated: 2026-09-23. Step 4 is done and committed (`0586dce`); the starter relic was redesigned afterwards. Step 5 waits for the go-ahead._
+_Last updated: 2026-09-23. Step 5 (all the content) is done and tested, but not committed yet. Step 6 waits for the go-ahead._
 
 ---
 
@@ -31,9 +31,9 @@ Any tools may be used, downloaded or created. The work is done step by step, nev
 | 1 | Research and feasibility | ✅ Done | [`01_feasibility_report.md`](01_feasibility_report.md) |
 | 2 | Test character and build process (+ installer/uninstaller) | ✅ Done (`6f331c9`) | [`02_step2_report.md`](02_step2_report.md) |
 | 3 | Design document | ✅ Done (v2) | [`03_design.md`](03_design.md), [`design/card_list.md`](design/card_list.md), [`design/cards.json`](design/cards.json), [Compendium](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak) |
-| 4 | Core mechanics and starter set (placeholder art) | ✅ Done (`0586dce`) | [`04_step4_report.md`](04_step4_report.md) |
-| 5 | All the content (placeholder art) | ⏳ Next | Full character, playable start to finish |
-| 6 | Balance and playtesting | ⬜ | Tuned version + balance report |
+| 4 | Core mechanics and starter set (placeholder art) | ✅ Done (`0586dce`, shovel redesign `670e337`) | [`04_step4_report.md`](04_step4_report.md) |
+| 5 | All the content (placeholder art) | ✅ Done (not committed) | [`05_step5_report.md`](05_step5_report.md) |
+| 6 | Balance and playtesting | ⏳ Next | Tuned version + balance report |
 | 7 | Lock the art style | ⬜ | Style samples to approve |
 | 8 | Make all the art | ⬜ | Finished visual version |
 | 9 | Polish and packaging | ⬜ | Installable release |
@@ -80,7 +80,9 @@ Permanent Structure (Rare relic) was built early as the first user of the carry-
 - Replace the Step 2 test cards (Deport prototype, fillers) as the real cards arrive; the filler cards stay until Step 5 fills the pool.
 - **Deliverable:** a playable Act 1 with the starter deck, where you can feel the Wall and Deport, plus automated tests and screenshots.
 
-### Step 5: All the content (placeholder art) ⏳ next
+### Step 5: All the content (placeholder art) ✅
+Result: 88 cards, 26 powers, 9 relics, 3 potions and Ancient dialogue, all playable. `test.py cards` plays every card base and upgraded and checks the relics, potions and turn powers; an AutoSlay run with the full pool won. See the [report](05_step5_report.md).
+
 - Build on the Step 4 systems: new cards and relics plug into `Mechanics/Hooks.cs`, `WallCmd`, `DeportCmd` and `GoldCmd`.
   Saved values (Cornerstone's growth) use `[SavedProperty]`, already registered for mod types.
 - Replace the 13 remaining filler cards.
@@ -89,7 +91,7 @@ Permanent Structure (Rare relic) was built early as the first user of the carry-
 - Automated tests that play every card through the developer console.
 - **Deliverable:** a complete character, playable start to finish.
 
-### Step 6: Balance and playtesting
+### Step 6: Balance and playtesting ⏳ next
 - A smarter auto-play bot: the game's own bot picks cards at random, so write a heuristic player that uses the real game logic.
 - Batches of automated runs compared with the base characters: win rate, which cards get picked and how they perform.
 - The user playtests, and the numbers are tuned; repeat as needed.
@@ -128,6 +130,7 @@ Permanent Structure (Rare relic) was built early as the first user of the carry-
 | 2026-09-23 | Relic and potion counts checked against the game at full unlock: 8 character relics + the starter upgrade, and 3 potions, per character. The large numbers are shared pools. |
 | 2026-09-23 | Step 4: Deported enemies leave through the game's **escape** system (no gold, no on-death effects). Boss immunity = primary enemies in boss rooms; their minions can be Deported. The DENIED stamp marks an enemy that is Deportable right now. |
 | 2026-09-23 | Step 4 committed (`0586dce`). **Golden Shovel redesigned** after review: a flat Build 6 at the start of combat only moved the stage thresholds. It is now "at the start of your turn, Build 2" (the construction crew); the Diamond Shovel builds 4 per turn. Chosen over three other options: compound growth per Section, draw on stage-up, and Gold per Section. |
+| 2026-09-23 | Step 5: where the design text left room, choices are listed in the [Step 5 report](05_step5_report.md). Examples: Guard Towers fires one shot per Section, Law and Order Deports after end-of-turn damage, and You're Fired! and the Deportation Draught can't target immune bosses. |
 | 2026-09-23 | Step 4: mod models get `[SavedProperty]` support (`SavedPropertiesTypeCache.InjectTypeIntoCache` at startup), so run-long growth (Permanent Structure, Cornerstone) survives save and quit. |
 
 ## Open items

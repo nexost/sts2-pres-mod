@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MegaCrit.Sts2.Core.Combat;
+using MegaCrit.Sts2.Core.Combat.History.Entries;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Players;
@@ -40,6 +41,12 @@ public sealed class Tweet : CardModel
 	protected override void OnUpgrade()
 	{
 		DynamicVars.Damage.UpgradeValueBy(2m);
+	}
+
+	/// <summary>Tweets this player has played this combat (the history is cleared when a combat ends).</summary>
+	public static int PlayedThisCombat(Player player)
+	{
+		return CombatManager.Instance.History.CardPlaysFinished.Count((CardPlayFinishedEntry e) => e.CardPlay.Card is Tweet && e.CardPlay.Card.Owner == player);
 	}
 
 	public static async Task<IEnumerable<CardModel>> CreateInHand(Player owner, int count, ICombatState combatState, bool upgraded = false)

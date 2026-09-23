@@ -13,6 +13,7 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 | [`docs/02_step2_report.md`](docs/02_step2_report.md) | Step 2: build pipeline, installer and uninstaller, tests, findings |
 | [`docs/03_design.md`](docs/03_design.md) | Step 3: the character design (v2): mechanics, play styles, relics, balance |
 | [`docs/04_step4_report.md`](docs/04_step4_report.md) | Step 4: Wall, Deport, Tariff, Pay Gold and Tweet systems, starter kit, tests |
+| [`docs/05_step5_report.md`](docs/05_step5_report.md) | Step 5: every card, power, relic, potion and Ancient line; the card test |
 | [`docs/design/cards.json`](docs/design/cards.json) | **Source of truth** for every card, relic and potion (text, numbers, art direction) |
 | [`docs/design/card_list.md`](docs/design/card_list.md) | Card tables and validation, generated from `cards.json` |
 | [`docs/design/base_game_benchmarks.md`](docs/design/base_game_benchmarks.md) | Balance numbers mined from the 5 base characters |
@@ -24,7 +25,7 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 | Path | What |
 |---|---|
 | `mod/` | Godot asset project **and** C# project (`TrumpMod.csproj`). Paths inside mirror the game's `res://` layout |
-| `mod/trump_character/src/` | Mod code: `ModEntry.cs` (initializer), `Mechanics/` (Wall, Deport, Gold commands and mod hooks), `Models/` (character, pools, cards, relics, powers), `Nodes/` (combat UI), `Patches/` (Harmony), `Dev/` (test harness, save cleanup) |
+| `mod/trump_character/src/` | Mod code: `ModEntry.cs` (initializer), `GlobalUsings.cs`, `Mechanics/` (Wall, Deport, Gold commands and mod hooks), `Models/` (character, pools, 89 cards, 26 powers, 9 relics, 3 potions), `Nodes/` (combat UI), `Patches/` (Harmony), `Dev/` (test harness, save cleanup) |
 | `mod/trump_character/localization/eng/` | Text, merged into the game's tables |
 | `mod/images`, `mod/scenes`, `mod/materials` | Assets at the exact paths the game loads for character `TRUMP` |
 | `scripts/` | Build, test, design and packaging scripts (below); `dist/` holds the installer and uninstaller; `templates/` holds the Compendium page |
@@ -40,7 +41,9 @@ Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 python scripts/build.py              # build into build/dist/
 python scripts/build.py --install    # build + install into the game
 python scripts/test.py ui            # scripted walkthrough + every Step 4 mechanic, with screenshots (~3 min)
-python scripts/test.py deportsweep   # fights all 80 encounters and Deports every enemy (bosses killed) (~30 min)
+python scripts/test.py deportsweep SEED A,B,C  # Deport enemies one at a time in the listed encounters (all 80 if no list; ~45 min)
+python scripts/test.py cards         # every card base and upgraded in real fights, key effects, relics, potions, all text (~15 min)
+python scripts/test.py cards SEED relics  # just the relic and potion checks (~1 min)
 python scripts/test.py autoslay SEED # the game's AutoSlay bot plays a full run as our character (god mode)
 
 python scripts/analyze_cards.py      # mine base-game cards into build/analysis/ (benchmarks, per-character lists)
@@ -70,6 +73,9 @@ Install for players: run `build/dist/install.cmd`. Remove: `build/dist/uninstall
   * `TouchOfOrobasPatch`: the Ancient's starter-relic upgrade maps Golden Shovel to Diamond Shovel.
   * `PayGoldBadgePatch`: Pay-Gold cards show their gold cost in the star-cost badge, with a coin icon.
   * `CombatUiPatch`: adds `Nodes/NTrumpCombatUi` to every combat room (Wall display, Deport line and stamp, DEPORTED! popup).
+  * `TargetFilterPatch`: lets a card or potion refuse targets (You're Fired! and the Deportation Draught skip immune bosses).
+  * `RubberStampPatch`: with Rubber Stamp, Deported enemies count as defeated for the Gold reward.
+  * `AncientDialoguePatch`: The Donald's own lines with Neow, Darv, Orobas, Pael, Tanx, Tezcatara, Nonupeipe and Vakuu.
 * `ModEntry` also registers our `[SavedProperty]` members with the save system (the game only knows its own types),
   so relic counters and permanently grown cards survive save and quit.
 * Mechanics go through `Mechanics/WallCmd`, `DeportCmd` and `GoldCmd`; cards and relics plug in through the interfaces in `Mechanics/Hooks.cs`

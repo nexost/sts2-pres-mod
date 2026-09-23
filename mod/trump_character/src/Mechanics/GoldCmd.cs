@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using MegaCrit.Sts2.Core.Commands;
 using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 
 namespace TrumpMod.Mechanics;
 
@@ -9,7 +10,7 @@ public static class GoldCmd
 {
 	public static bool CanPay(Player player, int amount) => player.Gold >= amount;
 
-	public static async Task Pay(Player player, int amount)
+	public static async Task Pay(PlayerChoiceContext choiceContext, Player player, int amount)
 	{
 		if (amount <= 0)
 		{
@@ -18,7 +19,7 @@ public static class GoldCmd
 		await PlayerCmd.LoseGold(amount, player);
 		foreach (IAfterPayGold listener in ModHooks.ListenersOf<IAfterPayGold>(player.Creature))
 		{
-			await listener.AfterPayGold(player, amount);
+			await listener.AfterPayGold(choiceContext, player, amount);
 		}
 	}
 }
