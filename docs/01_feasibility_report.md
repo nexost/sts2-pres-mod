@@ -3,6 +3,12 @@
 **Game:** Slay the Spire 2 v0.107.1 (Early Access, build 59260271, June 18 2026)
 **Verdict: feasible, go.** Confidence is high for the code and content, and medium for the art.
 
+> **Status (updated after Step 3):** Step 1 is complete. Since this report:
+> - Step 2 built P1–P5 and found two more required patches, P6 and P7 (§5).
+> - Step 3 v2 changed the Wall and Deport rules (§4). The current design is in [`03_design.md`](03_design.md).
+>
+> The overall plan and status are in [`00_project_plan.md`](00_project_plan.md).
+
 ---
 
 ## 1. What the game is built with
@@ -58,8 +64,8 @@ Ironclad's mix: 3 Basic, 20 Common, 36 Uncommon, 26 Rare, 2 Ancient; 37 Attacks,
 
 | Idea | Existing engine support | Verdict |
 |---|---|---|
-| **Wall**: block that stays between turns | `ShouldClearBlock` hook (used by Barricade), plus `BeforeDamageReceived`, `ModifyDamage*` and `AfterBlockBroken` hooks for a separate damage layer | ✅ Easy |
-| **Deport**: remove an enemy from the fight | `CreatureCmd.Escape(creature)` already exists (fleeing gremlins use it). **Escaped enemies automatically cut that fight's gold reward proportionally** (`EncounterModel.CalculateGoldProportion`), a ready-made trade-off for a gold-based play style | ✅ Easy, with a built-in balance cost |
+| **Wall** (v2: construction project; every 10 height is a Section that gives Block each turn; stage perks at 10/25/45/70) | A power with a counter; end-of-turn hooks (`BeforeSideTurnEnd`) for Section Block and damage; energy and draw modifier hooks (`ModifyEnergyGain`, hand-draw hooks) for the stage perks. *(v1 used `ShouldClearBlock` and damage-layer hooks; replaced in Step 3 v2)* | ✅ Easy–Medium (display is custom UI) |
+| **Deport** (v2: enemy at or below 25% of max HP; the line can be raised) | `CreatureCmd.Escape(creature)` already exists (fleeing gremlins use it). **Escaped enemies automatically cut that fight's gold reward proportionally** (`EncounterModel.CalculateGoldProportion`), a ready-made trade-off for a gold-based play style. Verified working in Step 2 | ✅ Easy, with a built-in balance cost |
 | **Gold / deals play style** | `AfterGoldGained`, `ModifyGoldGained` hooks, `gold` command | ✅ Easy |
 | Custom resource counter on screen | Precedent: Regent's Star counter (`ShouldAlwaysShowStarCounter`); powers also show a number on the character | ✅ Medium (custom UI node) |
 | Character-specific Ancient dialogue | Keyed `NEOW.talk.TRUMP.*`, falls back to `ANY` lines when missing | ✅ Optional, good for comedy |
@@ -75,8 +81,13 @@ The game hardcodes the five characters in 73 places. Nearly all of them are harm
 | P3 | `NCardLibrary.OnSubmenuOpened` | `_cardPoolFilters[character]`, so **a crash when opening the card library mid-run** | Add our own filter tab (also gives us our tab in the card library) | **Required (crash)** |
 | P4 | `CharacterModel.AttackSfx/CastSfx/DeathSfx` | Not overridable, and they point to FMOD events that don't exist | Postfix to point them at existing sounds | Required (quality) |
 | P5 | Mod node scripts | Godot doesn't know the C# scripts inside a mod DLL | Call `ScriptManagerBridge.LookupScriptsInAssembly(ourAssembly)` in the initializer (public API, same call the game uses) | Required |
-| P6 | `NGeneralStatsGrid` | Stats screen lists 5 characters | Add a section | Nice to have |
-| P7 | Timeline / epochs | Our character is **unlocked by default** (the unlock filter only removes the 4 locked originals) | Optional: our own unlock timeline entries later | Optional |
+| P6 | `ProgressSaveManager.ObtainCharUnlockEpoch` *(found in Step 2)* | After each act boss the game unlocks `TRUMP2_EPOCH`, which doesn't exist → exception → no rewards | Skip for mod characters | **Required (crash)** |
+| P7 | `TheArchitect` final event *(found in Step 2)* | No dialogue for new characters and no fallback, so Proceed crashes and **a winning run can't finish** | Add our own Architect dialogues | **Required (crash)** |
+| P8 | `NGeneralStatsGrid` | Stats screen lists 5 characters | Add a section | Nice to have |
+| P9 | Timeline / epochs | Our character is **unlocked by default** (the unlock filter only removes the 4 locked originals) | Optional: our own unlock timeline entries later | Optional |
+
+**Status:** P1–P7 are built and tested (Step 2, full winning run by the auto-play bot). P8 and P9 are open.
+Touch of Orobas → Diamond Shovel (the starter relic upgrade) is also needed, in Step 4.
 
 Harmless fallbacks we can leave alone: Yummy Cookie relic art (falls back to Ironclad's), run-history hit sounds (empty list), Necrobinder/Regent-specific checks.
 
@@ -104,6 +115,8 @@ Sizes measured from the game's own files (full list in `docs/ironclad_assets.csv
 | Co-op hands | 4 | 422×1200 | rock / paper / scissors / point |
 | Card trail + attack VFX | 2 scenes | — | can adapt existing ones |
 | Epoch portraits | optional | ~810×500 | only if we add timeline entries |
+| **Wall stages** *(added in Step 3 v2)* | 4 stage visuals | — | Fence → brick → concrete → gold, shown in front of the character, with height and Section count |
+| **Deport UI** *(added in Step 3 v2)* | line marker + stamp | — | A mark on enemy HP bars at the Deport line; a red DENIED stamp when under it |
 
 The combat character **doesn't have to be Spine**: 8 game creatures (and a fallback scene) use plain sprites. That gives us a placeholder route and a fallback if generating the Spine rig goes badly.
 
@@ -132,9 +145,7 @@ Workspace: `C:\Users\exeet\sts2-trump-mod` (git repo; `re/` and `tools/` are git
 | New sounds need FMOD Studio | Low | Reuse the game's existing sound events |
 | Publishing rules for real-person / political content | — | Check Workshop/Nexus rules before any public release |
 
-## 9. Next: Step 2 (test character and build process)
+## 9. Step 2 (done)
 
-1. Set up the C# project (`net9.0`, referencing `sts2.dll`, `GodotSharp.dll`, `0Harmony.dll`) plus a Godot project for the PCK.
-2. A one-command build script: compile the DLL, pack the PCK, write the manifest, copy into `mods/trump_character/`.
-3. A test character with Strike, Defend, a starter relic and borrowed Ironclad visuals, plus patches P1–P5.
-4. Checks: shows on character select → start a run → fight → rewards → save and quit → continue → elite/boss kill (P2) → card library (P3) → other characters still fine.
+Step 2 built the C# project, the one-command build, the installer and uninstaller, and the test character with P1–P7,
+and an in-game test harness. The report is in [`02_step2_report.md`](02_step2_report.md).

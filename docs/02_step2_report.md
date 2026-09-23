@@ -1,6 +1,6 @@
 # Step 2: Test Character and Build Process
 
-**Status: done.** A test character, "The Donald", is fully wired into the game and built by a single command.
+**Status: done** (committed as `6f331c9`). A test character, "The Donald", is fully wired into the game and built by a single command.
 It installs and uninstalls through scripts, and automated tests play it inside the real game.
 
 ## What exists now
@@ -63,7 +63,7 @@ text lookups we now provide (`aromaPrinciple`, `goldMonologue`, banter, `SEA_GLA
 | ≥ 8 Common cards | "Room Full of Cheese → Gorge" offers 8 Commons at once |
 | ≥ 5 cards of each rarity | Sea Glass (Orobas) shows 5 cards per rarity |
 | ≥ 3 Rares | Boss rewards offer 3 Rares |
-| Attacks, Skills **and** Powers at each rarity | The shop stocks 2 Attacks + 2 Skills + 1 Power from the character pool |
+| Attacks and Skills at every rarity, Powers at Uncommon/Rare | The shop stocks 2 Attacks + 2 Skills + 1 Power from the character pool (base characters have no Common Powers; corrected in Step 3) |
 | Basic cards never appear in rewards | Rewards roll Common / Uncommon / Rare only |
 
 (Base characters have ~20 Common / ~36 Uncommon / ~26 Rare, so a real set passes easily.)
@@ -87,4 +87,5 @@ Your real saves were backed up before any testing (`backups/saves_before_step2_*
 * Card art, icons, map marker, relic: generated placeholders (Step 8).
 * Cards: Strike / Defend / Deport prototype + 18 "Filler" cards (Step 5). Relic: placeholder heal (Step 4).
 * Sounds: Ironclad's (Step 8 or kept).
-* Card frame: gold hue shift. The final colour is decided in Step 3.
+* Card frame: gold hue shift. Gold was confirmed as the final colour in Step 3.
+* The Deport prototype (fixed 12 HP threshold) is replaced by the Step 3 v2 rule: enemies at or below 25% of their max HP.

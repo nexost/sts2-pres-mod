@@ -1,0 +1,454 @@
+<title>The Donald Compendium</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kreon:wght@400;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap">
+<style>
+/* Single dark theme on purpose: this is a dark-fantasy card game, and the cards are drawn for a night table. */
+:root {
+  color-scheme: dark;
+  --ground: #12151d;
+  --panel: #1a1f2c;
+  --panel-2: #222938;
+  --line: #2f374a;
+  --ink: #efe6d2;
+  --muted: #a69e8c;
+  --gold: #e9b43b;
+  --gold-soft: #f3cf73;
+  --gold-deep: #8d6413;
+  --tie: #c8372f;
+  --kw: #f0c35a;
+  --up: #8bd88f;
+  --card-top: #2b2519;
+  --card-bottom: #1c1913;
+  --art-a: #2f2a21;
+  --art-b: #282419;
+  --banner-a: #ecdfc2;
+  --banner-b: #cdb98f;
+  --banner-ink: #2a2213;
+  --gem-ink: #2b1d00;
+  --r-basic: #9a968d; --r-common: #b3ad9f; --r-uncommon: #5aa7de; --r-rare: #e2b33c; --r-ancient: #b98be8; --r-token: #6cc59a;
+  --t-attack: #c4513f; --t-skill: #3e7cc4; --t-power: #c49a3a;
+  --display: "Kreon", "Rockwell", "Georgia", serif;
+  --body: "Literata", "Georgia", "Times New Roman", serif;
+}
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font: 16px/1.55 var(--body); padding-inline: 16px; padding-block: 0 48px; }
+h1, h2, h3, .display { font-family: var(--display); text-wrap: balance; }
+a { color: var(--gold-soft); }
+.wrap { max-width: 1120px; margin: 0 auto; }
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10; background: color-mix(in srgb, var(--ground) 94%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--line); margin-inline: -16px; padding-inline: 16px; }
+.brand { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; padding-top: 14px; }
+.brand h1 { margin: 0; font-size: 26px; font-weight: 700; color: var(--gold); letter-spacing: .3px; }
+.brand .tag { color: var(--muted); font-size: 13px; }
+nav.tabs { display: flex; gap: 4px; overflow-x: auto; padding-block: 10px 0; scrollbar-width: none; }
+nav.tabs a { font-family: var(--display); font-size: 16px; color: var(--muted); text-decoration: none; padding: 6px 12px 9px; border-bottom: 3px solid transparent; white-space: nowrap; }
+nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--gold); }
+nav.tabs a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--gold-soft); outline-offset: 2px; }
+main section[hidden] { display: none; }
+
+/* Overview */
+.lede { font-size: 18px; max-width: 66ch; margin: 22px 0 8px; }
+.facts { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; margin: 18px 0 8px; font-size: 15px; }
+.facts dt { font-family: var(--display); color: var(--gold-soft); font-weight: 600; }
+.facts dd { margin: 0; }
+h2 { font-size: 22px; color: var(--gold); margin: 34px 0 10px; font-weight: 700; }
+h3 { font-size: 18px; margin: 0 0 4px; font-weight: 700; }
+.prose { max-width: 68ch; }
+.prose p { margin: 0 0 12px; }
+.mechanics { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; }
+.mech { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+.mech h3 { color: var(--kw); }
+.mech ul { margin: 6px 0 0; padding-left: 18px; }
+.mech li { margin-bottom: 4px; }
+.mech .why { color: var(--muted); font-style: italic; margin-top: 8px; font-size: 15px; }
+.styles { display: grid; gap: 12px; }
+.style { display: grid; grid-template-columns: 1fr auto; gap: 4px 16px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.style:last-child { border-bottom: 0; }
+.style .count { font-family: var(--display); color: var(--muted); font-variant-numeric: tabular-nums; }
+.style p { margin: 2px 0 0; grid-column: 1 / -1; }
+.style .keys { grid-column: 1 / -1; color: var(--muted); font-size: 14px; }
+.style button { grid-column: 1 / -1; justify-self: start; margin-top: 6px; }
+.btn { font: 600 14px var(--display); color: var(--ground); background: var(--gold); border: 0; border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--gold-soft); border: 1px solid var(--gold-deep); }
+.pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px 28px; }
+.pair ol, .pair ul { margin: 0; padding-left: 20px; }
+.pair li { margin-bottom: 8px; }
+.turns li { margin-bottom: 10px; }
+.table-scroll { overflow-x: auto; }
+table { border-collapse: collapse; font-size: 15px; font-variant-numeric: tabular-nums; min-width: 420px; }
+th, td { text-align: left; padding: 6px 12px 6px 0; border-bottom: 1px solid var(--line); }
+th { font-family: var(--display); color: var(--gold-soft); font-weight: 600; }
+td.num, th.num { text-align: right; }
+.sig { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px 24px; }
+.sig div { padding: 8px 0; border-top: 1px solid var(--line); }
+.sig b { font-family: var(--display); color: var(--ink); }
+.sig span { display: block; color: var(--muted); font-size: 15px; }
+.watch { display: grid; gap: 10px; }
+.watch div { display: grid; grid-template-columns: 170px 1fr; gap: 4px 16px; padding: 8px 0; border-top: 1px solid var(--line); }
+.watch b { font-family: var(--display); color: var(--tie); filter: brightness(1.35); }
+@media (max-width: 560px) { .watch div { grid-template-columns: 1fr; } .facts { grid-template-columns: 1fr; gap: 0 0; } .facts dd { margin-bottom: 8px; } }
+
+/* Cards */
+.toolbar { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 96px); z-index: 5; background: var(--ground); padding-block: 10px; margin-inline: -16px; padding-inline: 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+.chiprow { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; align-items: center; }
+.chiprow .lbl { font-family: var(--display); color: var(--muted); font-size: 13px; min-width: 42px; }
+.chip { flex: none; font: 14px var(--display); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px; cursor: pointer; }
+.chip[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); background: var(--panel-2); }
+.switches { display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; font-size: 14px; }
+.switches label { display: flex; gap: 6px; align-items: center; cursor: pointer; }
+.switches .shown { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(208px, 1fr)); gap: 18px 16px; margin-top: 18px; }
+.card { position: relative; background: linear-gradient(var(--card-top), var(--card-bottom)); border: 3px solid var(--gold-deep); border-radius: 14px; padding: 12px 10px 10px; display: flex; flex-direction: column; box-shadow: 0 2px 0 #000, inset 0 0 0 1px rgba(233,180,59,.22); }
+.card[data-rarity="Common"] { border-color: #6d695f; }
+.card[data-rarity="Uncommon"] { border-color: #3a6d94; }
+.card[data-rarity="Rare"] { border-color: #b38a22; box-shadow: 0 0 12px rgba(226,179,60,.3), inset 0 0 0 1px rgba(233,180,59,.22); }
+.card[data-rarity="Ancient"] { border-color: #8a5cc0; box-shadow: 0 0 14px rgba(185,139,232,.35), inset 0 0 0 1px rgba(185,139,232,.25); }
+.card[data-rarity="Token"] { border-color: #3e8a66; }
+.gem { position: absolute; top: -12px; left: -10px; width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffe39a, var(--gold) 45%, var(--gold-deep)); color: var(--gem-ink); font: 700 19px var(--display); display: grid; place-items: center; border: 2px solid #5a3e06; }
+.banner { text-align: center; font: 700 16px/1.2 var(--display); background: linear-gradient(var(--banner-a), var(--banner-b)); color: var(--banner-ink); border-radius: 6px; padding: 5px 6px 5px 22px; margin: 0 0 8px 12px; }
+.art { min-height: 78px; border-radius: 6px; background: repeating-linear-gradient(135deg, var(--art-a) 0 10px, var(--art-b) 10px 20px); color: var(--muted); font-size: 12.5px; font-style: italic; line-height: 1.35; padding: 8px 9px 14px; border: 1px solid #3d3527; }
+.type { align-self: center; margin: -10px 0 6px; font: 12px var(--display); color: #fff; background: #444; padding: 1px 9px; border-radius: 4px; }
+.type.Attack { background: var(--t-attack); } .type.Skill { background: var(--t-skill); } .type.Power { background: var(--t-power); color: #231800; }
+.text { flex: 1; text-align: center; font: 15px/1.4 var(--display); padding: 2px 2px 6px; }
+.text b { color: var(--kw); font-weight: 600; }
+.text .up { color: var(--up); }
+.text .kwline { display: block; color: var(--kw); margin-top: 4px; }
+.note { font-size: 12.5px; color: var(--muted); font-style: italic; border-top: 1px dashed #3d3527; padding-top: 6px; margin-bottom: 4px; }
+.foot { display: flex; justify-content: space-between; gap: 6px; font: 12px var(--display); color: var(--muted); border-top: 1px solid #3d3527; padding-top: 6px; }
+.rar { font-weight: 700; }
+.rar.Basic { color: var(--r-basic); } .rar.Common { color: var(--r-common); } .rar.Uncommon { color: var(--r-uncommon); } .rar.Rare { color: var(--r-rare); } .rar.Ancient { color: var(--r-ancient); } .rar.Token { color: var(--r-token); }
+.list { margin-top: 14px; }
+.row { display: grid; grid-template-columns: 34px 1fr; gap: 2px 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.row .c { grid-row: span 2; font: 700 17px var(--display); color: var(--gem-ink); background: var(--gold); border-radius: 50%; width: 30px; height: 30px; display: grid; place-items: center; }
+.row .h { font-family: var(--display); font-size: 16px; }
+.row .h small { color: var(--muted); font-size: 13px; margin-left: 6px; }
+.row .t { font-size: 15px; }
+.row .t b { color: var(--kw); font-weight: 600; } .row .t .up { color: var(--up); }
+@media (max-width: 480px) {
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 10px; }
+  .card { padding: 11px 7px 8px; border-radius: 12px; }
+  .banner { font-size: 14px; padding-left: 18px; margin-left: 10px; }
+  .art { min-height: 60px; font-size: 11.5px; }
+  .text { font-size: 13.5px; }
+  .gem { width: 32px; height: 32px; font-size: 17px; top: -11px; left: -8px; }
+  .toolbar { top: calc(env(safe-area-inset-top, 0px) + 92px); }
+}
+
+/* Relics, potions, decisions */
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.item { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.item h3 { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.item h3 small { font-size: 12px; }
+.item .fx b { color: var(--kw); font-weight: 600; }
+.item .flav { color: var(--muted); font-style: italic; font-size: 14px; margin-top: 6px; }
+.decisions { counter-reset: q; display: grid; gap: 14px; max-width: 72ch; }
+.decisions li { list-style: none; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px 12px 50px; position: relative; }
+.decisions li::before { counter-increment: q; content: counter(q); position: absolute; left: 14px; top: 11px; width: 26px; height: 26px; border-radius: 50%; background: var(--gold); color: var(--gem-ink); font: 700 15px/26px var(--display); text-align: center; }
+.decisions b { font-family: var(--display); font-size: 17px; }
+.decisions .rec { color: var(--up); }
+.decisions .alt { color: var(--muted); font-size: 15px; }
+footer { color: var(--muted); font-size: 13px; margin-top: 40px; border-top: 1px solid var(--line); padding-top: 12px; }
+@media (prefers-reduced-motion: no-preference) { .card { transition: transform .12s ease; } .card:hover { transform: translateY(-2px); } }
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="brand"><h1>The Donald</h1><span class="tag">Slay the Spire 2 character · Step 3 design, v2</span></div>
+  <nav class="tabs" aria-label="Sections">
+    <a href="#overview" data-tab="overview">Overview</a>
+    <a href="#cards" data-tab="cards">Cards</a>
+    <a href="#relics" data-tab="relics">Relics &amp; potions</a>
+    <a href="#decisions" data-tab="decisions">Decisions</a>
+  </nav>
+</header>
+
+<main>
+<section id="tab-overview">
+  <p class="lede">A lighthearted caricature built on three ideas: <b>build a big beautiful wall</b>, <b>deport the Spire's riff-raff</b>, and <b>make deals</b>. Every number is set against data mined from the five base characters.</p>
+  <dl class="facts">
+    <dt>Tagline</dt><dd><i>A tremendous businessman. The best, many people are saying. Builds walls, makes deals, sends the Spire's riff-raff packing.</i></dd>
+    <dt>HP · Gold · Energy</dt><dd>70 · 99 · 3</dd>
+    <dt>Card colour</dt><dd>Bright metallic gold</dd>
+    <dt>Starting deck</dt><dd>4 Strike, 4 Defend, Build the Wall, Deport</dd>
+    <dt>Starter relic</dt><dd><b>Golden Shovel</b>: at the start of each combat, Build 6</dd>
+    <dt>Signature</dt><dd>The <b>Wall</b>: a construction project that grows in stages, with no ceiling</dd>
+  </dl>
+
+  <h2>Core mechanics</h2>
+  <div class="mechanics">
+    <div class="mech"><h3>The Wall</h3><ul>
+      <li><b>Build X</b> raises your Wall's height by X.</li>
+      <li>The Wall <b>doesn't soak damage</b>. Height only drops when you spend it (Demolition, Wrecking Ball).</li>
+      <li><b>Every 10 height is a Section</b>, with no limit. Each Section gives <b>3 Block at the end of your turn</b>.</li>
+      <li>Reaching a height milestone unlocks a <b>stage</b> perk that lasts the whole fight, even after a Demolition.</li></ul>
+      <div class="table-scroll" style="margin-top:8px"><table style="min-width:0">
+        <thead><tr><th class="num">Height</th><th>Stage</th><th>Perk</th></tr></thead>
+        <tbody>
+          <tr><td class="num">10</td><td>Chain-link fence</td><td>The wall appears</td></tr>
+          <tr><td class="num">25</td><td>Brick wall</td><td>+1 card drawn each turn</td></tr>
+          <tr><td class="num">45</td><td>Concrete wall</td><td>+1 Energy each turn</td></tr>
+          <tr><td class="num">70</td><td>Big Beautiful Wall</td><td>End of turn: 1 damage to ALL enemies per Section</td></tr>
+        </tbody></table></div>
+      <p class="why">Build toward the next stage, feel the jump when it lands, then decide whether to keep building or cash in. Not Osty: it never takes hits, never dies, never attacks on its own.</p></div>
+    <div class="mech"><h3>Deport</h3><ul>
+      <li>If the enemy is at or below your <b>Deport line (25% of its max HP)</b>, it leaves combat.</li>
+      <li>Raise the line with Border Control (+10%, stacks), Border Wall (+2% per Section) and Mass Deportation (doubled).</li>
+      <li><b>Deported enemies drop no Gold.</b> Bosses are immune; elites and minions are not.</li>
+      <li>Not a kill: no on-death effects and not <i>Fatal</i>. HP bars show the line; a DENIED stamp appears under it.</li></ul>
+      <p class="why">Works in any deck that deals damage, no Wall needed. The question is always: kill for gold, or Deport for tempo?</p></div>
+    <div class="mech"><h3>Tariff</h3><ul>
+      <li>Enemy debuff: <b>whenever it attacks, you gain X Gold</b>. Stacks, lasts all combat.</li></ul>
+      <p class="why">"They'll pay for it." Enemy aggression becomes income.</p></div>
+    <div class="mech"><h3>Pay X Gold</h3><ul>
+      <li>Playable only with at least X Gold; lose X Gold. Glows red when you can't afford it.</li></ul>
+      <p class="why">Gold becomes a second combat resource that competes with the shop.</p></div>
+    <div class="mech"><h3>Tweet</h3><ul>
+      <li>Token card: <b>0 cost, deal 3 (5) damage to ALL enemies, Exhaust.</b></li></ul>
+      <p class="why">Chip damage everywhere, and free cards to play.</p></div>
+  </div>
+
+  <h2>Play styles: each one works on its own</h2>
+  <div class="styles" id="styles"></div>
+
+  <h2>How the styles connect (optional)</h2>
+  <div class="pair">
+    <div><h3>Bridges</h3><ul>
+      <li><b>Wall Street</b>, <b>Gold-Plated Bricks</b> and <b>They'll Pay For It</b> turn the Wall into Gold; <b>Hire Contractors</b> turns Gold into Wall.</li>
+      <li><b>Border Wall</b> raises the Deport line per Section.</li>
+      <li><b>Ratings</b> turns Tweets into Wall; Tweets chip everything under the line for <b>Law and Order</b>.</li></ul></div>
+    <div><h3>Tensions</h3><ol>
+      <li><b>Keep building or cash in?</b> Demolition spends height, but reached stages stay unlocked.</li>
+      <li><b>Kill or Deport?</b> Deport is faster but gives no Gold; Hostile Takeover and Cornerstone only pay off on a kill.</li>
+      <li><b>Shop or combat?</b> Pay-Gold cards are strong for their cost because they drain your wallet.</li></ol></div>
+  </div>
+
+  <h2>Card flow</h2>
+  <p class="prose">Base characters have 2–12 energy cards and 13–17 draw cards. The Donald now has card flow in every style, and most of it costs no gold.</p>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Style</th><th>Energy</th><th>Draw and card generation</th></tr></thead>
+    <tbody>
+      <tr><td>Wall</td><td>Concrete stage (+1 each turn)</td><td>Brick stage (+1 each turn), Bricklayer, Groundbreaking</td></tr>
+      <tr><td>Deport</td><td>So Much Winning, Long Red Tie</td><td>One-Way Ticket, So Much Winning</td></tr>
+      <tr><td>Deals</td><td>Small Loan, Bribe, Gold-Plated Toilet</td><td>Casino, Campaign Donation, The Art of the Deal</td></tr>
+      <tr><td>Tweets</td><td>Tweets cost 0</td><td>Doomscrolling, all Tweet makers</td></tr>
+      <tr><td>General</td><td>Two Scoops, Executive Time, Golf Weekend</td><td>Very Stable Genius, Sharpie, Mulligan, Covfefe, Executive Order</td></tr>
+    </tbody></table></div>
+
+  <h2>Example turns</h2>
+  <ul class="prose turns">
+    <li><b>Wall deck, turn 1:</b> 6 height from the shovel, Build the Wall to 11 (fence, 1 Section = 3 Block a turn), Groundbreaking to 14 and draw a card. By turn 3 Pour Concrete passes 25: Brick stage, an extra card every turn from then on.</li>
+    <li><b>Wall deck, boss fight:</b> Infrastructure Week adds 7 a turn. At 70 the Big Beautiful Wall hits every enemy for 7 each turn, Guard Towers add 14 more, and Demolition deals 70 at once; the stages stay after tearing it down.</li>
+    <li><b>Deport deck, four 11 HP Inklets:</b> the line is at 2.75 HP, 3.85 with Border Control. ALL CAPS drops them to 5, a Tweet to 2: Law and Order Deports all four at end of turn.</li>
+    <li><b>Deals turn at 220 Gold:</b> Bribe (−20 Gold, +2 Energy), Net Worth for 25 damage, then Slap a Tariff on the big hitter so it pays for every swing.</li>
+  </ul>
+
+  <h2>Set summary</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Rarity</th><th class="num">Cards</th><th>Attack / Skill / Power</th><th>Base game</th></tr></thead>
+    <tbody>
+      <tr><td>Basic</td><td class="num">4</td><td>2 / 2 / 0</td><td>4</td></tr>
+      <tr><td>Common</td><td class="num">20</td><td>11 / 9 / 0</td><td>20 (11 / 9 / 0)</td></tr>
+      <tr><td>Uncommon</td><td class="num">36</td><td>11 / 16 / 9</td><td>36 (11 / 16 / 9)</td></tr>
+      <tr><td>Rare</td><td class="num">26</td><td>8 / 9 / 9</td><td>26 (7 / 9 / 10)</td></tr>
+      <tr><td>Ancient</td><td class="num">2</td><td>1 / 0 / 1</td><td>2</td></tr>
+      <tr><th>Total</th><th class="num">88</th><th>33 / 36 / 19</th><th>87–88 (32 / 37 / 19)</th></tr>
+    </tbody></table></div>
+  <p class="prose" style="margin-top:10px;color:var(--muted)">Plus the Tweet token. Two co-op-only cards (Trickle Down, Coalition Wall). Every reward and shop rule from Step 2 passes.</p>
+
+  <h2>Signature cards</h2>
+  <div class="sig">
+    <div><b>You're Fired!</b><span>Pay 99 Gold. Deport any non-boss enemy, whatever its HP.</span></div>
+    <div><b>Demolition</b><span>Deal damage equal to your Wall, lose half of it. The stages stay unlocked.</span></div>
+    <div><b>Cornerstone</b><span>Innate. Its Build grows permanently with every kill: the Wall starts higher every fight.</span></div>
+    <div><b>National Emergency</b><span>Build equal to the damage enemies intend to deal this turn.</span></div>
+    <div><b>Chapter 11</b><span>Lose all your Gold. 1 Block for every 4 Gold lost. The panic button.</span></div>
+    <div><b>Two Scoops</b><span>0 cost: gain 2 Energy. Two for him, one for everyone else.</span></div>
+    <div><b>Covfefe</b><span>A random Colorless card that costs 0. Nobody knows what it means.</span></div>
+    <div><b>Golden Escalator</b><span>Ancient. 16 damage to ALL enemies and Build 16. The grand entrance.</span></div>
+  </div>
+
+  <h2>Tone</h2>
+  <div class="prose">
+    <p>The jokes land on the persona: the bombast ("tremendous", "bigly", "sad!"), gold on everything, deal-making, all-caps posting, golf, two scoops, the long red tie, Infrastructure Week. Walls and deportation are game mechanics aimed at Spire monsters, shown as slapstick: security guards, EXIT turnstiles, gold buses.</p>
+    <p>Off limits: real people other than him, jokes about immigrants or any real ethnic or religious group, real tragedies, and anything mean toward real victims.</p>
+  </div>
+
+  <h2>Balance watch list for Step 6</h2>
+  <div class="watch">
+    <div><b>Runaway Wall</b><span>Infrastructure Week + Great Wall + stacked Reinforced Concrete; Demolition loops since stages persist.</span></div>
+    <div><b>Height payoffs</b><span>Hold the Line and Wall Slam scale every turn; "half" may become "a third".</span></div>
+    <div><b>Deport line stacking</b><span>Border Control copies + Border Wall could approach 100%; cap at 75% if needed.</span></div>
+    <div><b>Gold inflation</b><span>Tariffs, Merch Stand, Gold-Plated Bricks and They'll Pay For It together.</span></div>
+    <div><b>Scripted enemies</b><span>Some fights may need an enemy to die. Step 4 Deports every enemy in every encounter to find them.</span></div>
+    <div><b>Boss fights</b><span>Deport doesn't work on bosses; win rate by boss gets tracked.</span></div>
+  </div>
+</section>
+
+<section id="tab-cards" hidden>
+  <div class="toolbar">
+    <div class="chiprow" id="f-rarity" role="group" aria-label="Rarity"><span class="lbl">Rarity</span></div>
+    <div class="chiprow" id="f-type" role="group" aria-label="Type"><span class="lbl">Type</span></div>
+    <div class="chiprow" id="f-arch" role="group" aria-label="Style"><span class="lbl">Style</span></div>
+    <div class="switches">
+      <label><input type="checkbox" id="opt-up"> Upgraded</label>
+      <label><input type="checkbox" id="opt-notes"> Design notes</label>
+      <label><input type="checkbox" id="opt-list"> List view</label>
+      <span class="shown" id="shown"></span>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div class="list" id="list" hidden></div>
+</section>
+
+<section id="tab-relics" hidden>
+  <h2>Relics</h2>
+  <p class="prose" style="color:var(--muted)">Same shape as every base character: 1 Starter, 1 Common, 2 Uncommon, 3 Rare, 1 Shop, plus the Ancient upgrade from Touch of Orobas.</p>
+  <div class="items" id="relics"></div>
+  <h2>Potions</h2>
+  <div class="items" id="potions"></div>
+</section>
+
+<section id="tab-decisions" hidden>
+  <h2>Decisions</h2>
+  <p class="prose" style="color:var(--muted)">Confirmed after the first review.</p>
+  <ol class="decisions">
+    <li><b>Name</b><br><span class="rec">The Donald</span></li>
+    <li><b>Card colour</b><br><span class="rec">Metallic gold</span></li>
+    <li><b>HP</b><br><span class="rec">70</span></li>
+    <li><b>Deport rules</b><br><span class="rec">Elites can be Deported, bosses are immune</span></li>
+    <li><b>Edgier names</b><br><span class="rec">Kept: Mass Deportation, Witch Hunt, Fake News, Fire and Fury, Chapter 11</span></li>
+    <li><b>v2 redesign</b><br><span class="rec">Wall becomes a construction project; Deport uses a 25% line; more card flow</span></li>
+  </ol>
+  <h2>v2 card changes</h2>
+  <div class="table-scroll"><table>
+    <thead><tr><th>Out</th><th>In</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Tremendous Punch</td><td>Show Them the Door</td><td>A Common Deport card</td></tr>
+      <tr><td>Checkpoint</td><td>Groundbreaking</td><td>Free card flow for Wall decks</td></tr>
+      <tr><td>Cement Mixer</td><td>Border Wall</td><td>Bridge between Wall and Deport</td></tr>
+      <tr><td>Pardon, Golden Parachute</td><td>Two Scoops, Doomscrolling</td><td>Energy and draw that don't cost gold</td></tr>
+      <tr><td>Grand Opening</td><td>Cornerstone</td><td>The Wall grows across the whole run</td></tr>
+      <tr><td>Space Force</td><td>Reinforced Concrete</td><td>Wall defense with no ceiling</td></tr>
+    </tbody></table></div>
+  <p class="prose" style="margin-top:10px;color:var(--muted)">Renamed: Watchtower → Guard Towers (now per Section), Tear Down This Wall → Demolition, the Big Beautiful Wall power → Infrastructure Week. Relics: Gold Card and Oval Office Button make way for Gold-Plated Bricks and Permanent Structure; the Gold-Plated Toilet moves to the shop.</p>
+</section>
+</main>
+<footer>Generated from <code>docs/design/cards.json</code>. Art boxes describe the planned illustrations (Step 7–8). Numbers in green are the upgraded values.</footer>
+</div>
+
+<script>
+const DATA = {"cards": [{"id": "StrikeTrump", "name": "Strike", "rarity": "Basic", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "General", "text": "Deal {6|9} damage.", "art": "Donald throws a wild haymaker, tie flapping."}, {"id": "DefendTrump", "name": "Defend", "rarity": "Basic", "type": "Skill", "cost": 1, "target": "Self", "arch": "General", "text": "Gain {5|8} Block.", "art": "Donald hides behind a podium stacked with binders."}, {"id": "BuildTheWall", "name": "Build the Wall", "rarity": "Basic", "type": "Skill", "cost": 1, "target": "Self", "arch": "Wall", "text": "Build {5|8}.", "art": "Donald proudly slaps a gold-trimmed brick onto a growing wall.", "note": "With the Golden Shovel (Build 6) this completes the first Section on turn 1."}, {"id": "Deport", "name": "Deport", "rarity": "Basic", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Deport", "text": "Deal {6|9} damage. Deport.", "art": "A startled cultist shoved through a turnstile marked EXIT.", "note": "Strike + the signature clause. A 30 HP enemy at 13 HP is hit to 7 and Deported (25% line = 7.5)."}, {"id": "BrickToss", "name": "Brick Toss", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Wall", "text": "Deal {7|9} damage. Build {3|5}.", "art": "A golden brick bonks a beetle on the head.", "note": "Iron Wave equivalent."}, {"id": "WallSlam", "name": "Wall Slam", "rarity": "Common", "type": "Attack", "cost": 1, "cost_up": 0, "target": "Enemy", "arch": "Wall", "text": "Deal damage equal to half your Wall.", "art": "Donald shoulder-checks an enemy into his own wall.", "note": "Body Slam for the Wall. Repeatable and uncapped: the Wall only grows."}, {"id": "EscortOut", "name": "Escort Out", "rarity": "Common", "type": "Attack", "cost": 2, "target": "Enemy", "arch": "Deport", "text": "Deal {14|18} damage. Deport.", "art": "Two burly security guards carry a flailing slime by the elbows."}, {"id": "ShowThemTheDoor", "name": "Show Them the Door", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Deport", "text": "Deal {4|5} damage twice. Deport.", "art": "Donald holding a door open with a flourish; a goblin slinks out."}, {"id": "SlapATariff", "name": "Slap a Tariff", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Deals", "text": "Deal {8|10} damage. Apply {2|3} Tariff.", "art": "A price tag slapped onto a monster's forehead."}, {"id": "HostileTakeover", "name": "Hostile Takeover", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Deals", "text": "Deal {9|12} damage. If Fatal, gain {12|15} Gold.", "art": "Donald plants a SOLD sign on a toppled foe.", "note": "Deport is not Fatal: kill for gold or Deport for tempo."}, {"id": "MeanTweet", "name": "Mean Tweet", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Tweets", "text": "Deal {6|9} damage. Add a Tweet into your Hand.", "art": "A phone screen full of angry caps-lock, a tiny monster crying."}, {"id": "AllCaps", "name": "ALL CAPS", "rarity": "Common", "type": "Attack", "cost": 1, "target": "AllEnemies", "arch": "Tweets", "text": "Deal {3|4} damage to ALL enemies twice.", "art": "Giant block letters crash down on a crowd of enemies."}, {"id": "Sad", "name": "Sad!", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "General", "text": "Deal {8|10} damage. Apply {1|2} Weak.", "art": "An enemy slumps, a tiny rain cloud over its head."}, {"id": "Mulligan", "name": "Mulligan", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "General", "text": "Deal {9|12} damage. Discard 1 card, then draw 1 card.", "art": "Donald nudging a golf ball out of the rough with his shoe.", "note": "Discard triggers Sly cards."}, {"id": "PowerHandshake", "name": "Power Handshake", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "General", "text": "Deal {7|9} damage. Apply {1|2} Vulnerable.", "art": "A white-knuckle handshake yanking an enemy off balance."}, {"id": "Bricklayer", "name": "Bricklayer", "rarity": "Common", "type": "Skill", "cost": 1, "target": "Self", "arch": "Wall", "text": "Build {6|8}. Draw 1 card.", "art": "Donald in a hard hat over his suit, trowel in hand.", "note": "Shrug It Off equivalent."}, {"id": "Groundbreaking", "name": "Groundbreaking", "rarity": "Common", "type": "Skill", "cost": 0, "target": "Self", "arch": "Wall", "text": "Build {3|5}. Draw 1 card.", "art": "A golden shovel stuck in the dirt, a ribbon, a crowd of photographers.", "note": "Free cycling for Wall decks."}, {"id": "PourConcrete", "name": "Pour Concrete", "rarity": "Common", "type": "Skill", "cost": 2, "target": "Self", "arch": "Wall", "text": "Build {12|16}.", "art": "A gold cement mixer pouring into wall forms."}, {"id": "BarbedWire", "name": "Barbed Wire", "rarity": "Common", "type": "Skill", "cost": 1, "target": "Self", "arch": "Wall", "text": "Build {4|6}. This turn, whenever you are attacked, deal {2|3} damage back, plus 1 for each Section.", "art": "Coils of gilded razor wire on the wall top."}, {"id": "LateNightPosting", "name": "Late-Night Posting", "rarity": "Common", "type": "Skill", "cost": 1, "target": "Self", "arch": "Tweets", "text": "Add {2|3} Tweets into your Hand.", "art": "Donald in bed at 3 AM, face lit by his phone."}, {"id": "CampaignDonation", "name": "Campaign Donation", "rarity": "Common", "type": "Skill", "cost": 0, "target": "Self", "arch": "Deals", "text": "Gain {8|12} Gold. Draw 1 card.", "kw": ["Exhaust"], "art": "A donation jar overflowing with Spire coins."}, {"id": "SmallLoan", "name": "Small Loan", "rarity": "Common", "type": "Skill", "cost": 0, "target": "Self", "arch": "Deals", "text": "Pay 10 Gold. Gain 1 Energy. Draw {1|2} card(s).", "art": "A 'small loan' check with far too many zeros.", "note": "Bloodletting-style: gold instead of HP."}, {"id": "LowEnergy", "name": "Low Energy", "rarity": "Common", "type": "Skill", "cost": 1, "target": "AllEnemies", "arch": "General", "text": "ALL enemies lose {3|5} Strength this turn.", "art": "Donald yawning theatrically at a row of drooping monsters."}, {"id": "AlternativeFacts", "name": "Alternative Facts", "rarity": "Common", "type": "Skill", "cost": 1, "target": "Self", "arch": "General", "text": "Gain {7|10} Block. Put a card from your Discard Pile into your Hand.", "art": "Donald holding up a chart that was clearly redrawn in marker."}, {"id": "BorderPatrol", "name": "Border Patrol", "rarity": "Uncommon", "type": "Attack", "cost": 2, "target": "AllEnemies", "arch": "Deport", "text": "Deal {7|10} damage to ALL enemies. Deport ALL.", "art": "Searchlights sweep across the wall; silhouettes scatter."}, {"id": "OneWayTicket", "name": "One-Way Ticket", "rarity": "Uncommon", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Deport", "text": "Deal {9|12} damage. Deport. If it was Deported, draw 2 cards.", "art": "A golden plane ticket stuffed into a fleeing monster's mouth."}, {"id": "Demolition", "name": "Demolition", "rarity": "Uncommon", "type": "Attack", "cost": 1, "cost_up": 0, "target": "Enemy", "arch": "Wall", "text": "Deal damage equal to your Wall. Lose half your Wall.", "art": "Donald in a hard hat pushing a big red DEMOLISH plunger.", "note": "Stages you've reached stay unlocked, so tearing down and rebuilding is a real plan."}, {"id": "TradeWar", "name": "Trade War", "rarity": "Uncommon", "type": "Attack", "cost": 1, "target": "AllEnemies", "arch": "Deals", "text": "Deal {5|7} damage to ALL enemies. Apply {2|3} Tariff to ALL enemies.", "art": "Shipping crates hurled across the battlefield."}, {"id": "NetWorth", "name": "Net Worth", "rarity": "Uncommon", "type": "Attack", "cost": 2, "cost_up": 1, "target": "Enemy", "arch": "Deals", "text": "Deal 5 damage, plus 1 for every 10 Gold you have.", "art": "A falling golden safe with a dollar sign.", "note": "200 Gold = 25 damage."}, {"id": "GoingViral", "name": "Going Viral", "rarity": "Uncommon", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Tweets", "text": "Deal {3|4} damage for each Tweet played this combat.", "art": "A tidal wave of retweet icons."}, {"id": "FireAndFury", "name": "Fire and Fury", "rarity": "Uncommon", "type": "Attack", "cost": "X", "target": "AllEnemies", "arch": "General", "text": "Deal {5|8} damage to ALL enemies X times.", "art": "Donald at a podium, flames behind him, finger jabbing.", "note": "Whirlwind."}, {"id": "Bigly", "name": "Bigly", "rarity": "Uncommon", "type": "Attack", "cost": 2, "target": "Enemy", "arch": "General", "text": "Deal {11|14} damage. Increase this card's damage by {6|8} this combat.", "art": "Donald's fist getting comically larger in three panels.", "note": "Rampage."}, {"id": "WitchHunt", "name": "Witch Hunt", "rarity": "Uncommon", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "General", "text": "Deal {8|10} damage. If the enemy is Weak, hits twice.", "art": "A pitchfork mob of cardboard cutouts, led by Donald."}, {"id": "SecurityDetail", "name": "Security Detail", "rarity": "Uncommon", "type": "Attack", "cost": 2, "target": "Enemy", "arch": "Wall", "text": "Deal {12|15} damage. Build {8|11}.", "art": "Sunglasses-wearing guards form a human wall."}, {"id": "RallySpeech", "name": "Rally Speech", "rarity": "Uncommon", "type": "Attack", "cost": 1, "target": "AllEnemies", "arch": "Tweets", "text": "Deal {5|7} damage to ALL enemies. Add a Tweet into your Hand.", "art": "A roaring crowd, Donald doing the accordion hands."}, {"id": "TenFeetHigher", "name": "Ten Feet Higher", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Self", "arch": "Wall", "text": "Build {5|7}. If your Wall is 25 or more, Build {5|7} more.", "art": "A ladder that can't reach the top of the wall."}, {"id": "HoldTheLine", "name": "Hold the Line", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Self", "arch": "Wall", "text": "Gain Block equal to half your Wall.", "up": "Gains Retain.", "art": "Donald bracing against the wall with both hands."}, {"id": "BackgroundCheck", "name": "Background Check", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Enemy", "arch": "Deport", "text": "Enemy loses {7|10} HP. Deport.", "art": "A magnifying glass over a sweating monster's paperwork.", "note": "HP loss ignores Block, so it reaches block-stacking enemies."}, {"id": "HireContractors", "name": "Hire Contractors", "rarity": "Uncommon", "type": "Skill", "cost": 0, "target": "Self", "arch": "Deals", "text": "Pay 20 Gold. Build {14|18}.", "art": "A crew of goblin builders counting coins."}, {"id": "Bribe", "name": "Bribe", "rarity": "Uncommon", "type": "Skill", "cost": 0, "target": "Self", "arch": "Deals", "text": "Pay {20|15} Gold. Gain 2 Energy.", "art": "A briefcase of gold slid across a table."}, {"id": "WallStreet", "name": "Wall Street", "rarity": "Uncommon", "type": "Skill", "cost": 1, "cost_up": 0, "target": "Self", "arch": "Deals", "text": "Gain {4|6} Gold for each Section.", "kw": ["Exhaust"], "art": "A stock ticker running along the top of the wall.", "note": "Bridges Wall and Deals."}, {"id": "Casino", "name": "Casino", "rarity": "Uncommon", "type": "Skill", "cost": 0, "target": "Self", "arch": "Deals", "text": "Pay 10 Gold. Draw {3|4} cards.", "art": "A slot machine paying out in cards."}, {"id": "Tweetstorm", "name": "Tweetstorm", "rarity": "Uncommon", "type": "Skill", "cost": "X", "target": "Self", "arch": "Tweets", "text": "Add X+1 Tweets into your Hand.", "up": "The Tweets are Upgraded.", "art": "A swirling cyclone of phones and speech bubbles."}, {"id": "Blocked", "name": "Blocked!", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Self", "arch": "Tweets", "text": "This turn, whenever you play a Tweet, gain {4|6} Block. Add a Tweet into your Hand.", "art": "A giant BLOCK button being slammed."}, {"id": "Doomscrolling", "name": "Doomscrolling", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Self", "arch": "Tweets", "text": "Draw {3|4} cards. Add a Tweet into your Hand.", "art": "Donald's face lit blue, thumb blurred from scrolling."}, {"id": "Covfefe", "name": "Covfefe", "rarity": "Uncommon", "type": "Skill", "cost": 0, "target": "Self", "arch": "General", "text": "Add a random Colorless card into your Hand. It costs 0 this turn.", "kw": ["Exhaust"], "up": "No longer Exhausts.", "art": "A coffee cup with the word misspelled; nobody knows what's inside."}, {"id": "TwoScoops", "name": "Two Scoops", "rarity": "Uncommon", "type": "Skill", "cost": 0, "target": "Self", "arch": "General", "text": "Gain 2 Energy.", "kw": ["Exhaust"], "up": "Also draws 1 card.", "art": "A tall bowl of ice cream: two scoops for him, one for everyone else."}, {"id": "Sharpie", "name": "Sharpie", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Enemy", "arch": "General", "text": "Enemy loses {6|9} Strength this turn. Draw 1 card.", "art": "Donald redrawing an enemy's attack arrow with a marker."}, {"id": "ExecutiveTime", "name": "Executive Time", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Self", "arch": "General", "text": "Draw {2|3} cards. Next turn, gain 1 Energy.", "art": "Feet up on the Resolute desk, TV remote in hand."}, {"id": "FakeNews", "name": "Fake News", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Enemy", "arch": "General", "text": "Apply {2|3} Weak. Apply {2|3} Vulnerable.", "kw": ["Exhaust"], "art": "A newspaper stamped FAKE smacks an enemy in the face.", "note": "Putrefy equivalent."}, {"id": "TrickleDown", "name": "Trickle Down", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "AllAllies", "arch": "Deals", "text": "ALL players gain {12|18} Gold.", "kw": ["Exhaust"], "mp": true, "art": "Coins dribbling down a champagne tower onto allies."}, {"id": "Rebar", "name": "Rebar", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "Wall", "text": "At the start of your turn, Build {3|4}.", "art": "Steel rods sticking out of the wall's top."}, {"id": "GuardTowers", "name": "Guard Towers", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "Wall", "text": "At the end of your turn, deal {2|3} damage to a random enemy for each Section.", "art": "Gold guard towers along the wall, each with a spotlight and a slingshot.", "note": "The Wall deck's main damage engine; copies stack."}, {"id": "BorderControl", "name": "Border Control", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "Deport", "text": "Your Deport line is {10|15}% higher.", "art": "A control room of monitors watching the border.", "note": "Stacks: two copies take the line from 25% to 45%."}, {"id": "BorderWall", "name": "Border Wall", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "Deport", "text": "Your Deport line is {2|3}% higher for each Section.", "art": "The wall with a huge DEPORT arrow painted along it.", "note": "Bridges Wall and Deport; neither needs the other."}, {"id": "Protectionism", "name": "Protectionism", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "Deals", "text": "At the start of your turn, apply 1 Tariff to ALL enemies.", "up": "Innate.", "art": "Donald hugging a pile of gold like a dragon."}, {"id": "MerchStand", "name": "Merch Stand", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "Deals", "text": "At the end of combat, gain {15|22} Gold.", "art": "A folding table of red caps and gold sneakers.", "note": "Half of Regent's Rare Royalties (30)."}, {"id": "SocialMediaIntern", "name": "Social Media Intern", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "Tweets", "text": "At the start of your turn, add a Tweet into your Hand.", "up": "Innate.", "art": "A nervous goblin intern typing on three phones."}, {"id": "Ratings", "name": "Ratings", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "Tweets", "text": "Whenever you play a Tweet, Build {2|3}.", "art": "A TV ratings chart going straight up.", "note": "Bridges Tweets and Wall."}, {"id": "ExecutiveOrder", "name": "Executive Order", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "General", "text": "The first Skill you play each turn costs 0.", "up": "Innate.", "art": "Donald holding up a signed folder to cameras."}, {"id": "WreckingBall", "name": "Wrecking Ball", "rarity": "Rare", "type": "Attack", "cost": 2, "cost_up": 1, "target": "AllEnemies", "arch": "Wall", "text": "Deal damage equal to your Wall to ALL enemies. Lose half your Wall.", "art": "A gold wrecking ball swinging through a whole line of enemies."}, {"id": "Cornerstone", "name": "Cornerstone", "rarity": "Rare", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "Wall", "text": "Deal {8|11} damage. Build 3. If Fatal, permanently increase this card's Build by 3.", "kw": ["Innate"], "art": "A gold plaque reading 'This wall was built by the greatest builder ever'.", "note": "Run-long scaling like Feed or The Scythe: the Wall starts higher every fight."}, {"id": "MassDeportation", "name": "Mass Deportation", "rarity": "Rare", "type": "Attack", "cost": 3, "target": "AllEnemies", "arch": "Deport", "text": "Deal {10|14} damage to ALL enemies. Deport ALL, with your Deport line doubled.", "kw": ["Exhaust"], "art": "A fleet of gold buses with EXIT on the destination signs."}, {"id": "TariffMan", "name": "Tariff Man", "rarity": "Rare", "type": "Attack", "cost": 2, "target": "Enemy", "arch": "Deals", "text": "Deal {12|16} damage. Double the enemy's Tariff.", "art": "Donald flexing in a superhero cape labeled TARIFF MAN."}, {"id": "LeveragedBuyout", "name": "Leveraged Buyout", "rarity": "Rare", "type": "Attack", "cost": 2, "target": "Enemy", "arch": "Deals", "text": "Deal {20|26} damage. If Fatal, gain 40 Gold.", "kw": ["Exhaust"], "art": "A giant contract crushing an enemy under its fine print.", "note": "Feed, but Gold instead of Max HP."}, {"id": "MakeItRain", "name": "Make It Rain", "rarity": "Rare", "type": "Attack", "cost": 0, "target": "AllEnemies", "arch": "Deals", "text": "Pay 25 Gold. Deal {7|9} damage to ALL enemies 3 times.", "art": "Gold coins raining from the sky like hail."}, {"id": "Trending", "name": "Trending", "rarity": "Rare", "type": "Attack", "cost": 0, "target": "AllEnemies", "arch": "Tweets", "text": "Deal {3|5} damage to ALL enemies. Whenever you play a Tweet, return this to your Hand from the Discard Pile.", "art": "A #1 trending badge hovering over the battlefield."}, {"id": "HoleInOne", "name": "Hole in One", "rarity": "Rare", "type": "Attack", "cost": 0, "target": "Enemy", "arch": "General", "text": "Can only be played as the first card each turn. Deal {14|20} damage.", "art": "A golf ball ricocheting off three monsters into a cup."}, {"id": "YoureFired", "name": "You're Fired!", "rarity": "Rare", "type": "Skill", "cost": 1, "target": "Enemy", "arch": "Deals", "text": "Pay {99|75} Gold. Deport the enemy, whatever its HP. (Not Bosses.)", "kw": ["Exhaust"], "art": "The iconic boardroom point; an elite monster packing a cardboard box.", "note": "Turns Gold into skipping the rest of a non-boss fight. Still no Gold from that enemy."}, {"id": "GreatWall", "name": "Great Wall", "rarity": "Rare", "type": "Skill", "cost": 1, "cost_up": 0, "target": "Self", "arch": "Wall", "text": "Double your Wall.", "kw": ["Exhaust"], "art": "The wall stretching to the horizon, bigger than the Spire itself."}, {"id": "Chapter11", "name": "Chapter 11", "rarity": "Rare", "type": "Skill", "cost": 0, "target": "Self", "arch": "Deals", "text": "Lose all your Gold. Gain 1 Block for every {4|3} Gold lost.", "kw": ["Exhaust"], "art": "Donald cheerfully tossing an empty wallet over his shoulder.", "note": "Emergency button: 300 Gold = 75 Block."}, {"id": "LawyerUp", "name": "Lawyer Up", "rarity": "Rare", "type": "Skill", "cost": 1, "target": "Self", "arch": "Deals", "text": "Pay {40|30} Gold. Gain 1 Intangible.", "kw": ["Exhaust"], "art": "A wall of lawyers in identical suits absorbing a blow."}, {"id": "GolfWeekend", "name": "Golf Weekend", "rarity": "Rare", "type": "Skill", "cost": 0, "target": "Self", "arch": "General", "text": "End your turn. Next turn, gain 2 Energy and draw {2|3} cards.", "art": "A golf cart parked in the middle of a battle; Donald teeing off."}, {"id": "BurnerAccounts", "name": "Burner Accounts", "rarity": "Rare", "type": "Skill", "cost": 1, "target": "Self", "arch": "Tweets", "text": "Add {4|5} Upgraded Tweets into your Hand.", "kw": ["Exhaust"], "art": "A table covered in cheap phones with fake-mustache profile pics."}, {"id": "VeryStableGenius", "name": "Very Stable Genius", "rarity": "Rare", "type": "Skill", "cost": 1, "cost_up": 0, "target": "Self", "arch": "General", "text": "Upgrade ALL cards in your Hand for the rest of combat. Draw 2 cards.", "art": "Donald balancing a stack of books on his head, very steady."}, {"id": "CoalitionWall", "name": "Coalition Wall", "rarity": "Rare", "type": "Skill", "cost": 2, "target": "AllAllies", "arch": "Wall", "text": "ALL players Build {12|16}.", "kw": ["Exhaust"], "mp": true, "art": "The whole party laying bricks side by side."}, {"id": "NationalEmergency", "name": "National Emergency", "rarity": "Rare", "type": "Skill", "cost": 2, "cost_up": 1, "target": "Self", "arch": "Wall", "text": "Build equal to the total damage enemies intend to deal this turn.", "kw": ["Exhaust"], "art": "Red sirens, a declaration signed with a flourish, the wall shooting up."}, {"id": "TheyllPayForIt", "name": "They'll Pay For It", "rarity": "Rare", "type": "Power", "cost": 1, "target": "Self", "arch": "Deals", "text": "Whenever an enemy attacks you and deals no damage to your HP, gain {4|6} Gold.", "art": "Enemies grudgingly stuffing coins into a toll box on the wall.", "note": "Section Block + this = the wall pays for itself."}, {"id": "InfrastructureWeek", "name": "Infrastructure Week", "rarity": "Rare", "type": "Power", "cost": 3, "target": "Self", "arch": "Wall", "text": "At the start of your turn, Build {7|10}.", "art": "A banner reading INFRASTRUCTURE WEEK, week 47.", "note": "Demon Form for the Wall."}, {"id": "ReinforcedConcrete", "name": "Reinforced Concrete", "rarity": "Rare", "type": "Power", "cost": 1, "target": "Self", "arch": "Wall", "text": "Each Section gives {2|3} more Block.", "art": "Steel rebar sticking out of fresh concrete with a gold trowel.", "note": "Copies stack: the Wall's defense has no ceiling."}, {"id": "LawAndOrder", "name": "Law and Order", "rarity": "Rare", "type": "Power", "cost": 2, "cost_up": 1, "target": "Self", "arch": "Deport", "text": "At the end of your turn, Deport ALL enemies.", "art": "A gavel the size of a door slamming down.", "note": "Automatic Deport check every turn; bosses stay immune."}, {"id": "ArtOfTheDeal", "name": "The Art of the Deal", "rarity": "Rare", "type": "Power", "cost": 1, "target": "Self", "arch": "Deals", "text": "Whenever you Pay Gold, draw 1 card.", "up": "Innate.", "art": "Donald holding up his book with a smug grin."}, {"id": "GoldTower", "name": "Gold Tower", "rarity": "Rare", "type": "Power", "cost": 2, "target": "Self", "arch": "Deals", "text": "At the end of your turn, gain 1 Block for every {15|10} Gold you have.", "art": "A gleaming gold skyscraper rising behind Donald."}, {"id": "SoMuchWinning", "name": "So Much Winning", "rarity": "Rare", "type": "Power", "cost": 2, "cost_up": 1, "target": "Self", "arch": "Deport", "text": "Whenever an enemy dies or is Deported, gain 1 Energy and draw 1 card.", "art": "Donald on a podium buried in trophies, looking bored of winning."}, {"id": "VerifiedAccount", "name": "Verified Account", "rarity": "Rare", "type": "Power", "cost": 1, "target": "Self", "arch": "Tweets", "text": "Tweets deal {3|5} additional damage.", "art": "A gold checkmark badge the size of a shield."}, {"id": "ThreeAmPosting", "name": "3 AM Posting", "rarity": "Rare", "type": "Power", "cost": 2, "target": "Self", "arch": "Tweets", "text": "At the start of your turn, add {2|3} Tweets into your Hand.", "art": "A moonlit bedroom, the phone glowing like a lighthouse."}, {"id": "GoldenEscalator", "name": "Golden Escalator", "rarity": "Ancient", "type": "Attack", "cost": 1, "target": "AllEnemies", "arch": "Wall", "text": "Deal {16|22} damage to ALL enemies. Build {16|22}.", "art": "Donald descending a golden escalator as the enemies are blasted back by the glare.", "note": "Ancient attacks: Break (20 + 5 Vulnerable), Meteor Shower (14 AoE + debuffs)."}, {"id": "MakeTheSpireGreatAgain", "name": "Make the Spire Great Again", "rarity": "Ancient", "type": "Power", "cost": 2, "cost_up": 1, "target": "Self", "arch": "General", "text": "At the start of your turn, Build 4, gain 4 Gold and add a Tweet into your Hand.", "art": "The Spire wearing a giant red cap.", "note": "Feeds every play style at once."}, {"id": "Tweet", "name": "Tweet", "rarity": "Token", "type": "Attack", "cost": 0, "target": "AllEnemies", "arch": "Tweets", "text": "Deal {3|5} damage to ALL enemies.", "kw": ["Exhaust"], "art": "A single angry speech bubble with a tiny bird silhouette."}], "relics": [{"id": "GoldenShovel", "name": "Golden Shovel", "rarity": "Starter", "text": "At the start of each combat, Build 6.", "flavor": "Used for exactly one groundbreaking ceremony. Very ceremonial. Very gold."}, {"id": "DiamondShovel", "name": "Diamond Shovel", "rarity": "Ancient (starter upgrade)", "text": "At the start of each combat, Build 10. At the start of your turn, Build 2.", "flavor": "Replaces Golden Shovel via Touch of Orobas. Nobody has ever seen a shovel like it."}, {"id": "HardHat", "name": "Hard Hat", "rarity": "Common", "text": "Whenever you Build, Build 1 additional.", "flavor": "Worn over the hair. Carefully."}, {"id": "LongRedTie", "name": "Long Red Tie", "rarity": "Uncommon", "text": "Whenever you Deport an enemy, gain 1 Energy.", "flavor": "Reaches well past the belt. On purpose."}, {"id": "GoldPlatedBricks", "name": "Gold-Plated Bricks", "rarity": "Uncommon", "text": "At the end of combat, gain 2 Gold for each Section of your Wall.", "flavor": "Structurally questionable. Aesthetically tremendous."}, {"id": "RubberStamp", "name": "Rubber Stamp", "rarity": "Rare", "text": "Deported enemies still drop their Gold.", "flavor": "It only has one word on it."}, {"id": "PermanentStructure", "name": "Permanent Structure", "rarity": "Rare", "text": "At the end of combat, keep a quarter of your Wall. Start the next combat with it.", "flavor": "Zoning permits were not obtained."}, {"id": "LateNightPhone", "name": "Late-Night Phone", "rarity": "Rare", "text": "The first Tweet you play each turn is played twice.", "flavor": "Battery at 1%. Opinions at 100%."}, {"id": "GoldPlatedToilet", "name": "Gold-Plated Toilet", "rarity": "Shop", "text": "At the start of your turn, if you have 250 or more Gold, gain 1 Energy.", "flavor": "The merchant swears it's never been used."}], "potions": [{"id": "QuickDryConcrete", "name": "Quick-Dry Concrete", "rarity": "Common", "text": "Build 12."}, {"id": "CovfefePotion", "name": "Covfefe", "rarity": "Uncommon", "text": "Add 3 Upgraded Tweets into your Hand."}, {"id": "DeportationDraught", "name": "Deportation Draught", "rarity": "Rare", "text": "Deport an enemy, whatever its HP. (Not Bosses.)"}]};
+const RARITIES = ["Basic", "Common", "Uncommon", "Rare", "Ancient", "Token"];
+const TYPES = ["Attack", "Skill", "Power"];
+const ARCHES = ["Wall", "Deport", "Deals", "Tweets", "General"];
+const STYLE_INFO = {
+  Wall: ["The Wall", "Build through the stages for draw and energy; Sections give Block; Guard Towers and the top stage deal steady damage; Demolition and Wrecking Ball burst.", "Grows forever: unlimited Sections, Infrastructure Week, Great Wall, stacking Reinforced Concrete and Guard Towers, Cornerstone and Permanent Structure across the run."],
+  Deport: ["Deport", "Chip damage plus a higher Deport line removes whole fights.", "Key cards: Show Them the Door, Border Patrol, Border Control, Law and Order, Mass Deportation, So Much Winning."],
+  Deals: ["The Art of the Deal", "Earn gold in combat, spend it for power, scale with wealth.", "Key cards: Slap a Tariff, Small Loan, Bribe, Hire Contractors, Net Worth, You're Fired!, Gold Tower, They'll Pay For It."],
+  Tweets: ["Tweets", "Flood the hand with 0-cost area-damage Tweets.", "Key cards: Mean Tweet, Late-Night Posting, Doomscrolling, Social Media Intern, Ratings, Verified Account, 3 AM Posting."],
+  General: ["General", "Draw, energy, debuffs and finishers every deck wants.", "Key cards: Two Scoops, Executive Time, Sharpie, Fake News, Bigly, Golf Weekend, Very Stable Genius."]
+};
+const state = { rarity: new Set(), type: new Set(), arch: new Set(), up: false, notes: false, list: false };
+const KW = /\b(Build|Wall|Deport(?:ed)?|Tariff|Tweets?|Pay \d+ Gold|Block|Weak|Vulnerable|Strength|Intangible|Energy|Gold)\b/g;
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c])); }
+function fmt(text, up) {
+  let t = esc(text).replace(/\{([^|}]*)\|([^}]*)\}/g, (m, a, b) => (up && a !== b) ? "\u0001" + b + "\u0002" : (up ? b : a));
+  t = t.replace(KW, "<b>$1</b>");
+  return t.replace(/\u0001/g, '<span class="up">').replace(/\u0002/g, "</span>");
+}
+function costOf(c) { return state.up && c.cost_up !== undefined ? '<span class="up">' + c.cost_up + "</span>" : esc(c.cost); }
+function kwLine(c) {
+  let kws = (c.kw || []).slice();
+  if (state.up && c.up && /No longer Exhausts/.test(c.up)) kws = kws.filter(k => k !== "Exhaust");
+  let s = kws.length ? kws.join(". ") + "." : "";
+  if (state.up && c.up && !/No longer Exhausts/.test(c.up)) s += (s ? " " : "") + '<span class="up">' + esc(c.up) + "</span>";
+  if (state.up && c.up && /No longer Exhausts/.test(c.up)) s += (s ? " " : "") + '<span class="up">No Exhaust.</span>';
+  if (c.mp) s += (s ? " " : "") + "Co-op only.";
+  return s;
+}
+function visible(c) {
+  return (!state.rarity.size || state.rarity.has(c.rarity)) && (!state.type.size || state.type.has(c.type)) && (!state.arch.size || state.arch.has(c.arch));
+}
+function sorted() {
+  const k = c => [RARITIES.indexOf(c.rarity), TYPES.indexOf(c.type), ARCHES.indexOf(c.arch)];
+  return DATA.cards.slice().sort((a, b) => { const x = k(a), y = k(b); for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i]; return 0; });
+}
+function drawCards() {
+  const grid = document.getElementById("grid"), list = document.getElementById("list");
+  const cards = sorted().filter(visible);
+  grid.hidden = state.list; list.hidden = !state.list;
+  if (state.list) {
+    list.innerHTML = cards.map(c => {
+      const k = kwLine(c);
+      return '<div class="row"><span class="c">' + costOf(c) + '</span><div class="h">' + esc(c.name) + (state.up ? "+" : "") +
+        '<small><span class="rar ' + c.rarity + '">' + c.rarity + "</span> · " + c.type + " · " + c.arch + "</small></div>" +
+        '<div class="t">' + fmt(c.text, state.up) + (k ? " <b>" + k + "</b>" : "") + (state.notes && c.note ? '<div class="note">' + esc(c.note) + "</div>" : "") + "</div></div>";
+    }).join("");
+  } else {
+    grid.innerHTML = cards.map(c => {
+      const k = kwLine(c);
+      return '<article class="card" data-rarity="' + c.rarity + '"><div class="gem">' + costOf(c) + '</div>' +
+        '<div class="banner">' + esc(c.name) + (state.up ? "+" : "") + "</div>" +
+        '<div class="art">' + esc(c.art || "") + "</div>" +
+        '<div class="type ' + c.type + '">' + c.type + "</div>" +
+        '<div class="text">' + fmt(c.text, state.up) + (k ? '<span class="kwline">' + k + "</span>" : "") + "</div>" +
+        (state.notes && c.note ? '<div class="note">' + esc(c.note) + "</div>" : "") +
+        '<div class="foot"><span class="rar ' + c.rarity + '">' + c.rarity + "</span><span>" + c.arch + "</span></div></article>";
+    }).join("");
+  }
+  document.getElementById("shown").textContent = cards.length + " shown";
+}
+function chips(id, values, key) {
+  const row = document.getElementById(id);
+  values.forEach(v => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.type = "button"; b.textContent = v; b.id = "chip-" + key + "-" + v;
+    b.setAttribute("aria-pressed", "false");
+    b.addEventListener("click", () => { toggle(key, v); });
+    row.appendChild(b);
+  });
+}
+function toggle(key, v, only) {
+  if (only) state[key].clear();
+  if (state[key].has(v) && !only) state[key].delete(v); else state[key].add(v);
+  document.querySelectorAll('[id^="chip-' + key + '-"]').forEach(b => b.setAttribute("aria-pressed", state[key].has(b.textContent) ? "true" : "false"));
+  drawCards();
+}
+function drawStyles() {
+  const counts = {};
+  DATA.cards.forEach(c => { if (c.rarity !== "Token") counts[c.arch] = (counts[c.arch] || 0) + 1; });
+  document.getElementById("styles").innerHTML = ARCHES.map(a => {
+    const [name, plan, keys] = STYLE_INFO[a];
+    return '<div class="style"><h3>' + name + '</h3><span class="count">' + counts[a] + " cards</span><p>" + plan + '</p><div class="keys">' + keys +
+      '</div><button class="btn ghost" type="button" data-style="' + a + '">See the ' + name + " cards</button></div>";
+  }).join("");
+  document.querySelectorAll("[data-style]").forEach(b => b.addEventListener("click", () => {
+    ["rarity", "type"].forEach(k => state[k].clear());
+    toggle("arch", b.dataset.style, true);
+    ["rarity", "type"].forEach(k => document.querySelectorAll('[id^="chip-' + k + '-"]').forEach(x => x.setAttribute("aria-pressed", "false")));
+    show("cards"); window.scrollTo(0, 0);
+  }));
+}
+function drawItems(id, items) {
+  document.getElementById(id).innerHTML = items.map(r =>
+    '<div class="item"><h3>' + esc(r.name) + ' <small class="rar ' + esc(r.rarity.split(" ")[0]) + '">' + esc(r.rarity) + "</small></h3>" +
+    '<div class="fx">' + fmt(r.text, false) + "</div>" + (r.flavor ? '<div class="flav">' + esc(r.flavor) + "</div>" : "") + "</div>").join("");
+}
+function show(tab) {
+  ["overview", "cards", "relics", "decisions"].forEach(t => {
+    document.getElementById("tab-" + t).hidden = t !== tab;
+    const a = document.querySelector('[data-tab="' + t + '"]');
+    if (t === tab) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
+  });
+  if (location.hash !== "#" + tab) history.replaceState(null, "", "#" + tab);
+}
+document.querySelectorAll("[data-tab]").forEach(a => a.addEventListener("click", e => { e.preventDefault(); show(a.dataset.tab); window.scrollTo(0, 0); }));
+document.getElementById("opt-up").addEventListener("change", e => { state.up = e.target.checked; drawCards(); });
+document.getElementById("opt-notes").addEventListener("change", e => { state.notes = e.target.checked; drawCards(); });
+document.getElementById("opt-list").addEventListener("change", e => { state.list = e.target.checked; drawCards(); });
+chips("f-rarity", RARITIES, "rarity"); chips("f-type", TYPES, "type"); chips("f-arch", ARCHES, "arch");
+drawStyles(); drawCards(); drawItems("relics", DATA.relics); drawItems("potions", DATA.potions);
+const start = (location.hash || "").slice(1);
+show(["overview", "cards", "relics", "decisions"].includes(start) ? start : "overview");
+</script>
