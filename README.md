@@ -5,7 +5,7 @@ One mod (id `pres_mod`), several lighthearted caricature characters. Targets StS
 | Character | Id | Status | Folder |
 |---|---|---|---|
 | **The Donald**: builds walls, makes deals, deports the Spire's riff-raff | `trump` | v1.0.0: 88 cards + the Tweet token, 9 relics, 3 potions, full art, co-op tested | [`characters/trump/`](characters/trump/) |
-| **Uncle Joe** (Joe Biden) | `biden` | In progress: scaffold done (placeholder art, stub cards), design next | [`characters/biden/`](characters/biden/) |
+| **Sleepy Joe** (Joe Biden): dozes off, rambles, wakes up as Dark Brandon | `biden` | In progress: design v1 reviewed, mechanics next; placeholder art and stub cards in game | [`characters/biden/`](characters/biden/) |
 
 **Start with [`docs/00_project_plan.md`](docs/00_project_plan.md)**: the plan, the status, the decisions and how to resume.
 **New PC?** [`docs/SETUP.md`](docs/SETUP.md) goes from a fresh clone to a built and tested mod, and to making art.
@@ -50,7 +50,7 @@ Scripts that work on one character take `-c <id>`; without it they use the first
 
 ```bash
 # New character (docs/ADDING_A_CHARACTER.md)
-python scripts/new_character.py biden --class Biden --name "Uncle Joe" --full-name "Joe Biden" --primary 2F6BD8
+python scripts/new_character.py biden --class Biden --name "Sleepy Joe" --full-name "Joe Biden" --primary 4A55E6 --color-word navy
 
 # Setup and game updates (docs/SETUP.md, docs/GAME_UPDATES.md)
 python scripts/extract_game.py      # decompile + unpack the installed game into re/ (git-ignored)

@@ -28,7 +28,7 @@ public sealed class Biden : CharacterModel, IModCharacter
 
 	public override Color NameColor => new Color("4A55E6");
 
-	public override int StartingHp => 75;
+	public override int StartingHp => 70;
 
 	public override int StartingGold => 99;
 

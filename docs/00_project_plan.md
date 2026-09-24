@@ -5,7 +5,7 @@ If a chat session is lost, this file + [`README.md`](../README.md) + [`FRAMEWORK
 For a new character, follow [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md).
 
 _Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done. The repo is public at https://github.com/nexost/sts2-pres-mod with release v1.0.0. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md)).
-Joe Biden is in progress on branch `feature/biden`: phase C1 (scaffold) is done; C2 (design) is next._
+Joe Biden is in progress on branch `feature/biden`: C1 (scaffold) and C2 (design v1, reviewed: [Sleepy Joe Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv)) are done; C3 (mechanics and starter set) is in progress._
 
 ---
 
@@ -67,8 +67,9 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | Phase | Status | Notes |
 |---|---|---|
 | C1 Scaffold | ✅ Done | "Uncle Joe", class `Biden`, 75 HP / 99 Gold (placeholders until C2), stub starter Aviator Shades (6 Block), Ironclad's sounds. `test.py ui -c biden` passes |
-| C2 Design | ⏳ Next | `characters/biden/design/`: mechanics, play styles, cards, relics, potions; the compendium page for review |
-| C3–C7 | ⬜ | Mechanics and starter set, all content, balance, art, final checks |
+| C2 Design | ✅ v1 reviewed | [design.md](../characters/biden/design/design.md), [cards.json](../characters/biden/design/cards.json), [Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv). Sleepy Joe / Dark Brandon: **Drowsy** (he nods off at 10 and his turn ends; he wakes as Dark Brandon with Laser Eyes) and **Tangent** cards (only the lit line happens; as Dark Brandon, all of them). Styles: Dark Brandon, Power Nap, Tangents, General. 88 cards, 9 relics, 3 potions |
+| C3 Mechanics and starter set | ⏳ In progress | Drowsy, nodding off, Dark Brandon and Laser Eyes, Tangent cards; Strike, Defend, Catnap, Here's the Deal, Aviator Shades |
+| C4–C7 | ⬜ | All content, balance, art, final checks |
 
 ### Step 1: Research and feasibility ✅
 Set up the workspace and tools (ilspycmd, GDRE Tools, Godot 4.5.1 .NET, Pillow). Decompile the current build and unpack the resource pack.
@@ -253,6 +254,8 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-24 | Docs for other people and their AI agents: `AGENTS.md`, `SETUP.md` (tools, models, paths) and `GAME_UPDATES.md`. Per-PC paths moved to `local_settings.json` / environment variables. Step 1 is repeatable with `extract_game.py`, and `game_update_check.py` checks what the mod relies on. |
 | 2026-09-24 | A new character's id must be its class name in snake_case (the game derives every asset path from the class). The scaffold adds 5 stub cards so rewards and shops work before the real cards exist. Touch of Orobas became generic (`IUpgradableStarterRelic`). |
 | 2026-09-24 | **Joe Biden, C1**, on branch `feature/biden`. Display name "Uncle Joe", starter relic Aviator Shades (a stub until C2), 75 HP / 99 Gold until the design sets them. **Colour:** primary `4A55E6` (royal indigo, readable for the name and targeting line), with the card frame deepened to navy (`frame_hsv` h 0.68, s 1.0, v 1.0). It was checked with the game's own frame shader against the Defect's teal (h 0.55): clearly different. The colour word is "navy", because the Defect already has "Blue" in the Colorful Philosophers event. **Test harness:** the game's "Ascensions Unlocked!" popup ignores the tutorials-off setting and covered every ui screenshot once a test run had met the Architect. The harness now marks it as seen in the test profile (`DisableTutorials`). |
+| 2026-09-24 | **Joe Biden, C2 v1.** The user chose **Dark Brandon** as the signature, with **Sleepy Joe** as his other side (over Bipartisan and Build Back Better). Rules from the user: **sleepiness and confusion are on him, never on the enemies**, and **his identity must not copy another character or an enemy**. An earlier idea (putting enemies to sleep, using the game's Confused) was dropped for this. Tone: sleepiness, confusion and gaffes are fair game; age, decline and health are not. Result: **Drowsy** (a meter on him; nodding off ends his turn and he wakes as Dark Brandon) and **Tangent** cards (his cards change what they do while he rambles). design.md §10 lists the look-alikes and why each is different. |
+| 2026-09-24 | **Biden C2 review:** name **Sleepy Joe** (not Uncle Joe), **70 HP**. Left to the design and revisited in C5: nodding off ends the turn on the spot; Laser Eyes deal 1× Drowsy. |
 
 ## Open items
 

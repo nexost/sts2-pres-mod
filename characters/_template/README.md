@@ -11,7 +11,7 @@ skips folders starting with `_`, and nothing here is compiled or packed.
 | Token | Example | From |
 |---|---|---|
 | `{{id}}`, `{{ID}}`, `{{Class}}` | `biden`, `BIDEN`, `Biden` | the id and `--class` |
-| `{{Name}}`, `{{FullName}}`, `{{FirstName}}`, `{{Initial}}` | `Uncle Joe`, `Joe Biden`, `Joe`, `B` | `--name`, `--full-name` |
+| `{{Name}}`, `{{FullName}}`, `{{FirstName}}`, `{{Initial}}` | `Sleepy Joe`, `Joe Biden`, `Joe`, `B` | `--name`, `--full-name` |
 | `{{Starter}}`, `{{StarterName}}`, `{{STARTER_ID}}`, `{{starter_id}}` | `AviatorShades`, `Aviator Shades`, `AVIATOR_SHADES`, `aviator_shades` | `--starter`, `--starter-name` |
 | `{{primary}}`, `{{secondary}}`, `{{accent}}`, `{{text}}` | `2F6BD8`, ... | `--primary` etc. |
 | `{{dark}}`, `{{deck}}`, `{{map}}`, `{{dialogue}}` | shades of primary | outline, deck entry, map drawing, dialogue colours |

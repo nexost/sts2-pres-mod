@@ -3,7 +3,7 @@
   "id": "BIDEN",
   "class": "Biden",
   "folder": "Biden",
-  "name": "Uncle Joe",
+  "name": "Sleepy Joe",
   "colors": {
     "primary": "4A55E6",
     "secondary": "191C40",
@@ -11,11 +11,14 @@
     "text": "FAF0D7"
   },
   "archetypes": [
+    "Brandon",
+    "Nap",
+    "Tangents",
     "General"
   ],
   "art": {
-    "persona": "TODO Joe Biden as a comic caricature, with <hair>, <face>, <outfit> and <one signature prop>",
-    "persona_sentence": "TODO Joe Biden is drawn as a comic caricature with <the same description as persona>.",
+    "persona": "Joe Biden as a comic caricature, with neat swept-back white hair, a wide toothy grin, gold-rimmed aviator sunglasses, a navy suit and a small flag pin",
+    "persona_sentence": "Joe Biden is drawn as a comic caricature with neat swept-back white hair, a wide toothy grin, gold-rimmed aviator sunglasses, a navy suit and a small flag pin.",
     "name_in_card_art": "Joe",
     "full_name": "Joe Biden",
     "placeholder_initial": "B",

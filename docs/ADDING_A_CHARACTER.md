@@ -39,7 +39,7 @@ Stop after each phase for review, as with Trump (the working agreement in [00_pr
 | Choice | Notes |
 |---|---|
 | **Class name** (`Biden`) and **id** (`biden`) | The id is the class name in snake_case, and must be: the game names every asset after it. Unique across the base game and the mod |
-| **Display name** (`"Uncle Joe"`?) and full name for art (`"Joe Biden"`) | The full name goes in art prompts (that's what gives the likeness) |
+| **Display name** (`"Sleepy Joe"`) and full name for art (`"Joe Biden"`) | The full name goes in art prompts (that's what gives the likeness) |
 | **Primary colour** | Card frame, orb, trail, text. Pick one far from the 5 base characters and from existing mod characters (Trump: mustard gold `F2B92E`) |
 | Gender | Pronouns in the game's texts (`--gender masculine\|feminine\|neutral`) |
 | HP, Gold | Base game: 70–80 HP, 99 Gold. Final numbers come from the design |
@@ -49,7 +49,7 @@ Stop after each phase for review, as with Trump (the working agreement in [00_pr
 **Run:**
 
 ```bash
-python scripts/new_character.py biden --class Biden --name "Uncle Joe" --full-name "Joe Biden" --primary 2F6BD8 --starter AviatorShades --starter-name "Aviator Shades"
+python scripts/new_character.py biden --class Biden --name "Sleepy Joe" --full-name "Joe Biden" --primary 4A55E6 --color-word navy --starter AviatorShades --starter-name "Aviator Shades"
 python scripts/build.py --install
 python scripts/test.py ui -c biden
 ```
@@ -89,7 +89,8 @@ Write `characters/<id>/design/design.md` (the skeleton has the sections Trump's 
   - each play style must win on its own;
   - scaling must have no ceiling;
   - card flow (energy, draw) must not depend on the gimmick resource;
-  - no overlap with a base character's signature (the Wall v1 was too close to Necrobinder's Osty).
+  - no overlap with a base character's signature (the Wall v1 was too close to Necrobinder's Osty), an enemy's mechanic, or another mod character's (Biden's design.md §10 checks each look-alike);
+  - the character's traits play out on the character, not the enemies (Biden's sleepiness is his own meter, not a way to put monsters to sleep).
 - **Counts** (as the base game at full unlock):
   - about 88 cards;
   - 8 character relics plus the starter's Ancient upgrade;
