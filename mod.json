@@ -4,7 +4,9 @@
   "name": "sts2-pres-mod",
   "author": "exeet",
   "description": "Playable presidents for Slay the Spire 2. The Donald builds walls, makes deals and deports the Spire's riff-raff.",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "min_game_version": "0.107.1",
-  "legacy_ids": ["trump_character"]
+  "legacy_ids": [
+    "trump_character"
+  ]
 }

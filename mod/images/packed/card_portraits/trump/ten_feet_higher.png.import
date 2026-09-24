@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/ten_feet_higher.png-5150dc82cd7ce1e872f4bf6df
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.9
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

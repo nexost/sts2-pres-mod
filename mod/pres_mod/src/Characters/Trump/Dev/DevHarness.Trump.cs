@@ -35,6 +35,7 @@ public static partial class DevHarness
 		RelicChecks = TrumpRelicChecks,
 		PotionChecks = TrumpPotionChecks,
 		PowerChecks = TrumpPowerChecks,
+		CoopTurn = TrumpCoopTurn,
 		// The Tweet token isn't in any card pool, so the console can't add it.
 		ExtraCards = () => new[] { ModelDb.Card<Tweet>() },
 		AddCardToHand = async (card, combat) =>
@@ -431,6 +432,37 @@ public static partial class DevHarness
 			or "ART_OF_THE_DEAL" or "GOLD_TOWER" or "SO_MUCH_WINNING" or "VERIFIED_ACCOUNT" or "THREE_AM_POSTING" or "MAKE_THE_SPIRE_GREAT_AGAIN")
 		{
 			Expect(a.MyPowers.Contains(id + "_POWER"), $"power applied ({a.MyPowers})");
+		}
+	}
+
+	/// <summary>
+	/// Co-op: the host plays Coalition Wall (ALL players Build 12), the client Trickle Down (ALL players gain 12 Gold)
+	/// and Slap a Tariff. Each checks every player, so both sides must see the other's Wall and Gold change.
+	/// </summary>
+	private static async Task TrumpCoopTurn(bool host, ICombatState combat)
+	{
+		List<Player> players = RunManager.Instance.DebugOnlyGetState()!.Players.ToList();
+		if (host)
+		{
+			Dictionary<ulong, int> walls = players.ToDictionary(p => p.NetId, p => WallCmd.GetHeight(p.Creature));
+			await PlayCoopCard("COALITION_WALL", null, combat);
+			foreach (Player p in players)
+			{
+				int now = WallCmd.GetHeight(p.Creature);
+				Check(now == walls[p.NetId] + 12, $"Coalition Wall: player {p.NetId} Wall {walls[p.NetId]} -> {now} (expected +12)");
+			}
+		}
+		else
+		{
+			Dictionary<ulong, int> gold = players.ToDictionary(p => p.NetId, p => p.Gold);
+			await PlayCoopCard("TRICKLE_DOWN", null, combat);
+			foreach (Player p in players)
+			{
+				Check(p.Gold == gold[p.NetId] + 12, $"Trickle Down: player {p.NetId} Gold {gold[p.NetId]} -> {p.Gold} (expected +12)");
+			}
+			Creature enemy = combat.HittableEnemies.First();
+			await PlayCoopCard("SLAP_A_TARIFF", enemy, combat);
+			Check(enemy.GetPowerAmount<TariffPower>() == 2, $"Slap a Tariff: Tariff {enemy.GetPowerAmount<TariffPower>()} (expected 2)");
 		}
 	}
 

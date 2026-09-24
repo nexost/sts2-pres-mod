@@ -58,6 +58,10 @@ public static partial class DevHarness
 		/// <summary>Checks a card's key effect from its before/after snapshots: (card id, upgraded, before, after, expect).</summary>
 		public Action<string, bool, CardSnapshot, CardSnapshot, Action<bool, string>>? CheckCardEffect;
 
+		// ---- coop test
+		/// <summary>The character's co-op plays in the first turn of the co-op fight: (is host, combat). Trump: Coalition Wall, Trickle Down.</summary>
+		public Func<bool, ICombatState, Task>? CoopTurn;
+
 		// ---- balance bot
 		/// <summary>Once, when a balance run of this character starts (subscribe to the character's events).</summary>
 		public Action? BalanceInit;

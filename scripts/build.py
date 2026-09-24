@@ -3,11 +3,13 @@ One-command build of the whole mod (every character in characters/).
 
   python scripts/build.py              build into build/dist/
   python scripts/build.py --install    build, then install into the game (runs dist/install.ps1)
+  python scripts/build.py --zip        build, then pack build/dist/ into build/release/sts2-pres-mod-v<version>.zip
 
 Steps: placeholders -> model ID check -> C# build -> Godot import -> merge localization -> pack PCK ->
 assemble dist/ (mod + installer). The mod's id, name and version come from mod.json.
 """
 import argparse
+import glob
 import json
 import os
 import re
@@ -129,9 +131,45 @@ def build_dll():
     return os.path.join(MOD, ".godot", "mono", "temp", "bin", "ExportRelease", f"{MOD_ID}.dll")
 
 
+# Texture import settings that differ from Godot's default (lossless). Big paintings are stored as lossy WebP at 0.9:
+# no visible difference, and the card portraits shrink from ~60 MB to ~8 MB. Figures keep lossless: lossy colour
+# under their transparent pixels bleeds into the edges when scaled. Icons are small and need crisp edges.
+LOSSY = {"compress/mode": "1", "compress/lossy_quality": "0.9"}
+IMPORT_OVERRIDES = [
+    ("images/packed/card_portraits/*/*.png", LOSSY),
+    ("images/*/char_select_bg.png", LOSSY),
+    ("images/ui/transitions/*_transition.png", LOSSY),
+]
+
+
+def apply_import_overrides():
+    """Set IMPORT_OVERRIDES in the .import files; returns how many changed (they then need a re-import)."""
+    changed = 0
+    for pattern, params in IMPORT_OVERRIDES:
+        for src in glob.glob(os.path.join(MOD, pattern)):
+            path = src + ".import"
+            if not os.path.exists(path):
+                continue
+            with open(path, encoding="utf-8") as f:
+                text = f.read()
+            new = text
+            for key, value in params.items():
+                new = re.sub(rf"^{re.escape(key)}=.*$", f"{key}={value}", new, flags=re.M)
+            if new != text:
+                with open(path, "w", encoding="utf-8", newline="\n") as f:
+                    f.write(new)
+                changed += 1
+    return changed
+
+
 def godot_import():
     step("Godot import")
     run([GODOT, "--headless", "--path", MOD, "--import"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    # New images get Godot's default settings on their first import: set ours, then import those again.
+    changed = apply_import_overrides()
+    if changed:
+        print(f"  import settings changed for {changed} image(s), re-importing")
+        run([GODOT, "--headless", "--path", MOD, "--import"], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
 
 
 def pack_list():
@@ -227,8 +265,13 @@ def assemble(dll, ids):
     # Earlier ids of this mod (mod.json legacy_ids): the installer removes those folders, or both copies would load.
     with open(os.path.join(DIST, "legacy_ids.txt"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(presmod.MOD.get("legacy_ids", [])) + "\n")
-    for f in ("install.ps1", "install.cmd", "uninstall.ps1", "uninstall.cmd", "README.txt"):
+    for f in ("install.ps1", "install.cmd", "uninstall.ps1", "uninstall.cmd"):
         shutil.copy2(os.path.join(ROOT, "scripts", "dist", f), os.path.join(DIST, f))
+    # The player README gets the version stamped in, with Windows line endings for Notepad.
+    with open(os.path.join(ROOT, "scripts", "dist", "README.txt"), encoding="utf-8") as fh:
+        readme = fh.read().replace("{VERSION}", MANIFEST["version"]).replace("{GAME_VERSION}", MANIFEST["min_game_version"])
+    with open(os.path.join(DIST, "README.txt"), "w", encoding="utf-8", newline="\r\n") as fh:
+        fh.write(readme.replace("\r\n", "\n"))
     for f in sorted(os.listdir(mod_dir)):
         print(f"  {MOD_ID}/{f:<28} {os.path.getsize(os.path.join(mod_dir, f)):>10,} bytes")
 
@@ -252,6 +295,7 @@ def check_characters():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--install", action="store_true", help="install into the game after building")
+    ap.add_argument("--zip", action="store_true", help="also pack build/dist/ into build/release/sts2-pres-mod-v<version>.zip")
     args = ap.parse_args()
 
     shutil.rmtree(DIST, ignore_errors=True)
@@ -266,6 +310,28 @@ def main():
     pack(os.path.join(DIST, MOD_ID, f"{MOD_ID}.pck"))
     assemble(dll, ids)
     print(f"\nBuild OK -> {DIST}")
+
+    if args.zip:
+        step("Release zip")
+        release = os.path.join(BUILD, "release")
+        os.makedirs(release, exist_ok=True)
+        name = f"sts2-pres-mod-v{MANIFEST['version']}"
+        # One folder inside the zip (named like the zip), so unzipping never scatters files.
+        staging = os.path.join(release, name)
+        shutil.rmtree(staging, ignore_errors=True)
+        shutil.copytree(DIST, staging)
+        archive = shutil.make_archive(staging, "zip", root_dir=release, base_dir=name)
+        shutil.rmtree(staging)
+        print(f"  {archive}  ({os.path.getsize(archive):,} bytes)")
+        # Steam Workshop preview (docs/PUBLISHING.md): the first character's select painting, 16:9, under 1 MB.
+        from PIL import Image
+        painting = os.path.join(MOD, "images", presmod.character().id, "char_select_bg.png")
+        if os.path.exists(painting):
+            src = Image.open(painting).convert("RGB")
+            w, h = src.size
+            src.crop((w - int(h * 16 / 9) - 80, 0, w - 80, h)).resize((1280, 720), Image.LANCZOS).save(
+                os.path.join(release, "workshop_preview.png"), optimize=True)
+            print(f"  {os.path.join(release, 'workshop_preview.png')}")
 
     if args.install:
         step("Install")

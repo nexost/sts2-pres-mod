@@ -16,6 +16,7 @@ using MegaCrit.Sts2.Core.DevConsole;
 using MegaCrit.Sts2.Core.Entities.Cards;
 using MegaCrit.Sts2.Core.Entities.Creatures;
 using MegaCrit.Sts2.Core.Entities.Players;
+using MegaCrit.Sts2.Core.GameActions;
 using MegaCrit.Sts2.Core.GameActions.Multiplayer;
 using MegaCrit.Sts2.Core.Helpers;
 using MegaCrit.Sts2.Core.Logging;
@@ -49,6 +50,7 @@ namespace PresMod.Dev;
 ///   cards    : plays every card of the character, base and upgraded, in real fights, logs what each one changed, checks
 ///              the key effects and renders every card, power, relic and potion text (DevHarness.Cards.cs).
 ///   balance  : one run by a heuristic bot for balance numbers, any character (DevHarness.Balance.cs).
+///   coop     : two instances play a co-op fight and record the state each turn to find desyncs (DevHarness.Coop.cs).
 ///   other    : modes a character adds itself (CharacterTests.ExtraModes, e.g. Trump's deportsweep).
 /// Character-specific checks live in Characters/&lt;Name&gt;/Dev/DevHarness.&lt;Name&gt;.cs (CharacterTests.cs explains the hooks).
 /// Options: --pres-out &lt;dir&gt; (screenshots + report), --pres-seed &lt;seed&gt;, --pres-tile slot/count (window grid for
@@ -118,6 +120,10 @@ public static partial class DevHarness
 				else if (_mode == "cards")
 				{
 					TaskHelper.RunSafely(Guarded(RunCardTest));
+				}
+				else if (_mode == "coop")
+				{
+					TaskHelper.RunSafely(Guarded(RunCoopTest));
 				}
 				else if (Kit.ExtraModes.TryGetValue(_mode, out Func<Task>? extra))
 				{
@@ -282,7 +288,15 @@ public static partial class DevHarness
 	private static async Task<bool> PassTurn(ICombatState combat)
 	{
 		int round = combat.RoundNumber;
-		PlayerCmd.EndTurn(Me, canBackOut: false);
+		if (RunManager.Instance.DebugOnlyGetState()!.Players.Count > 1)
+		{
+			// Co-op: like the End Turn button, through the synced queue, so the other players learn about it.
+			RunManager.Instance.ActionQueueSynchronizer.RequestEnqueue(new EndPlayerTurnAction(Me, Me.PlayerCombatState!.TurnNumber));
+		}
+		else
+		{
+			PlayerCmd.EndTurn(Me, canBackOut: false);
+		}
 		return await WaitUntil(() => !CombatManager.Instance.IsInProgress || (combat.RoundNumber > round && Me.PlayerCombatState?.Phase == PlayerTurnPhase.Play), TimeSpan.FromSeconds(40));
 	}
 
@@ -441,7 +455,7 @@ public static partial class DevHarness
 
 	private static void WriteReport()
 	{
-		var report = new { mode = _mode, ok = _errors.Count == 0, errors = _errors, events = _events, sweep = _sweep };
+		var report = new { mode = _mode, ok = _errors.Count == 0, errors = _errors, events = _events, sweep = _sweep, coop = _coopStates };
 		File.WriteAllText(Path.Combine(_outDir, "report.json"), JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
 	}
 }

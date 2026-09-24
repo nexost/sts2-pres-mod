@@ -1,10 +1,28 @@
-STS2-PRES-MOD - playable presidents for Slay the Spire 2 (The Donald, more coming)
-===================================================================================
+STS2-PRES-MOD v{VERSION} - playable presidents for Slay the Spire 2
+===================================================================
+
+A lighthearted caricature mod. The jokes are aimed at the persona, and the walls and deportations are aimed at
+the Spire's monsters.
+
+CHARACTERS
+  The Donald - builds a Wall that grows in stages, Deports the Spire's riff-raff, makes deals with Gold, posts
+  Tweets. 88 cards plus the Tweet token, 9 relics, 3 potions, his own lines with every Ancient.
+  (More presidents are planned.)
+
+REQUIREMENTS
+  Slay the Spire 2 v{GAME_VERSION} or later, on Windows. Game updates can break mods: if the game updated and the mod
+  misbehaves, check for a mod update.
 
 INSTALL
   1. Close the game.
-  2. Double-click install.cmd.
+  2. Double-click install.cmd. It finds the game through Steam.
+     (Or copy the "pres_mod" folder into "Slay the Spire 2\mods\" yourself.)
   3. Start the game. The first time it sees mods it asks you to allow them.
+  4. Pick The Donald on the character select screen. He's unlocked from the start.
+
+CO-OP
+  Every player needs the same version of the mod. The Donald works with any mix of characters.
+  Coalition Wall and Trickle Down are co-op-only cards.
 
 UNINSTALL
   Double-click uninstall.cmd.
@@ -20,4 +38,4 @@ UNINSTALL
 NOTES
   - Modded play uses separate save profiles; your normal (unmodded) saves are never touched.
   - Replaces the older "trump_character" mod: the installer removes it.
-  - Built for Slay the Spire 2 v0.107.1. Game updates may require a mod update.
+  - Something wrong? The game's log is %APPDATA%\SlayTheSpire2\logs\godot.log (lines with "pres_mod" are ours).

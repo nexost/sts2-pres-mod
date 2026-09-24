@@ -16,6 +16,8 @@ Launch the game in the mod's test mode and collect results. Works for every char
                                             PARALLEL at once, tiled on the main monitor and muted; results per character in
                                             build/balance/<character>_<time>/. favor=STYLE makes the bot prefer the cards
                                             whose "arch" is STYLE in characters/<id>/design/cards.json.
+  python scripts/test.py coop [-c trump] [CLIENT_CHARACTER]  two instances play a co-op fight over localhost (the game's
+                                            --fastmp), side by side; both must record the same state every turn (~4 min)
   python scripts/test.py cleansaves [ID,...]  remove test runs and run history that use the mod, or a character that
                                             was removed (e.g. SMOKETEST): needed after deleting a character, or the next
                                             test fails on the game's "model not found" errors
@@ -72,6 +74,69 @@ def clean_test_saves(removed_entries):
         print(f"{folder}: removed {len(result['removed'])} file(s)" + (f", errors: {result['errors']}" if result["errors"] else ""))
 
 
+def coop_test(ch, client_character=None):
+    """Two instances play a co-op fight over localhost (the game's --fastmp option), side by side and muted.
+    Each writes its own report; the states both recorded at the start of every turn must be identical."""
+    if subprocess.run(["tasklist", "/FI", "IMAGENAME eq SlayTheSpire2.exe"], capture_output=True, text=True).stdout.count("SlayTheSpire2.exe"):
+        sys.exit("The game is already running; close it first.")
+    out = os.path.join(ROOT, "build", "test", f"coop_{time.strftime('%Y%m%d_%H%M%S')}")
+    env = dict(os.environ, SteamAppId="2868840", SteamGameId="2868840")
+    roles = [("host", ["--fastmp", "host_standard"], ch.entry, "0/2"),
+             ("client", ["--fastmp", "join", "--clientId", "1001"], (client_character or ch.entry).upper(), "1/2")]
+    procs = []
+    print(f"Launching co-op test: {roles[0][2]} (host) + {roles[1][2]} (client)\n  output: {out}", flush=True)
+    for role, net, character, tile in roles:
+        role_out = os.path.join(out, role)
+        os.makedirs(role_out)
+        args = [os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--log-file", os.path.join(role_out, "godot.log")] + net + [
+            "--pres-test", "coop", "--pres-out", role_out, "--pres-character", character,
+            "--pres-savedir", f"modded_coop_{role}", "--pres-tile", tile, "--pres-mute"]
+        procs.append(subprocess.Popen(args, cwd=GAME_DIR, env=env))
+        time.sleep(15 if role == "host" else 0)  # the host's lobby must be open before the client joins
+    for p in procs:
+        try:
+            p.wait(timeout=600)
+        except subprocess.TimeoutExpired:
+            p.kill()
+    reports = {}
+    ok = True
+    for role, *_ in roles:
+        path = os.path.join(out, role, "report.json")
+        report = json.load(open(path, encoding="utf-8")) if os.path.exists(path) else None
+        reports[role] = report
+        print(f"\n[{role}] " + ("no report (crashed or never started)" if report is None else ("OK" if report["ok"] else "ERRORS")))
+        if report is None:
+            ok = False
+            continue
+        ok &= report["ok"]
+        for e in report["events"]:
+            print("  ", e)
+        for e in report["errors"]:
+            print("   ERROR", e)
+        log = os.path.join(out, role, "godot.log")
+        if os.path.exists(log):
+            problems = scan_log(log)
+            desync = [p for p in problems if re.search(r"checksum|desync|diverg", p, re.I)]
+            ours = [p for p in problems if p.startswith("!")]
+            print(f"   log: {len(problems)} problem lines, {len(ours)} about the mod, {len(desync)} about desyncs")
+            for p in (ours + desync)[:15]:
+                print("    ", p)
+            ok &= not ours and not desync
+    # The same states on both sides: players and enemies at the start of each turn.
+    if reports.get("host") and reports.get("client"):
+        host_states = {s["label"]: s for s in reports["host"].get("coop", [])}
+        client_states = {s["label"]: s for s in reports["client"].get("coop", [])}
+        labels = [l for l in host_states if l in client_states]
+        diffs = [(l, json.dumps(host_states[l], sort_keys=True), json.dumps(client_states[l], sort_keys=True)) for l in labels
+                 if json.dumps(host_states[l], sort_keys=True) != json.dumps(client_states[l], sort_keys=True)]
+        print(f"\nState comparison: {len(labels)} turn(s) recorded by both, {len(diffs)} different")
+        for label, a, b in diffs:
+            print(f"  {label}\n    host:   {a[:600]}\n    client: {b[:600]}")
+        ok &= bool(labels) and not diffs
+    print(f"\nRESULT: {'PASS' if ok else 'FAIL'}")
+    sys.exit(0 if ok else 1)
+
+
 def main():
     argv = sys.argv[1:]
     ch = take_character_option(argv)
@@ -82,6 +147,9 @@ def main():
         balance_batch(argv[1] if len(argv) > 1 else ch.entry, int(argv[2]) if len(argv) > 2 else 5,
                       argv[3] if len(argv) > 3 else "BAL", int(argv[4]) if len(argv) > 4 else 1,
                       fullheal="fullheal" in options, favor=favor)
+        return
+    if mode == "coop":
+        coop_test(ch, argv[1] if len(argv) > 1 else None)
         return
     if mode == "cleansaves":
         clean_test_saves(argv[1].split(",") if len(argv) > 1 else [])

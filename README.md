@@ -4,7 +4,7 @@ One mod (id `pres_mod`), several lighthearted caricature characters. Targets StS
 
 | Character | Id | Status | Folder |
 |---|---|---|---|
-| **The Donald**: builds walls, makes deals, deports the Spire's riff-raff | `trump` | Complete: 89 cards, 9 relics, 3 potions, full art | [`characters/trump/`](characters/trump/) |
+| **The Donald**: builds walls, makes deals, deports the Spire's riff-raff | `trump` | v1.0.0: 88 cards + the Tweet token, 9 relics, 3 potions, full art, co-op tested | [`characters/trump/`](characters/trump/) |
 | Joe Biden | `biden` | Planned | made with `scripts/new_character.py` |
 
 **Start with [`docs/00_project_plan.md`](docs/00_project_plan.md)**: the plan, the status, the decisions and how to resume.
@@ -17,7 +17,10 @@ One mod (id `pres_mod`), several lighthearted caricature characters. Targets StS
 | [`docs/FRAMEWORK.md`](docs/FRAMEWORK.md) | How the mod is built: shared code vs. character code, patches, scenes, build, tests, scripts |
 | [`docs/ADDING_A_CHARACTER.md`](docs/ADDING_A_CHARACTER.md) | **The playbook for a new character**, from the scaffold to the final checks, with the pitfalls already hit |
 | [`docs/ART_PIPELINE.md`](docs/ART_PIPELINE.md) | Making art: ComfyUI setup, what each character provides, recipes and destinations per kind, the review tool |
+| [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md) | What each version contains |
+| [`docs/PUBLISHING.md`](docs/PUBLISHING.md) | Where the mod may be published (not Nexus), the release checklist, Steam Workshop steps |
 | [`docs/01_feasibility_report.md`](docs/01_feasibility_report.md), [`docs/02_step2_report.md`](docs/02_step2_report.md) | Steps 1–2: how the game works, the patches it needs, build, installer and uninstaller |
+| [`docs/09_step9_report.md`](docs/09_step9_report.md) | Step 9: co-op testing, size, QA pass, packaging, where it can be published |
 | [`docs/reference/`](docs/reference/) | Base-game data: balance benchmarks from the 5 characters, Ironclad's asset list |
 | [`characters/trump/design/design.md`](characters/trump/design/design.md) | The Donald's design (v2): mechanics, play styles, relics, balance |
 | [`characters/trump/design/cards.json`](characters/trump/design/cards.json) | **Source of truth** for The Donald's cards, relics and potions |
@@ -47,12 +50,14 @@ python scripts/new_character.py biden --class Biden --name "Uncle Joe" --full-na
 # Build
 python scripts/build.py              # build into build/dist/ (placeholders for missing art, character and ID checks)
 python scripts/build.py --install    # build + install into the game
+python scripts/build.py --zip        # also the release zip in build/release/ (+ Workshop preview image)
 
 # Tests (the game runs in a test mode; saves go to modded_prestest/, never your real saves)
 python scripts/test.py ui -c trump                 # walkthrough + the character's mechanics, with screenshots (~3 min)
 python scripts/test.py cards PRESTEST1 -c trump    # every card base and upgraded, relics, potions, all text (~15 min)
 python scripts/test.py cards PRESTEST1 relics      # just the relic and potion checks (~1 min)
 python scripts/test.py autoslay SEED -c trump      # the game's bot plays a full run (god mode)
+python scripts/test.py coop -c trump [IRONCLAD]    # two instances play a co-op fight; checks both see the same state (~4 min)
 python scripts/test.py deportsweep SEED A,B        # Trump's own mode: Deport enemies one at a time in the listed encounters
 python scripts/test.py balance TRUMP,IRONCLAD,SILENT 9 PREFIX 9 fullheal   # balance bot, 9 games at once, tiled + muted
 python scripts/balance_report.py PREFIX            # compare balance batches

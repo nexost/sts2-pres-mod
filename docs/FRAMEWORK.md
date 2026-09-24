@@ -138,7 +138,10 @@ Every **image** has a fixed path per art kind: `presmod.KIND_OUTPUTS`, listed in
 4. **DLL** (`dotnet build`).
 5. **Godot import.**
 6. **PCK pack**, including the localization merge into `build/loc/`.
-7. **`build/dist/`**: the mod, `install.cmd`, `uninstall.cmd`, README, and `legacy_ids.txt`.
+7. **`build/dist/`**: the mod, `install.cmd`, `uninstall.cmd`, README (with the version stamped in), and `legacy_ids.txt`.
+   `--zip` also writes `build/release/sts2-pres-mod-v<version>.zip` and a Workshop preview image ([PUBLISHING.md](PUBLISHING.md)).
+
+**Texture compression:** Godot imports images lossless by default. `build.py` switches the big paintings to lossy WebP at quality 0.9 (`IMPORT_OVERRIDES`): the card portraits, the select-screen paintings and the transition masks. That took the PCK from 71 MB to 17 MB with no visible difference. Figures stay lossless, because lossy colour under transparent pixels bleeds into their edges, and icons stay lossless because they're small and need crisp edges.
 
 **Install** copies to `mods/pres_mod/` and removes `mods/trump_character/` (the mod's old id).
 
@@ -156,6 +159,7 @@ Every **image** has a fixed path per art kind: `presmod.KIND_OUTPUTS`, listed in
 | `cards [SEED] [relics\|A,B]` | Every card base and upgraded in real fights with key-effect checks; relics, potions, turn powers; all texts rendered | ~15 min (relics only ~1 min) |
 | `balance CHARS RUNS [PREFIX] [PARALLEL] [fullheal] [favor=STYLE]` | Heuristic bot runs, e.g. `BIDEN,IRONCLAD,SILENT 9 PFX 9 fullheal`: 9 at once, tiled 3×3 on the main monitor, muted | ~25 min per 54 runs |
 | `autoslay [SEED]` | The game's AutoSlay bot plays a full run (god mode) | ~5 min |
+| `coop [CLIENT_CHARACTER]` | Two instances side by side play a co-op fight over localhost (the game's own `--fastmp` option, no Steam lobby): the host starts it, each plays its own cards (`CoopTurn` hook), both record every player and enemy at the start of each turn and the records must match (desync check), then the rest site and shop | ~4 min |
 | a character's own mode | e.g. `deportsweep` (Trump) | varies |
 | `cleansaves [ID,...]` | Removes test runs that use the mod or a removed character (through the game, so Steam Cloud doesn't restore them) | ~30 s |
 
@@ -180,6 +184,7 @@ Every hook is optional. With none, all modes already work with the shared checks
 | `Snapshot`, `CheckCardEffect` | cards | Extra counters in the before/after snapshots; key-effect checks per card |
 | `BalanceInit`, `BalanceCombatStart`, `BalanceCombatStats` | balance | Per-fight numbers in `balance.json` |
 | `RemovesEnemy`, `CardValue` | balance | Teach the bot the character's non-damage effects |
+| `CoopTurn` | coop | The character's co-op plays in the first turn: (is host, combat). Trump: Coalition Wall on the host, Trickle Down and Slap a Tariff on the client |
 
 Command-line flags (all `--pres-*`):
 - `test`, `out`, `seed`, `character`, `only`, `encounters`, `fullheal`, `favor`, `tile`, `mute`, `savedir`;

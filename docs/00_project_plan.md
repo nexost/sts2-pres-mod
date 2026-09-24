@@ -4,7 +4,7 @@
 If a chat session is lost, this file + [`README.md`](../README.md) + [`FRAMEWORK.md`](FRAMEWORK.md) are enough to carry on.
 For a new character, follow [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md).
 
-_Last updated: 2026-09-24. Step 8.5 (multi-character framework and the rename to sts2-pres-mod) is done and not committed yet; it waits for the user's review. Step 9 waits for the go-ahead._
+_Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done and not committed yet; it waits for the user's review. Nothing is published: that's the user's decision ([PUBLISHING.md](PUBLISHING.md))._
 
 ---
 
@@ -49,8 +49,8 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | 7 | Lock the art style | ✅ Done (`328beee`) | [`07_step7_report.md`](../characters/trump/docs/07_step7_report.md), boards in [`art/`](../characters/trump/docs/art/) |
 | 7.5 | Art review tool | ✅ Done (`328beee`) | `python scripts/art_review.py`, see [`ART_PIPELINE.md`](ART_PIPELINE.md) §4 |
 | 8 | Make all the art | ✅ Done (`99fba6b`) | [`step8_ingame.png`](../characters/trump/docs/art/step8_ingame.png); updating art: [`ART_PIPELINE.md`](ART_PIPELINE.md) §5 |
-| 8.5 | Multi-character framework, rename to sts2-pres-mod | ✅ Done (not committed) | [`FRAMEWORK.md`](FRAMEWORK.md), [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md), [`ART_PIPELINE.md`](ART_PIPELINE.md), `scripts/new_character.py` |
-| 9 | Polish and packaging | ⏳ Next | Installable release |
+| 8.5 | Multi-character framework, rename to sts2-pres-mod | ✅ Done (`9b7a46a`) | [`FRAMEWORK.md`](FRAMEWORK.md), [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md), [`ART_PIPELINE.md`](ART_PIPELINE.md), `scripts/new_character.py` |
+| 9 | Polish and packaging | ✅ Done (not committed) | v1.0.0: `build.py --zip`, [RELEASE_NOTES.md](RELEASE_NOTES.md), [PUBLISHING.md](PUBLISHING.md) |
 | 10 | Extra balance testing (optional) | ⬜ | More measured tuning, if wanted |
 | 11 | Custom style LoRA art (optional) | ⬜ | Art regenerated with a LoRA trained on the game's art, if wanted |
 
@@ -169,11 +169,34 @@ Added by the user after Step 8: make a second character (Joe Biden, later) signi
   - The Donald passes `test.py ui` and `test.py cards ... relics` after the refactor.
 - **Docs:** [FRAMEWORK.md](FRAMEWORK.md), [ADDING_A_CHARACTER.md](ADDING_A_CHARACTER.md), [ART_PIPELINE.md](ART_PIPELINE.md) and a new README.
 
-### Step 9: Polish and packaging
-- A co-op check (may need a second player), a test with other mods installed, and a full crash and QA pass, for every character.
-- **The PCK is 71 MB**, mostly the full-size paintings. Try lossy compression for the select screen and figures.
-- Note the supported game version; write install instructions and release notes.
-- Check Steam Workshop and Nexus rules on real-person and political content before any public release.
+### Step 9: Polish and packaging ✅
+Result: **v1.0.0**, a tested, installable release (`python scripts/build.py --zip` → `build/release/sts2-pres-mod-v1.0.0.zip`).
+- **Co-op, tested solo:** the game's own developer option `--fastmp` connects two instances over localhost without Steam.
+  - `test.py coop` runs a host and a client side by side. Both pick characters, fight 3 turns playing their own cards and co-op cards, and record every player and enemy at each turn start.
+  - The two records must match, which catches desyncs. Then both visit the rest site and the shop.
+  - **Two Donalds** and **Donald + Ironclad** both pass, with 3 turns identical on both sides and no desync or mod errors in either log.
+  - **Found and fixed:** in co-op each Wall stood on the next player. `WallSpacingPatch` makes room in the game's party line-up, the way the game makes room for Osty, and re-spaces the party when Coalition Wall gives an ally a Wall mid-fight.
+  - **Also fixed:** the harness ended turns locally; in co-op it now sends the networked end-turn action like the button does.
+- **Size:** the PCK went from 71 MB to 17 MB.
+  - Card portraits, select paintings and transition masks are now lossy WebP at 0.9, set by `build.py`. No visible difference.
+  - Figures and icons stay lossless.
+- **QA pass on the final build:**
+  - `test.py ui` passes;
+  - `test.py cards` passes: all 89 cards base and upgraded, 132 checks, 0 log problems;
+  - `test.py autoslay` is a **victory** (all 3 acts and the Architect, 3 min 41 s, 0 log lines about the mod);
+  - **the release zip**, unzipped and installed into a clean `mods/`, passes `test.py ui`;
+  - `uninstall.cmd -DryRun` finds the one run in the user's own modded history that uses the mod and changes nothing.
+- Report: [09_step9_report.md](09_step9_report.md).
+- **Packaging:**
+  - version 1.0.0 (`mod.json`);
+  - the player README gets the version and game version stamped in, with co-op and troubleshooting notes;
+  - [RELEASE_NOTES.md](RELEASE_NOTES.md);
+  - `build.py --zip` makes the zip and a Workshop preview image.
+- **Publishing rules** ([PUBLISHING.md](PUBLISHING.md)):
+  - **Nexus Mods is out**: an indefinite ban on US sociopolitical mods since 2020, enforced on Trump and Biden mods in 2025.
+  - **Steam Workshop is the official channel**, through Mega Crit's `ModUploader.exe`, under Steam's content rules.
+  - Publishing needs the user's go-ahead (and the uploader download).
+- **Deferred at the user's request:** testing with other mods (e.g. BaseLib, the common library most StS2 content mods use).
 
 ### Step 10: Extra balance testing (optional)
 Added by the user during Step 6: balance is good enough to move on, and more testing can come at the end.
@@ -215,6 +238,7 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-23 | Step 4: mod models get `[SavedProperty]` support (`SavedPropertiesTypeCache.InjectTypeIntoCache` at startup), so run-long growth (Permanent Structure, Cornerstone) survives save and quit. |
 | 2026-09-23 | Steps 7 + 7.5 committed (`328beee`), Step 8 committed (`99fba6b`). Art quality: presets added after the first batch (style-reference strength 0.75 instead of 1.0 was the main fix). |
 | 2026-09-24 | **Step 8.5:** the mod becomes **sts2-pres-mod** (id `pres_mod`), a mod of playable presidents; Joe Biden comes later. **One mod with several characters**, not one mod per character. The game reads one set of text tables per mod, so each character keeps its own tables and the build merges them. The test flags became `--pres-*`, and the installer removes the old `trump_character` folder. |
+| 2026-09-24 | Step 8.5 committed (`9b7a46a`). **Step 9:** co-op is tested with two local instances (`--fastmp`); big paintings are stored lossy (PCK 71 → 17 MB); version 1.0.0. Nexus Mods bans US-politics mods, so the release targets the Steam Workshop (only when the user decides) or a direct zip. The user deferred testing with other mods. |
 | 2026-09-24 | A new character's id must be its class name in snake_case (the game derives every asset path from the class). The scaffold adds 5 stub cards so rewards and shops work before the real cards exist. Touch of Orobas became generic (`IUpgradableStarterRelic`). |
 
 ## Open items
@@ -224,6 +248,8 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 - `.claude/launch.json` in the game folder serves `characters/` on port 8765 for local page previews (e.g. `/trump/design/gallery.html`).
 - If the game suddenly runs at ~8 fps in tests (the shared preload in `godot.log` takes ~30 s instead of ~2 s), the PC needs a restart. It isn't the mod (checked on 2026-09-23).
 - The full one-at-a-time Deport sweep over all 80 encounters (~45 min) hasn't been run. Targeted lists are the default: `test.py deportsweep SEED A,B,C`.
+- **Other mods** (deferred by the user): test alongside BaseLib and a popular character mod. Worth adding then: a startup check that logs a clear error when another mod defines a class with the same model ID as ours. The game silently keeps the last one loaded.
+- Workshop users can't run `uninstall.cmd`'s save cleanup; the Workshop description should ask them to finish runs before unsubscribing.
 
 ## Resuming in a new session
 

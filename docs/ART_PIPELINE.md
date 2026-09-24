@@ -121,6 +121,7 @@ python scripts/art_review.py [-c biden] [--host 0.0.0.0]    # http://127.0.0.1:8
 Nothing else changes: scenes and code don't hard-code image sizes.
 - Figures are placed by their feet at runtime.
 - Relic and potion outlines are rebuilt from the new icons.
+- Card portraits, select paintings and transition masks are stored as lossy WebP (quality 0.9) in the PCK; the PNGs in `mod/` stay lossless ([FRAMEWORK.md](FRAMEWORK.md) §5).
 - The Wall stages (Trump) stretch up to 1.6× and then repeat a strip.
 
 ## 6. Other tools

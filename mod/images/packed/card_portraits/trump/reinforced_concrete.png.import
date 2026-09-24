@@ -15,9 +15,9 @@ dest_files=["res://.godot/imported/reinforced_concrete.png-86097ce39d19f5b5a20b1
 
 [params]
 
-compress/mode=0
+compress/mode=1
 compress/high_quality=false
-compress/lossy_quality=0.7
+compress/lossy_quality=0.9
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

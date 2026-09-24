@@ -181,6 +181,8 @@ Things to know:
 ## C7. Final checks and docs
 
 - `test.py ui`, `test.py cards`, `test.py autoslay` all PASS for the new character, **and for the other characters** (their shared code may have moved).
+- **Co-op:** `test.py coop -c <id>` (two of the new character) and `test.py coop -c <id> IRONCLAD` (a mixed party) PASS. Give the kit a `CoopTurn` if the character has cards that affect allies. Two things to check on the screenshots: anything drawn beside the character must fit the co-op line-up (Trump's Walls needed `WallSpacingPatch`), and co-op-only cards (`mp` in cards.json) must play.
+- The release steps are in [PUBLISHING.md](PUBLISHING.md).
 - Write the character's reports in `characters/<id>/docs/`; update [00_project_plan.md](00_project_plan.md) and the README's character table.
 - Commit when the user asks.
 

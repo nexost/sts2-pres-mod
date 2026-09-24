@@ -13,6 +13,7 @@ using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Runs;
 using PresMod.Characters.Trump.Mechanics;
+using PresMod.Characters.Trump.Patches;
 using PresMod.Framework;
 
 namespace PresMod.Characters.Trump.Nodes;
@@ -85,6 +86,11 @@ public partial class NTrumpCombatUi : Node
 			wall = new NWallDisplay { Name = "TrumpWall", Creature = creature };
 			node.AddChild(wall);
 			_walls[creature] = wall;
+			// Someone other than The Donald got a Wall (Coalition Wall): the party layout didn't leave room for it.
+			if (creature.Player?.Character is not Trump && NCombatRoom.Instance is NCombatRoom room)
+			{
+				WallSpacingPatch.Relayout(room);
+			}
 		}
 		Rect2 box = node.Hitbox.GetRect();
 		wall.Position = new Vector2(box.End.X + 26f, box.End.Y);
