@@ -46,11 +46,15 @@ Installing ComfyUI, downloading the four model files and setting the paths for y
 | `enemy_rule`, `enemy_rule_archetypes` | Added to cards of those play styles, or whose art mentions an enemy: enemies are Spire monsters, never people | the Deport play style |
 | `card_refs` | 3 game cards per play style, used as style references (`<character>/<card>` under `re/pck/images/packed/card_portraits/`) | Wall: heirloom_hammer, inflame, bludgeon, ... |
 | `card_backgrounds` | Background per play style | "radial red and orange burst background", ... |
+| `card_notes` (optional) | A sentence per play style, added to card prompts that show the character | none. Biden: Z letters and a snoring face for Nap, red lenses for Brandon |
 | `default_archetype` | Fallback for both | General |
 | `energy_tint` | Dark, mid and light colours the Ironclad orb and energy icon are recoloured to, as references for the orb and energy icon | gold |
 | `sleeve` | The co-op hands: the arm's sleeve | "a navy suit sleeve with a white shirt cuff and a gold cufflink" |
 
 **`characters/<id>/design/cards.json`:** each card's `art` field says what its portrait shows. Name the character by `name_in_card_art`.
+The likeness only comes when that name is in the text: a card that says only "Dark Brandon" gets a generic hero, so write "Joe as Dark Brandon".
+An optional `art_background` replaces the play style's background for one card. Use it, with a different framing (close-up of an object,
+over the shoulder, a mirror, a wide scene, a low-angle full body), when cards of one style come out looking alike.
 
 **`characters/<id>/art/art_assets.json`:** everything else, in 5 lists: `character`, `relics`, `potions`, `powers`, `ui`.
 - Each item has an `id`, a `name`, the `art` text and a `kind`.
@@ -89,6 +93,11 @@ An item can always name its own `"outputs": {"key": "images/{id}/..."}`. This is
 python scripts/art_review.py [-c biden] [--host 0.0.0.0]    # http://127.0.0.1:8190 (0.0.0.0: from a phone on the same Wi-Fi)
 ```
 
+- **On a phone** (with `--host 0.0.0.0`, then `http://<PC's address>:8190` on the same Wi-Fi):
+  - the filters sit behind a **Filters** button;
+  - tiles show in two columns, and the selection bar sits at the bottom;
+  - the detail view is full screen, with ← · Keep · Regenerate · → at the bottom; swipe the picture to change items.
+  Windows asks once to let Python through the firewall.
 - **One page for every character.** The selector at the top appears once there are two or more.
   - `-c <id>` opens the page on that character (the URL gets `?char=<id>`); otherwise it shows the character you last looked at.
   - The style filter lists that character's play styles, and card previews use its own frame colour (from `energy_tint`).
@@ -149,3 +158,21 @@ Nothing else changes: scenes and code don't hard-code image sizes.
 - **Short signs render** (EXIT, DENIED). Keep it to 1–2 words.
 - **Colours drift toward the references**: the first energy orb came out red from Ironclad's. `energy_tint` fixes it, and the orb prompts say "all gold colors, no red".
 - Some cards leave out half the scene (Wall Slam's wall). Edit the prompt and regenerate rather than rolling more seeds.
+
+## 8. Lessons from Sleepy Joe
+
+- **Test a sample first.** Ten items (button, one pose per form, one card per play style, a relic, a power) take 5 minutes and
+  caught three prompt problems before the hour-long pass.
+- **What's in `persona` wins.** "A wide toothy grin" in the persona made him grin while dozing, so expressions belong in the
+  item's own text. And he never takes off the aviators the persona gives him, whatever a card says.
+- **No conditionals.** "Whenever he's asleep, his eyes are closed" was ignored. Describe what's visible: Z letters, head
+  tilted back, mouth open in a snore.
+- **A form needs its one visual cue named strongly:** "the lenses of his aviators glowing solid bright red" worked where
+  "his aviators glowing red" didn't.
+- Power icons need a plain symbol: "a half-closed eye" came out as a ball icon.
+- **Power icons used the same two references for every icon**, and all 24 came out as copies of Thorns' green star and
+  Strength's red. Each icon now gets its own pair from a pool of 12 varied game icons (`POWER_REF_POOL` in
+  `art_recipes.py`) at style strength 0.55, and every icon's text names its colours.
+- **Keep the character on about a third of the cards.** The first Biden texts put him on 80 of 88 cards. The base game
+  and The Donald (29 of 89) show the character on 30–40%, hands on about a fifth, and objects, effects, monsters and
+  scenes on the rest. Biden's hands use the co-op sleeve (a rolled-up light blue shirt sleeve with a silver watch).

@@ -17,22 +17,44 @@
     "General"
   ],
   "art": {
-    "persona": "Joe Biden as a comic caricature, with neat swept-back white hair, a wide toothy grin, gold-rimmed aviator sunglasses, a navy suit and a small flag pin",
-    "persona_sentence": "Joe Biden is drawn as a comic caricature with neat swept-back white hair, a wide toothy grin, gold-rimmed aviator sunglasses, a navy suit and a small flag pin.",
+    "persona": "Joe Biden as a comic caricature, with neat swept-back white hair, gold-rimmed aviator sunglasses, a navy suit and a small flag pin",
+    "persona_sentence": "Joe Biden is drawn as a comic caricature with neat swept-back white hair, gold-rimmed aviator sunglasses, a navy suit and a small flag pin.",
     "name_in_card_art": "Joe",
     "full_name": "Joe Biden",
     "placeholder_initial": "B",
     "enemy_rule": "Every enemy, monster or foe is a Slay the Spire fantasy creature (cultists, slimes, goblins, beetles, jaw worms), never a human.",
     "enemy_rule_archetypes": [],
     "card_refs": {
+      "Brandon": [
+        "ironclad/demon_form",
+        "defect/sweeping_beam",
+        "defect/hyperbeam"
+      ],
+      "Nap": [
+        "colorless/calm",
+        "regent/lunar_blast",
+        "necrobinder/melancholy"
+      ],
+      "Tangents": [
+        "regent/monologue",
+        "necrobinder/pagestorm",
+        "colorless/scrawl"
+      ],
       "General": [
-        "ironclad/inflame",
-        "defect/momentum_strike",
-        "necrobinder/dirge"
+        "regent/kingly_punch",
+        "regent/royalties",
+        "defect/momentum_strike"
       ]
     },
     "card_backgrounds": {
-      "General": "TODO a background in the character's colours, e.g. warm crimson and navy background"
+      "Brandon": "dark navy background blazing with red light and a hot red rim glow",
+      "Nap": "calm midnight blue and soft violet night background with a few small stars",
+      "Tangents": "deep royal blue background with a warm golden yellow burst",
+      "General": "royal blue and crimson red background"
+    },
+    "card_notes": {
+      "Nap": "Sleep shows as big white Z letters floating up and a head tilted back with the mouth open in a snore; his aviators stay on.",
+      "Brandon": "As Dark Brandon, the lenses of his aviators glow solid bright red."
     },
     "default_archetype": "General",
     "energy_tint": [
@@ -40,7 +62,7 @@
       "3F48C3",
       "C1C5FD"
     ],
-    "sleeve": "TODO the character's sleeve for the co-op hands, e.g. a navy suit sleeve with a white shirt cuff"
+    "sleeve": "a light blue dress shirt sleeve rolled up to the forearm, with a silver wristwatch"
   },
   "frame_hsv": {
     "h": 0.68,

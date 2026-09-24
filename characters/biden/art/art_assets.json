@@ -5,67 +5,67 @@
       "id": "char_button",
       "kind": "char_button",
       "name": "Character select button",
-      "art": "a character select portrait bust of {persona}, three-quarter view, chin raised with a confident expression, on a solid flat saturated navy background"
+      "art": "a character select portrait bust of {persona}, three-quarter view, a wide confident toothy grin, sunlight glinting off his aviators, on a solid flat saturated royal indigo blue background"
     },
     {
       "id": "char_select_bg",
       "kind": "fullscreen",
       "name": "Character select screen",
-      "art": "{persona} standing heroically on the right half of the frame, seen from a low angle, under a dramatic navy sky with drifting embers. The left 40 percent of the image is calm dark background with no subject, leaving room for menu text"
+      "art": "{persona} leaning back against a vintage green 1967 sports car on a rocky cliff on the right half of the frame, seen from a low angle, arms crossed with a confident grin, a faint red glow in his aviators, the dark tower of the Spire far away on the horizon under a starry navy night sky with a crescent moon. The left 40 percent of the image is calm dark sky with no subject, leaving room for menu text"
     },
     {
       "id": "top_panel_icon",
       "kind": "top_icon",
       "name": "Top bar icon",
-      "art": "the head of {persona} in three-quarter view, a confident smile"
+      "art": "the head of {persona} in three-quarter view, a wide toothy grin, gold-rimmed aviator sunglasses"
     },
     {
       "id": "map_marker",
       "kind": "map_marker",
       "name": "Map marker",
-      "art": "a small navy pennant flag on a short pole, pointing straight down"
+      "art": "a small chocolate chip ice cream cone, its pointed tip pointing straight down"
     },
     {
       "id": "combat_idle",
       "kind": "figure",
       "name": "Combat pose: idle",
-      "art": "standing confidently, one hand raised in a friendly wave"
+      "art": "standing relaxed with a wide toothy grin, one hand in his pocket and the other pointing finger guns to the right"
     },
     {
       "id": "combat_attack",
       "kind": "figure",
       "name": "Combat pose: attack",
-      "art": "lunging forward with a big swinging punch"
+      "art": "lunging forward with a big folksy haymaker punch, aviators glinting"
     },
     {
       "id": "combat_cast",
       "kind": "figure",
       "name": "Combat pose: cast",
-      "art": "pointing forward commandingly with one finger, the other hand holding up a signed document"
+      "art": "leaning in and jabbing one finger forward mid-speech, the other hand holding a stack of index cards"
     },
     {
       "id": "combat_hurt",
       "kind": "figure",
       "name": "Combat pose: hurt",
-      "art": "recoiling backwards with a shocked offended expression, arms flailing"
+      "art": "knocked backwards mid-sentence, leaning away from the hit with one foot lifted, aviators askew, a startled expression, arms thrown out, normal body proportions"
     },
     {
       "id": "merchant_pose",
       "kind": "figure",
       "name": "Shop pose",
-      "art": "standing alone, seen from slightly behind, hands clasped behind the back, leaning forward to inspect something with great interest, no furniture or counter"
+      "art": "standing alone, seen from slightly behind, a chocolate chip ice cream cone in one hand, leaning forward to inspect something with great interest over the top of his aviators, no furniture or counter"
     },
     {
       "id": "rest_site_pose",
       "kind": "figure",
       "name": "Rest site pose",
-      "art": "sitting relaxed in a folding camp chair with feet up, a small campfire glow on the face"
+      "art": "sitting in a folding camp chair with his feet up, dozed off with his head tilted back and his mouth open in a snore, his aviators still on, a small campfire glow on his face"
     },
     {
       "id": "hand_rock",
       "kind": "hand",
       "name": "Co-op hand: rock",
-      "art": "clenched into a firm fist"
+      "art": "clenched into a tight round fist with every finger curled in and the thumb across them, no finger pointing"
     },
     {
       "id": "hand_paper",
@@ -89,34 +89,34 @@
       "id": "transition",
       "kind": "transition",
       "name": "Screen transition mask",
-      "art": "a swirling vortex of tumbling confetti and stars, spiraling into the center"
+      "art": "a swirling vortex of puffy dream clouds and speech bubbles, spiraling into the center"
     },
     {
       "id": "dark_combat_idle",
       "kind": "figure",
       "name": "Dark Brandon: Combat pose: idle",
-      "art": "as Dark Brandon, his aviators glowing red with laser eyes, a confident smirk, dramatic red rim light, standing confidently, one hand raised in a friendly wave",
+      "art": "as Dark Brandon, the lenses of his aviators glowing solid bright red with laser light, a stern confident smirk, dramatic red rim light, standing tall with his arms crossed",
       "placeholder_eyes": "FF3B30"
     },
     {
       "id": "dark_combat_attack",
       "kind": "figure",
       "name": "Dark Brandon: Combat pose: attack",
-      "art": "as Dark Brandon, his aviators glowing red with laser eyes, a confident smirk, dramatic red rim light, lunging forward with a big swinging punch",
+      "art": "as Dark Brandon, the lenses of his aviators glowing solid bright red with laser light, a stern confident smirk, dramatic red rim light, lunging forward with a punch as two red laser beams shoot from his aviators",
       "placeholder_eyes": "FF3B30"
     },
     {
       "id": "dark_combat_cast",
       "kind": "figure",
       "name": "Dark Brandon: Combat pose: cast",
-      "art": "as Dark Brandon, his aviators glowing red with laser eyes, a confident smirk, dramatic red rim light, pointing forward commandingly with one finger, the other hand holding up a signed document",
+      "art": "as Dark Brandon, the lenses of his aviators glowing solid bright red with laser light, a stern confident smirk, dramatic red rim light, pointing forward commandingly with one finger, jaw set",
       "placeholder_eyes": "FF3B30"
     },
     {
       "id": "dark_combat_hurt",
       "kind": "figure",
       "name": "Dark Brandon: Combat pose: hurt",
-      "art": "as Dark Brandon, his aviators glowing red with laser eyes, a confident smirk, dramatic red rim light, recoiling backwards with a shocked offended expression, arms flailing",
+      "art": "as Dark Brandon, the lenses of his aviators glowing solid bright red with laser light, a stern confident smirk, dramatic red rim light, staggering back from a hit with one forearm raised to block, jaw set, normal body proportions",
       "placeholder_eyes": "FF3B30"
     }
   ],
@@ -144,7 +144,7 @@
     {
       "id": "index_cards",
       "name": "Index Cards",
-      "art": "a small stack of white index cards with scribbled notes, held by a paperclip"
+      "art": "a small stack of bright white index cards with blue scribbled notes, held by a silver paperclip"
     },
     {
       "id": "corvette",
@@ -171,7 +171,7 @@
     {
       "id": "warm_milk",
       "name": "Warm Milk",
-      "art": "a glass bottle of warm milk with a tiny sleeping cap on the cork"
+      "art": "a glass bottle of creamy white warm milk with a tiny blue sleeping cap on the cork"
     },
     {
       "id": "espresso_shot",
@@ -188,102 +188,102 @@
     {
       "id": "drowsy_power",
       "name": "Drowsy",
-      "art": "a drooping half-closed eye with three small Z letters floating above it"
+      "art": "a round sleepy cartoon face in pale blue with heavy droopy half-closed eyelids, yawning, one small white Z floating beside it"
     },
     {
       "id": "dark_brandon_power",
       "name": "Dark Brandon",
-      "art": "aviator sunglasses with two bright red laser beams shooting out of the lenses"
+      "art": "black aviator sunglasses with two bright red laser beams shooting out of the lenses, on a dark navy round badge"
     },
     {
       "id": "nodded_off_power",
       "name": "Nodded Off",
-      "art": "a crescent moon wearing a tiny sleeping cap"
+      "art": "a pale yellow crescent moon wearing a blue striped sleeping cap, on a dark navy round badge"
     },
     {
       "id": "wide_awake_power",
       "name": "Wide Awake",
-      "art": "a single wide-open eye with a bright white iris"
+      "art": "a single wide-open eye with a bright blue iris, white eyeball and dark lashes"
     },
     {
       "id": "laser_focus_power",
       "name": "Laser Focus",
-      "art": "a red crosshair with a thin laser line through it"
+      "art": "a red crosshair with a thin red laser line through it, on a dark navy round badge"
     },
     {
       "id": "early_riser_power",
       "name": "Early Riser",
-      "art": "a rooster silhouette in front of a rising sun"
+      "art": "a red rooster crowing in front of a rising golden sun"
     },
     {
       "id": "dark_brandon_rises_power",
       "name": "Dark Brandon Rises",
-      "art": "aviator sunglasses rising like a sun, radiating red light"
+      "art": "gold aviator sunglasses rising like a sun, radiating red rays"
     },
     {
       "id": "no_malarkey_power",
       "name": "No Malarkey",
-      "art": "a clenched fist crushing a crumpled sheet of paper"
+      "art": "a clenched fist crushing a crumpled white sheet of paper, on a red round badge"
     },
     {
       "id": "double_vision_power",
       "name": "Double Vision",
-      "art": "two overlapping pairs of glowing red eyes"
+      "art": "two overlapping pairs of glowing red eyes on a black round badge"
     },
     {
       "id": "power_nap_power",
       "name": "Power Nap",
-      "art": "a pillow with a small shield emblem on it"
+      "art": "a white pillow with a small blue shield emblem on it"
     },
     {
       "id": "snoring_power",
       "name": "Snoring",
-      "art": "three big bold Z letters with shockwave lines"
+      "art": "three big bold white Z letters with pale blue shockwave lines, on a dark navy round badge"
     },
     {
       "id": "well_rested_power",
       "name": "Well Rested",
-      "art": "a small bed with a bright sparkle above it"
+      "art": "a small bed with a navy blanket and a bright gold sparkle above it"
     },
     {
       "id": "heavy_sleeper_power",
       "name": "Heavy Sleeper",
-      "art": "a heavy iron anchor with a sleeping cap on top"
+      "art": "a heavy dark iron anchor with a blue sleeping cap on top"
     },
     {
       "id": "deep_sleep_power",
       "name": "Deep Sleep",
-      "art": "a crescent moon sinking into dark water"
+      "art": "a pale yellow crescent moon sinking into dark navy water"
     },
     {
       "id": "stream_of_consciousness_power",
       "name": "Stream of Consciousness",
-      "art": "a winding river made of floating letters"
+      "art": "a winding pale blue river made of floating white letters"
     },
     {
       "id": "long_winded_power",
       "name": "Long-Winded",
-      "art": "a gust of wind curling out of a speech bubble"
+      "art": "a white gust of wind curling out of a white speech bubble, on a royal blue round badge"
     },
     {
       "id": "off_script_power",
       "name": "Off Script",
-      "art": "a crumpled script page with a red scribble over it"
+      "art": "a crumpled white script page with a red scribble over it"
     },
     {
       "id": "tall_tales_power",
       "name": "Tall Tales",
-      "art": "a fish that is far too big, with a measuring tape"
+      "art": "a big blue fish that is far too big, with a yellow measuring tape"
     },
     {
       "id": "moment_of_clarity_power",
       "name": "Moment of Clarity",
-      "art": "a beam of light breaking through a cloud"
+      "art": "a golden beam of light breaking through a gray cloud"
     },
     {
       "id": "amtrak_joe_power",
       "name": "Amtrak Joe",
-      "art": "a small silver passenger train, front view"
+      "art": "a small silver and blue passenger train, front view"
     },
     {
       "id": "bipartisan_power",
@@ -293,17 +293,17 @@
     {
       "id": "gaffe_machine_power",
       "name": "Gaffe Machine",
-      "art": "a small clanking machine with a microphone spitting out letters"
+      "art": "a small brass clanking machine with a microphone spitting out white letters"
     },
     {
       "id": "infrastructure_law_power",
       "name": "Infrastructure Law",
-      "art": "a steel bridge with a signed scroll hanging from it"
+      "art": "a steel gray bridge with a signed white scroll hanging from it"
     },
     {
       "id": "soul_of_the_nation_power",
       "name": "Soul of the Nation",
-      "art": "a glowing flag rippling in the wind"
+      "art": "a glowing red, white and blue flag rippling in the wind"
     }
   ],
   "ui": [
@@ -311,7 +311,7 @@
       "id": "energy_orb_base",
       "kind": "orb",
       "name": "Energy orb: base",
-      "art": "a round shiny navy medallion seal with an octagonal rim and a star in the middle, all navy colors, flat front view",
+      "art": "a round shiny navy blue medallion seal with a silver octagonal rim and a white star in the middle, all navy blue and silver colors, no red, flat front view",
       "layers": [
         1
       ]
@@ -320,7 +320,7 @@
       "id": "energy_orb_swirl",
       "kind": "orb",
       "name": "Energy orb: swirl",
-      "art": "a round swirl of bright navy flame energy spiraling around an empty center, all navy colors, flat front view",
+      "art": "a round swirl of bright navy blue flame energy spiraling around an empty center, all navy blue colors, no red, flat front view",
       "layers": [
         2,
         3
@@ -330,7 +330,7 @@
       "id": "energy_orb_ring",
       "kind": "orb",
       "name": "Energy orb: rim",
-      "art": "a thick ornate polished navy octagonal ring frame with a hollow empty center, all navy colors, flat front view",
+      "art": "a thick ornate polished navy blue and silver octagonal ring frame with a hollow empty center, all navy blue and silver colors, no red, flat front view",
       "layers": [
         4,
         5
@@ -340,7 +340,7 @@
       "id": "energy_icon",
       "kind": "energy_icon",
       "name": "Energy icon (card text and cost gem)",
-      "art": "a small shiny navy gem with a star engraved on it"
+      "art": "a small shiny navy blue gem with a white star engraved on it"
     }
   ]
 }

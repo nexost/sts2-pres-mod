@@ -14,6 +14,7 @@ JOBS.json is a list of jobs:
 The server must be running (see docs/07_step7_report.md for the launch command). Default: http://127.0.0.1:8189.
 """
 import argparse
+import filecmp
 import json
 import os
 import shutil
@@ -45,7 +46,12 @@ def stage_input(path):
     """Copy an image into ComfyUI's input folder and return the name LoadImage expects."""
     os.makedirs(COMFY_IN, exist_ok=True)
     name = os.path.basename(os.path.dirname(path)) + "__" + os.path.basename(path)
-    shutil.copyfile(path, os.path.join(COMFY_IN, name))
+    dst = os.path.join(COMFY_IN, name)
+    # Jobs share references, and ComfyUI may be reading one while the next job is queued: rewriting it in place gave
+    # "Invalid data found when processing input". Leave an identical copy alone; replace a changed one in one step.
+    if not (os.path.exists(dst) and filecmp.cmp(path, dst, shallow=False)):
+        shutil.copyfile(path, dst + ".tmp")
+        os.replace(dst + ".tmp", dst)
     return name
 
 

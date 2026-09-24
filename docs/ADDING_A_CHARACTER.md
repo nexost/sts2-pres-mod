@@ -168,17 +168,21 @@ python scripts/balance_report.py BIDEN1
 
 1. **Fill in `character.json` → `art`** (fields explained in [ART_PIPELINE.md](ART_PIPELINE.md) §2):
    - `persona` and `persona_sentence`;
-   - `card_refs` and `card_backgrounds` per play style;
+   - `card_refs`, `card_backgrounds` and, if the character looks different in a play style, `card_notes`;
    - `energy_tint` (the scaffold derives it from the primary colour);
    - `sleeve`.
 2. **Give `art_assets.json` the character's jokes:**
    - the select screen scene, props in the poses, the map marker, the transition;
    - the character's own art items with their `outputs` (like Trump's Wall stages).
-3. **Run `python scripts/art_review.py -c biden`:**
+3. **Check the card `art` texts:** the character on about a third of the cards (the base game's mix: hands on about a fifth,
+   objects, effects, monsters and scenes on the rest), named by `name_in_card_art` wherever they show, including forms
+   ("Joe as Dark Brandon").
+4. **Generate a sample of about 10 items first** (button, one pose per form, one card per play style, a relic, a power) and fix the prompts.
+5. **Run `python scripts/art_review.py -c biden`:**
    - "Generate missing" per tab at **Standard**;
    - review;
    - regenerate at High where it matters (select screen, button, poses).
-4. `python scripts/build.py --install`, then `python scripts/test.py ui -c biden`, and look at the screenshots.
+6. `python scripts/build.py --install`, then `python scripts/test.py ui -c biden`, and look at the screenshots.
 
 Things to know:
 - The select painting shows only its right 3/4.

@@ -112,16 +112,78 @@ main { padding: 14px 16px 60px; }
 .help { color: var(--dim); font-size: 12px; }
 .nomatch { display: none; margin: 40px 16px; color: var(--dim); font-size: 15px; }
 .nomatch.show { display: block; }
-@media (max-width: 900px) {
+.mobile-only, .mbar { display: none; }
+body.modal-open { overflow: hidden; }
+button, .sel, .pic { touch-action: manipulation; }
+@media (max-width: 900px) and (min-width: 701px) {
   :root { --tile: 160px; }
   .mbox { grid-template-columns: 1fr; grid-template-rows: 55% 45%; height: 96vh; }
   header { position: static; }
+}
+/* Phones (the tool can be opened from a phone on the same Wi-Fi: art_review.py --host 0.0.0.0). */
+@media (max-width: 700px) {
+  .mobile-only { display: inline-flex; }
+  header { padding: 8px 10px 6px; }
+  header .row { gap: 6px; }
+  header .row + .row { margin-top: 6px; }
+  h1 { font-size: 15px; white-space: nowrap; }
+  .r-top, .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .r-top::-webkit-scrollbar, .tabs::-webkit-scrollbar { display: none; }
+  .r-top .spacer, .r-tabs .spacer { display: none; }
+  .r-top > * { flex: none; }
+  .pill { font-size: 12px; padding: 3px 8px; }
+  .r-tabs { flex-wrap: wrap; }
+  .tabs { flex: 1 1 200px; min-width: 0; }
+  #status { flex: 1 1 40%; min-width: 0; }
+  .tabs button { white-space: nowrap; padding: 6px 10px; }
+  #optBtn.on { background: #3a3220; border-color: #7a6326; color: var(--gold2); }
+  header:not(.open) .opt { display: none !important; }
+  #search { flex: 1 1 40%; min-width: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .size-ctl { display: none !important; }
+  input, select, textarea { font-size: 16px; }  /* smaller text makes iPhones zoom in on focus */
+  main { padding: 8px 8px 90px; }
+  .section-title { margin: 12px 2px 6px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .meta { padding: 6px 7px 1px; }
+  .meta b { font-size: 12.5px; }
+  .meta span { font-size: 11px; }
+  .foot { flex-wrap: wrap; gap: 5px; padding: 4px 6px 7px; }
+  .vers { flex: 1 1 100%; gap: 4px; }
+  .vers button { padding: 4px 9px; font-size: 12.5px; }
+  .foot .act { flex: 1; padding: 8px 6px; font-size: 13px; }
+  .sel { width: 32px; height: 32px; top: 5px; left: 5px; }
+  .badge { top: 6px; right: 6px; font-size: 10.5px; padding: 3px 7px; }
+  .selbar { position: fixed; left: 8px; right: 8px; bottom: calc(8px + env(safe-area-inset-bottom)); z-index: 30; flex-wrap: wrap; box-shadow: 0 6px 24px rgba(0,0,0,.6); }
+  .selbar .spacer { display: none; }
+  .selbar button { padding: 8px 10px; }
+  .toast { bottom: calc(76px + env(safe-area-inset-bottom)); max-width: 92vw; text-align: center; }
+  /* Detail view: full screen, one scrolling column, the main actions in a bar at the bottom. */
+  .mbox { width: 100vw; height: 100vh; height: 100dvh; border: 0; border-radius: 0; display: flex; flex-direction: column; overflow-y: auto; }
+  .mview, .mview .pic { flex: none; }
+  .mview .stage { width: 100%; }
+  .mnav { top: 8px; right: 8px; }
+  #mPrev, #mNext { display: none; }
+  #mClose { padding: 8px 14px; font-size: 16px; background: rgba(39,44,54,.9); }
+  .strip { min-height: 0; padding: 8px; }
+  .strip .v { width: 86px; }
+  .strip .v img { height: 52px; }
+  .mside { overflow: visible; padding: 12px 12px calc(84px + env(safe-area-inset-bottom)); }
+  .mside h2 { font-size: 17px; }
+  .mside textarea { min-height: 120px; }
+  .mbar { display: flex; gap: 6px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 55; padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+    background: rgba(31,35,43,.97); border-top: 1px solid var(--line); }
+  .mbar button { padding: 11px 8px; font-size: 15px; }
+  .mbar .grow { flex: 1; }
+}
+@media (hover: none) {
+  .kbd, .keyhelp { display: none; }
 }
 </style>
 </head>
 <body>
 <header>
-  <div class="row">
+  <div class="row r-top">
     <h1>Art Review <span id="charName"></span></h1>
     <select id="charSelect" title="Whose art to show" style="display:none"></select>
     <span class="pill"><span id="comfyDot" class="dot"></span><span id="comfyTxt">ComfyUI</span></span>
@@ -132,20 +194,21 @@ main { padding: 14px 16px 60px; }
     <span class="spacer"></span>
     <button id="genMissing" title="Queue one image for every item in this tab that has none yet">Generate missing</button>
   </div>
-  <div class="row">
+  <div class="row r-tabs">
     <div class="tabs" id="tabs"></div>
+    <button id="optBtn" class="mobile-only" title="Filters and settings">Filters</button>
     <span class="spacer"></span>
-    <select id="status">
+    <select id="status" class="opt">
       <option value="">All statuses</option><option value="review">To review</option><option value="none">Not generated</option>
       <option value="kept">Kept</option><option value="working">Working</option><option value="error">Errors</option>
     </select>
-    <input id="search" placeholder="Search…" size="14">
+    <input id="search" class="opt" placeholder="Search…" size="14">
   </div>
-  <div class="row">
+  <div class="row opt">
     <div class="chips" id="chips"></div>
     <span class="spacer"></span>
     <label class="chk"><input type="checkbox" id="frameToggle" checked> Card frames</label>
-    <label class="chk">Size <input type="range" id="size" min="150" max="460" value="250"></label>
+    <label class="chk size-ctl">Size <input type="range" id="size" min="150" max="460" value="250"></label>
     <label class="chk">Per regenerate <select id="count"><option>1</option><option>2</option><option>3</option><option>4</option></select></label>
     <label class="chk" id="qualityLabel">Quality <select id="quality"></select></label>
   </div>
@@ -171,6 +234,12 @@ main { padding: 14px 16px 60px; }
       <div class="strip" id="mStrip"></div>
     </div>
     <div class="mside" id="mSide"></div>
+  </div>
+  <div class="mbar">
+    <button id="mbPrev" aria-label="Previous item">←</button>
+    <button class="keep grow" id="mbKeep">Keep</button>
+    <button class="primary grow" id="mbRegen">Regenerate</button>
+    <button id="mbNext" aria-label="Next item">→</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -281,7 +350,12 @@ function applyFilter() {
   });
   $("#nomatch").classList.toggle("show", order.length > 0 && !order.some(id => visible(items.get(id))));
   renderTabs(); renderCounts();
+  // Phones hide the filters behind a button: mark it when a filter is on.
+  const active = !!(statusF || arch || search);
+  $("#optBtn").textContent = active ? "Filters •" : "Filters";
+  $("#optBtn").classList.toggle("on", active);
 }
+$("#optBtn").onclick = () => document.querySelector("header").classList.toggle("open");
 
 function renderTabs() {
   $("#tabs").innerHTML = SECTIONS.map(s => {
@@ -395,8 +469,8 @@ $("#count").value = load("count", 1);
 $("#count").onchange = e => store("count", e.target.value);
 
 // ---- detail view ----
-function openModal(id) { modalId = id; $("#modal").classList.add("show"); renderModal(); }
-function closeModal() { modalId = null; $("#modal").classList.remove("show"); }
+function openModal(id) { modalId = id; $("#modal").classList.add("show"); document.body.classList.add("modal-open"); renderModal(); $(".mbox").scrollTop = 0; }
+function closeModal() { modalId = null; $("#modal").classList.remove("show"); document.body.classList.remove("modal-open"); }
 function stepModal(d) {
   const vis = visibleIds(); if (!vis.length) return;
   let i = vis.indexOf(modalId);
@@ -408,6 +482,7 @@ function stepModal(d) {
     modalId = vis[(i + d + vis.length) % vis.length];
   }
   renderModal();
+  $(".mbox").scrollTop = 0;  // phones scroll the whole view: show the new picture
 }
 function renderModal() {
   const it = items.get(modalId); if (!it) return;
@@ -439,7 +514,11 @@ function renderModal() {
       <span class="help">Saved prompts are used by the next regenerations.</span></div></div>
     ${it.refs.length ? `<div><div class="lbl">Style references</div><div class="refs">${it.refs.map(r => `<img src="${r}" alt="">`).join("")}</div></div>` : ""}
     <div><div class="lbl">Goes to</div><div class="help">${it.outputs.map(o => "mod/" + esc(o)).join("<br>")}</div></div>
-    <div class="help">← → items · 1–9 versions · K keep · R regenerate · Del delete version · Esc close</div>`;
+    <div class="help keyhelp">← → items · 1–9 versions · K keep · R regenerate · Del delete version · Esc close</div>`;
+  // The phone layout's bottom bar mirrors the main buttons.
+  $("#mbKeep").disabled = $("#mKeep").disabled;
+  $("#mbKeep").textContent = it.current ? "Keep v" + it.current : "Keep";
+  $("#mbRegen").textContent = "Regenerate" + (count() > 1 ? " ×" + count() : "");
   $("#mKeep").onclick = () => keep([it.id]);
   $("#mRegen").onclick = () => regen([it.id]);
   if ($("#mCancel")) $("#mCancel").onclick = () => cancel([it.id]);
@@ -459,9 +538,20 @@ async function deleteVersion(id, v) {
   await api("/api/delete", { id, versions: [v] });
   toast(`Deleted v${v} (moved to build/art/review/trash)`);
 }
-$("#mPrev").onclick = () => stepModal(-1);
-$("#mNext").onclick = () => stepModal(1);
+$("#mPrev").onclick = $("#mbPrev").onclick = () => stepModal(-1);
+$("#mNext").onclick = $("#mbNext").onclick = () => stepModal(1);
+$("#mbKeep").onclick = () => keep([modalId]);
+$("#mbRegen").onclick = () => regen([modalId]);
 $("#mClose").onclick = closeModal;
+// Swipe the picture left or right for the next or previous item.
+let swipe = null;
+$("#mPic").addEventListener("touchstart", e => { const t = e.touches[0]; swipe = e.touches.length === 1 ? { x: t.clientX, y: t.clientY } : null; }, { passive: true });
+$("#mPic").addEventListener("touchend", e => {
+  if (!swipe) return;
+  const t = e.changedTouches[0], dx = t.clientX - swipe.x, dy = t.clientY - swipe.y;
+  swipe = null;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > 1.5 * Math.abs(dy)) stepModal(dx < 0 ? 1 : -1);
+});
 $("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
 
 document.addEventListener("keydown", e => {

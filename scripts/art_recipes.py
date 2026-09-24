@@ -7,7 +7,9 @@ characters/<id>/character.json ("art": persona, card references and backgrounds 
 Used by scripts/art_review.py; the recipe per kind is documented in docs/ART_PIPELINE.md.
 """
 import os
+import random
 import re
+import zlib
 
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
@@ -25,8 +27,9 @@ CARDS = os.path.join(GAME, "images", "packed", "card_portraits")
 CARD_STYLE = ("Flat cel-shaded digital painting with hard-edged dark shadow shapes, dark outlines, strong readable "
               "silhouette, saturated limited palette, in the exact painting style of the reference images.")
 FRAMING = "Keep the main subject centered and in the upper two thirds of the image."
+# The game's text box covers the lower half. Naming it made the model paint a fake one with gibberish text.
 FRAMING_ANCIENT = ("Tall full-card art: keep the main subject and faces in the upper half of the image; the lower half "
-                   "is covered by the card's text box, so keep it simple background there.")
+                   "is plain, simple background with no objects, no text and no border.")
 LIGHT_BG = "isolated on a plain flat light gray background, no shadow, no text"
 GREEN_BG = "isolated on a plain flat bright green background, no ground, no shadow, no text"
 CARD_ACTION = {"attack": "dynamic diagonal action with impact lines", "skill": "a clear, readable scene", "power": "an iconic, glowing, almost symmetrical composition"}
@@ -51,6 +54,12 @@ QUALITY = {
                "unet": INT8, "steps": 8, "refs": 3, "style_strength": 1.0},
 }
 DEFAULT_QUALITY = "standard"
+# Power icons: the same two references for every icon made them all copies of Thorns' green star and Strength's red.
+# Each icon gets its own pair from this pool of varied single-object game icons, at a lower style strength, so the
+# references give the style (flat cel shading, thick outline) and the icon's text gives the shape and colours.
+POWER_REF_POOL = ["flutter", "countdown", "curious", "ringing", "royalties", "slumber", "storm", "vigor", "ritual",
+                  "borrowed_time", "speedster", "nostalgia"]
+POWER_STYLE_STRENGTH = 0.55
 
 
 def quality_settings(key, item):
@@ -58,6 +67,8 @@ def quality_settings(key, item):
     q = QUALITY.get(key or DEFAULT_QUALITY, QUALITY[DEFAULT_QUALITY])
     out = {k: v for k, v in q.items() if k not in ("label", "desc", "refs")}
     out["style"] = item["refs"][:q["refs"]]
+    if item.get("style_strength_max"):
+        out["style_strength"] = min(out["style_strength"], item["style_strength_max"])
     return out
 
 
@@ -121,9 +132,7 @@ def ensure_kit(ch):
                   _enlarge("images/relics/golden_compass.png", k("relic_golden_compass.png"))],
         "potion": [_enlarge(p, k("potion_%d.png" % i)) for i, p in enumerate(
             ["images/potions/" + f for f in sorted(os.listdir(_game("images/potions"))) if f.endswith(".png")][:40:13])],
-        "power": [_enlarge("images/powers/strength_power.png", k("power_strength.png")),
-                  _enlarge("images/powers/thorns_power.png", k("power_thorns.png")),
-                  _enlarge("images/powers/barricade_power.png", k("power_barricade.png"))],
+        "power": [_enlarge(f"images/powers/{n}_power.png", k(f"power_{n}.png")) for n in POWER_REF_POOL],
         "top_icon": [_enlarge("images/ui/top_panel/character_icon_ironclad.png", k("top_ironclad.png"), fill=0.8),
                      _enlarge("images/ui/top_panel/character_icon_silent.png", k("top_silent.png"), fill=0.8)],
         "map_marker": [_enlarge("images/packed/map/icons/map_marker_ironclad.png", k("marker_ironclad.png"), canvas=(832, 1088), fill=0.8),
@@ -220,12 +229,16 @@ def card_prompt(ch, c):
     if name and re.search(rf"\b{re.escape(name)}\b", art):
         parts.append(re.sub(rf"\b{re.escape(name)}\b", a.get("full_name", name), art) + ".")
         parts.append(a["persona_sentence"])
+        # How the character looks in this play style (Biden: eyes closed and aviators up when asleep, red lenses as Dark Brandon).
+        if a.get("card_notes", {}).get(c.get("arch")):
+            parts.append(a["card_notes"][c["arch"]])
     else:
         parts.append(art + ".")
     if a.get("enemy_rule") and (c.get("arch") in a.get("enemy_rule_archetypes", []) or ENEMY_WORDS.search(art)):
         parts.append(a["enemy_rule"])
     backgrounds = a.get("card_backgrounds", {})
-    background = backgrounds.get(c.get("arch"), backgrounds.get(a.get("default_archetype"), "deep saturated background"))
+    # A card can name its own background (cards.json "art_background"), so cards of one style don't all share a palette.
+    background = c.get("art_background") or backgrounds.get(c.get("arch"), backgrounds.get(a.get("default_archetype"), "deep saturated background"))
     parts.append(f"{CARD_ACTION.get(kind, CARD_ACTION['skill']).capitalize()}, {background}.")
     parts.append(FRAMING_ANCIENT if c["rarity"] == "Ancient" else FRAMING)
     parts.append(CARD_STYLE)
@@ -236,6 +249,11 @@ def _card_refs(ch, arch):
     refs = ch["art"].get("card_refs", {})
     names = refs.get(arch) or refs.get(ch["art"].get("default_archetype")) or ["ironclad/inflame", "defect/momentum_strike", "necrobinder/dirge"]
     return [_card_ref(r) for r in names]
+
+
+def _pick_refs(pool, key, n=3):
+    """n references from a pool, a fixed choice per item (the same on every run), spread over the pool."""
+    return random.Random(zlib.crc32(key.encode())).sample(pool, min(n, len(pool)))
 
 
 def load_items(ch):
@@ -318,7 +336,7 @@ def load_items(ch):
                     "a thin light inner outline, glass highlights and simple bold shapes, in the exact style of the reference images."))
     for p in assets.get("powers", []):
         add(p, id="power:" + p["id"], section="Powers", kind="power", name=p["name"], sub="power icon", art=p["art"], text="",
-            refs=kit["power"], size=[1024, 1024],
+            refs=_pick_refs(kit["power"], p["id"]), style_strength_max=POWER_STYLE_STRENGTH, size=[1024, 1024],
             prompt=(f"Game status effect icon: {p['art']}. One bold simple symbol, centered, filling the frame, {LIGHT_BG}. Flat "
                     "vector-like cel shading, thick black outline, bright saturated colors, very simple readable shapes, "
                     "in the exact style of the reference images."))

@@ -27,8 +27,11 @@ public static class DrowsyCmd
 {
 	public const int BaseNodOffLine = 10;
 
-	/// <summary>Laser Eyes' colour over the game's hyperbeam, which is drawn for the Defect.</summary>
-	private static readonly Color LaserTint = new Color(1f, 0.35f, 0.3f);
+	/// <summary>
+	/// Laser Eyes' colour over the game's hyperbeam, which is drawn for the Defect. Almost pure red: the beam's layers add up,
+	/// and any green or blue in the tint turns the white core pink.
+	/// </summary>
+	private static readonly Color LaserTint = new Color(1f, 0.1f, 0.06f);
 
 	/// <summary>Raised after someone nods off. Used by the tests and the balance stats.</summary>
 	public static event Action<Creature>? NoddedOff;
