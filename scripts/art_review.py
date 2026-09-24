@@ -531,6 +531,7 @@ def make_handler(hub, default_char):
                 with hub.lock:
                     self.send_json({"char": w.cid, "defaultChar": default_char,
                                     "characters": [{"id": s.cid, "name": s.ch["name"]} for s in hub.spaces.values()],
+                                    "archetypes": w.ch.get("archetypes", []),
                                     "items": [w.view(it["id"]) for it in w.items], "summary": hub.summary(),
                                     "qualities": [{"key": k, "label": q["label"], "desc": q["desc"]} for k, q in art_recipes.QUALITY.items()],
                                     "defaultQuality": art_recipes.DEFAULT_QUALITY})
@@ -621,7 +622,8 @@ def main():
     threading.Thread(target=hub.loop, daemon=True).start()
     server = ThreadingHTTPServer((a.host, a.port), make_handler(hub, default_char))
     server.daemon_threads = True
-    url = f"http://127.0.0.1:{a.port}/"
+    # With -c the page opens on that character; the page otherwise shows the one last looked at (browser storage).
+    url = f"http://127.0.0.1:{a.port}/" + (f"?char={default_char}" if a.character else "")
     counts = ", ".join(f"{w.ch['name']}: {len(w.items)} items" for w in hub.spaces.values())
     print(f"Art review: {url}  ({counts}). Ctrl+C to stop.", flush=True)
     if not a.no_browser:

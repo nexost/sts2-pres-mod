@@ -89,7 +89,9 @@ An item can always name its own `"outputs": {"key": "images/{id}/..."}`. This is
 python scripts/art_review.py [-c biden] [--host 0.0.0.0]    # http://127.0.0.1:8190 (0.0.0.0: from a phone on the same Wi-Fi)
 ```
 
-- **One page for every character.** The selector at the top appears once there are two or more; `-c` picks the one shown first.
+- **One page for every character.** The selector at the top appears once there are two or more.
+  - `-c <id>` opens the page on that character (the URL gets `?char=<id>`); otherwise it shows the character you last looked at.
+  - The style filter lists that character's play styles, and card previews use its own frame colour (from `energy_tint`).
   - Each character keeps its own state and versions in `build/art/review/<id>/`.
   - Jobs from all characters share the one ComfyUI queue.
 - **Items:** everything the character needs, in tabs: Character, Cards, Relics, Potions, Powers, UI & mechanics. Card art is shown inside its real frame (Ancient cards in the full-card frame).

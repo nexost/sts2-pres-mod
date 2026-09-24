@@ -142,18 +142,27 @@ def ensure_kit(ch):
         "prop": [_card_ref("ironclad/barricade"), _card_ref("ironclad/blood_wall")],
         "decal": [],
     }
-    ensure_frames()
+    ensure_frames(ch)
     return kit
 
 
-def ensure_frames():
+def _rgb(hex_color):
+    return tuple(int(hex_color.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+
+
+def ensure_frames(ch):
     """Card frame previews in portrait space: a 1100x860 overlay; the art sits at (50, 0) at 1000x760.
-    Built from the game's portrait borders (card_portrait_border_*_s: 551x420 = 275x210 card units, 4 px per unit)."""
-    os.makedirs(FRAMES, exist_ok=True)
+    Built from the game's portrait borders (card_portrait_border_*_s: 551x420 = 275x210 card units, 4 px per unit),
+    tinted in the character's colours (character.json art.energy_tint: dark to between mid and light), one set per
+    character in build/art/ref/frames/<id>/."""
+    out_dir = os.path.join(FRAMES, ch.id)
+    os.makedirs(out_dir, exist_ok=True)
+    dark, mid, light = (_rgb(c) for c in ch["art"].get("energy_tint", ["2D1900", "D6961E", "FFEEAA"]))
+    highlight = tuple((m + l) // 2 for m, l in zip(mid, light))
     regions = {"attack": (1329, 1, 551, 420), "skill": (1313, 423, 551, 420), "power": (674, 148, 551, 420)}
     atlas = None
     for kind, (x, y, w, h) in regions.items():
-        dst = os.path.join(FRAMES, kind + ".png")
+        dst = os.path.join(out_dir, kind + ".png")
         if os.path.exists(dst):
             continue
         atlas = atlas or Image.open(_game("images/atlases/ui_atlas_1.png")).convert("RGBA")
@@ -170,9 +179,9 @@ def ensure_frames():
             mask[:16, top.min():top.max() + 1] = True
         body = Image.new("RGBA", (1100, 860), (43, 41, 33, 255))
         body.putalpha(Image.fromarray(np.where(mask, 0, 255).astype(np.uint8)))
-        gold = ImageOps.colorize(ImageOps.grayscale(border.convert("RGB")), (70, 50, 10), (250, 215, 110)).convert("RGBA")
-        gold.putalpha(a)
-        body.alpha_composite(gold, (0, 16))
+        tinted = ImageOps.colorize(ImageOps.grayscale(border.convert("RGB")), dark, highlight).convert("RGBA")
+        tinted.putalpha(a)
+        body.alpha_composite(tinted, (0, 16))
         body.save(dst)
     ensure_ancient_frames()
 
@@ -294,7 +303,7 @@ def load_items(ch):
         add(id="card:" + presmod.slug(c["id"]), section="Cards", kind="card_ancient" if ancient else "card", name=c["name"], sub=sub,
             arch=c.get("arch"), ctype=c["type"].lower(), rarity=c["rarity"], text=c["text"], art=c.get("art", c["name"]),
             refs=_card_refs(ch, c.get("arch")), size=[832, 1168] if ancient else [1216, 928], prompt=card_prompt(ch, dict(c, art=c.get("art", c["name"]))),
-            frame=("ancient_" if ancient else "") + c["type"].lower(), frameMode="full" if ancient else "window",
+            frame=("ancient_" if ancient else f"{ch.id}/") + c["type"].lower(), frameMode="full" if ancient else "window",
             note="Ancient cards use full-card art (606x852); the text box covers the lower half." if ancient else "")
 
     for r in assets.get("relics", []):
