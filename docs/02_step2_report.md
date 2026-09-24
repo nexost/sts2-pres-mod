@@ -2,7 +2,7 @@
 
 > **Paths changed after Step 8** (Step 8.5): the mod is now sts2-pres-mod (id `pres_mod`, repo `C:\Users\exeet\sts2-pres-mod`), the code is in `mod/pres_mod/src/` (`Framework/`, `Dev/`, `Characters/Trump/`), The Donald's text and design are in `characters/trump/`, and the test flags are `--pres-*` with saves in `modded_prestest`. This report keeps the names of its time; [FRAMEWORK.md](FRAMEWORK.md) maps the new layout.
 
-**Status: done** (committed as `6f331c9`). A test character, "The Donald", is fully wired into the game and built by a single command.
+**Status: done** (committed as `c248d56`). A test character, "The Donald", is fully wired into the game and built by a single command.
 It installs and uninstalls through scripts, and automated tests play it inside the real game.
 
 ## What exists now

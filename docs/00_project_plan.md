@@ -4,7 +4,7 @@
 If a chat session is lost, this file + [`README.md`](../README.md) + [`FRAMEWORK.md`](FRAMEWORK.md) are enough to carry on.
 For a new character, follow [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md).
 
-_Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done and not committed yet; it waits for the user's review. Nothing is published: that's the user's decision ([PUBLISHING.md](PUBLISHING.md))._
+_Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done. The repo is public at https://github.com/nexost/sts2-pres-mod with release v1.0.0. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md))._
 
 ---
 
@@ -25,7 +25,7 @@ Any tools may be used, downloaded or created. The work is done step by step, nev
 - The user reviews designs on the published **[Compendium page](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak)**, often from their phone through Remote Control.
   Whenever the design changes, republish it: run `python scripts/render_compendium.py -c <id>`, then publish `characters/<id>/design/compendium.html`.
 - Downloads: list the tool, source and size, and ask before downloading.
-- Git: commit only when the user asks. End commits with the `Co-Authored-By: Claude` trailer.
+- Git: commit only when the user asks. End commits with the `Co-Authored-By: Claude` trailer. **Commits use the `nexost` identity with GitHub's noreply email** (set in this repo's local git config): never the global git identity, which holds the user's real name and work email.
 - **Never touch real saves:**
   - Tests run in the separate `modded_prestest` save folder, and balance runs in `modded_bal<slot>`.
   - Test games never write the global `settings.save`.
@@ -41,16 +41,16 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | # | Step | Status | Deliverable |
 |---|---|---|---|
 | 1 | Research and feasibility | ✅ Done | [`01_feasibility_report.md`](01_feasibility_report.md) |
-| 2 | Test character and build process (+ installer/uninstaller) | ✅ Done (`6f331c9`) | [`02_step2_report.md`](02_step2_report.md) |
+| 2 | Test character and build process (+ installer/uninstaller) | ✅ Done (`c248d56`) | [`02_step2_report.md`](02_step2_report.md) |
 | 3 | Design document (The Donald) | ✅ Done (v2) | [`design.md`](../characters/trump/design/design.md), [`card_list.md`](../characters/trump/design/card_list.md), [`cards.json`](../characters/trump/design/cards.json), [Compendium](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak) |
-| 4 | Core mechanics and starter set (placeholder art) | ✅ Done (`0586dce`, shovel redesign `670e337`) | [`04_step4_report.md`](../characters/trump/docs/04_step4_report.md) |
-| 5 | All the content (placeholder art) | ✅ Done (`bed48ed`) | [`05_step5_report.md`](../characters/trump/docs/05_step5_report.md) |
-| 6 | Balance and playtesting | ✅ First pass (`6964d20`) | [`06_step6_report.md`](../characters/trump/docs/06_step6_report.md) |
-| 7 | Lock the art style | ✅ Done (`328beee`) | [`07_step7_report.md`](../characters/trump/docs/07_step7_report.md), boards in [`art/`](../characters/trump/docs/art/) |
-| 7.5 | Art review tool | ✅ Done (`328beee`) | `python scripts/art_review.py`, see [`ART_PIPELINE.md`](ART_PIPELINE.md) §4 |
-| 8 | Make all the art | ✅ Done (`99fba6b`) | [`step8_ingame.png`](../characters/trump/docs/art/step8_ingame.png); updating art: [`ART_PIPELINE.md`](ART_PIPELINE.md) §5 |
-| 8.5 | Multi-character framework, rename to sts2-pres-mod | ✅ Done (`9b7a46a`) | [`FRAMEWORK.md`](FRAMEWORK.md), [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md), [`ART_PIPELINE.md`](ART_PIPELINE.md), `scripts/new_character.py` |
-| 9 | Polish and packaging | ✅ Done (not committed) | v1.0.0: `build.py --zip`, [RELEASE_NOTES.md](RELEASE_NOTES.md), [PUBLISHING.md](PUBLISHING.md) |
+| 4 | Core mechanics and starter set (placeholder art) | ✅ Done (`5192aff`, shovel redesign `ae17284`) | [`04_step4_report.md`](../characters/trump/docs/04_step4_report.md) |
+| 5 | All the content (placeholder art) | ✅ Done (`b6f2c2c`) | [`05_step5_report.md`](../characters/trump/docs/05_step5_report.md) |
+| 6 | Balance and playtesting | ✅ First pass (`cbafe5c`) | [`06_step6_report.md`](../characters/trump/docs/06_step6_report.md) |
+| 7 | Lock the art style | ✅ Done (`533f196`) | [`07_step7_report.md`](../characters/trump/docs/07_step7_report.md), boards in [`art/`](../characters/trump/docs/art/) |
+| 7.5 | Art review tool | ✅ Done (`533f196`) | `python scripts/art_review.py`, see [`ART_PIPELINE.md`](ART_PIPELINE.md) §4 |
+| 8 | Make all the art | ✅ Done (`63c91dc`) | [`step8_ingame.png`](../characters/trump/docs/art/step8_ingame.png); updating art: [`ART_PIPELINE.md`](ART_PIPELINE.md) §5 |
+| 8.5 | Multi-character framework, rename to sts2-pres-mod | ✅ Done (`f27d1bc`) | [`FRAMEWORK.md`](FRAMEWORK.md), [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md), [`ART_PIPELINE.md`](ART_PIPELINE.md), `scripts/new_character.py` |
+| 9 | Polish and packaging | ✅ Done (`eca8ecb`) | v1.0.0: `build.py --zip`, [RELEASE_NOTES.md](RELEASE_NOTES.md), [PUBLISHING.md](PUBLISHING.md) |
 | 10 | Extra balance testing (optional) | ⬜ | More measured tuning, if wanted |
 | 11 | Custom style LoRA art (optional) | ⬜ | Art regenerated with a LoRA trained on the game's art, if wanted |
 
@@ -131,7 +131,7 @@ Added by the user after Step 7: one page to review every piece of art, keep it o
 - Since Step 8.5 it handles every character, with a selector at the top. Full guide: [ART_PIPELINE.md](ART_PIPELINE.md).
 
 ### Step 8: Make all the art ✅
-Result: the user generated and kept all 152 items in the review tool, and everything is wired into the game (`99fba6b`).
+Result: the user generated and kept all 152 items in the review tool, and everything is wired into the game (`63c91dc`).
 - **Tests:** `test.py ui` passes with the real art: the combat poses, all 4 Wall stages, the stamp, the shop, the rest site and character select.
 - **Combat:** `scenes/creature_visuals/trump.tscn` is a sprite. `NCharacterPoses` (Framework) swaps the idle, attack, cast and hurt paintings on the game's animation triggers.
   - Motion tweens on top: lunge, hop, flinch, breathing and death.
@@ -225,20 +225,21 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-23 | Start fresh from the current build (v0.107.1). The old April `sts2_decompiled_code` and `sts2_extracted` folders in the game directory are ignored. |
 | 2026-09-23 | Use the game's **official mod loader** (`mods/<id>/manifest.json` + DLL + PCK) and Harmony. Mod id `trump_character` (renamed `pres_mod` in Step 8.5), character class `Trump` (ID `TRUMP`). |
 | 2026-09-23 | The user asked for an **uninstaller** too. It uses the game's own save system to delete saves that use the mod, so Steam Cloud copies go as well. |
-| 2026-09-23 | Steps 1–2 committed (`6f331c9`). |
+| 2026-09-23 | Steps 1–2 committed (`c248d56`). |
 | 2026-09-23 | Design v1 published. **Confirmed:** name "The Donald", metallic gold card colour, 70 HP, elites Deportable and bosses immune, and edgier names kept (Mass Deportation, Witch Hunt, Fake News, Fire and Fury, Chapter 11). |
 | 2026-09-23 | **Design v2** after review. The Wall no longer soaks damage; it's a construction project with Sections and stages, because it was too close to Necrobinder's Osty. Deport uses a 25% HP line, because depending on the Wall forced a split build. More energy and draw that doesn't cost gold. |
 | 2026-09-23 | Design principles from the user: **each play style must win on its own; scaling must have no ceiling** (like Osty's HP); card flow must not depend on gold. The user loves the Deals/gold play style. |
 | 2026-09-23 | Relic and potion counts checked against the game at full unlock: 8 character relics + the starter upgrade, and 3 potions, per character. The large numbers are shared pools. |
 | 2026-09-23 | Step 4: Deported enemies leave through the game's **escape** system (no gold, no on-death effects). Boss immunity = primary enemies in boss rooms; their minions can be Deported. The DENIED stamp marks an enemy that is Deportable right now. |
-| 2026-09-23 | Step 4 committed (`0586dce`). **Golden Shovel redesigned** after review: a flat Build 6 at the start of combat only moved the stage thresholds. It is now "at the start of your turn, Build 2" (the construction crew); the Diamond Shovel builds 4 per turn. Chosen over three other options: compound growth per Section, draw on stage-up, and Gold per Section. |
-| 2026-09-23 | Step 5 committed (`bed48ed`). Step 6: balance bot runs, 9 games in parallel, tiled 3×3 and muted (the user's request). First tuning pass: Deport 7 (10) damage, Deport line cap 60%. The user called balance good enough for now and added an optional Step 10 for more testing. |
+| 2026-09-23 | Step 4 committed (`5192aff`). **Golden Shovel redesigned** after review: a flat Build 6 at the start of combat only moved the stage thresholds. It is now "at the start of your turn, Build 2" (the construction crew); the Diamond Shovel builds 4 per turn. Chosen over three other options: compound growth per Section, draw on stage-up, and Gold per Section. |
+| 2026-09-23 | Step 5 committed (`b6f2c2c`). Step 6: balance bot runs, 9 games in parallel, tiled 3×3 and muted (the user's request). First tuning pass: Deport 7 (10) damage, Deport line cap 60%. The user called balance good enough for now and added an optional Step 10 for more testing. |
 | 2026-09-23 | Step 5: where the design text left room, choices are listed in the [Step 5 report](../characters/trump/docs/05_step5_report.md). Examples: Guard Towers fires one shot per Section, Law and Order Deports after end-of-turn damage, and You're Fired! and the Deportation Draught can't target immune bosses. |
-| 2026-09-23 | Step 6 committed (`6964d20`). Step 7: the user asked to try two methods, training a style LoRA and Krea 2 with image style reference. The user chose **Krea 2 Turbo + style reference** (ComfyUI, the game's own art as reference images). The LoRA route moved to the optional Step 11, to be trained on Krea 2 Raw rather than Turbo. |
+| 2026-09-23 | Step 6 committed (`cbafe5c`). Step 7: the user asked to try two methods, training a style LoRA and Krea 2 with image style reference. The user chose **Krea 2 Turbo + style reference** (ComfyUI, the game's own art as reference images). The LoRA route moved to the optional Step 11, to be trained on Krea 2 Raw rather than Turbo. |
 | 2026-09-23 | Step 4: mod models get `[SavedProperty]` support (`SavedPropertiesTypeCache.InjectTypeIntoCache` at startup), so run-long growth (Permanent Structure, Cornerstone) survives save and quit. |
-| 2026-09-23 | Steps 7 + 7.5 committed (`328beee`), Step 8 committed (`99fba6b`). Art quality: presets added after the first batch (style-reference strength 0.75 instead of 1.0 was the main fix). |
+| 2026-09-23 | Steps 7 + 7.5 committed (`533f196`), Step 8 committed (`63c91dc`). Art quality: presets added after the first batch (style-reference strength 0.75 instead of 1.0 was the main fix). |
 | 2026-09-24 | **Step 8.5:** the mod becomes **sts2-pres-mod** (id `pres_mod`), a mod of playable presidents; Joe Biden comes later. **One mod with several characters**, not one mod per character. The game reads one set of text tables per mod, so each character keeps its own tables and the build merges them. The test flags became `--pres-*`, and the installer removes the old `trump_character` folder. |
-| 2026-09-24 | Step 8.5 committed (`9b7a46a`). **Step 9:** co-op is tested with two local instances (`--fastmp`); big paintings are stored lossy (PCK 71 → 17 MB); version 1.0.0. Nexus Mods bans US-politics mods, so the release targets the Steam Workshop (only when the user decides) or a direct zip. The user deferred testing with other mods. |
+| 2026-09-24 | Step 8.5 committed (`f27d1bc`). **Step 9:** co-op is tested with two local instances (`--fastmp`); big paintings are stored lossy (PCK 71 → 17 MB); version 1.0.0. Nexus Mods bans US-politics mods, so the release targets the Steam Workshop (only when the user decides) or a direct zip. The user deferred testing with other mods. |
+| 2026-09-24 | GitHub: the repo is https://github.com/nexost/sts2-pres-mod, branch `master`, release `v1.0.0`, made public. Before going public all commits were rewritten from the global git identity (real name, work email) to `nexost` + GitHub noreply email, and the history went to a fresh repo. The old private repo was renamed `sts2-pres-mod-old`, for the user to delete. Mod author and Harmony ID are `nexost`. |
 | 2026-09-24 | A new character's id must be its class name in snake_case (the game derives every asset path from the class). The scaffold adds 5 stub cards so rewards and shops work before the real cards exist. Touch of Orobas became generic (`IUpgradableStarterRelic`). |
 
 ## Open items

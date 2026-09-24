@@ -1,6 +1,8 @@
 # Publishing sts2-pres-mod
 
-Nothing has been published. Publishing is the user's call; this page lists the options, their rules, and the steps.
+Published so far: **GitHub**, public repo https://github.com/nexost/sts2-pres-mod with release `v1.0.0` (the zip). Not on the Steam Workshop. Publishing anywhere is the user's call; this page lists the options, their rules, and the steps.
+
+**Before any push:** commits must use the `nexost` identity (`git config --local user.name` / `user.email`, GitHub noreply email), never the global git identity.
 
 ## Where it can go
 
@@ -26,7 +28,7 @@ Sources: [Nexus file submission guidelines](https://help.nexusmods.com/article/2
    2. Unzip and run `install.cmd`.
    3. Start the game and play a fight.
    4. Run `uninstall.cmd -DryRun`.
-5. Commit and tag (`git tag v1.0.0`).
+5. Commit, tag (`git tag vX.Y.Z`), push `master` and the tag, then `gh release create vX.Y.Z build/release/sts2-pres-mod-vX.Y.Z.zip --notes-file ...`.
 
 ## Steam Workshop steps
 

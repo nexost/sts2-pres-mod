@@ -37,7 +37,7 @@ public static class ModEntry
 		CheckModelIdCollisions();
 		RegisterSavedProperties();
 
-		Harmony = new Harmony("exeet." + ModId);
+		Harmony = new Harmony("nexost." + ModId);
 		Harmony.PatchAll(typeof(ModEntry).Assembly);
 		Log.Info($"[{ModId}] Applied {Harmony.GetPatchedMethods().Count()} Harmony patches");
 

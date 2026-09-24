@@ -1,6 +1,6 @@
 # Step 9 report: polish and packaging
 
-_2026-09-24. Game v0.107.1. Mod v1.0.0. Not committed yet; nothing published._
+_2026-09-24. Game v0.107.1. Mod v1.0.0. Released on GitHub: https://github.com/nexost/sts2-pres-mod/releases/tag/v1.0.0 (not on the Steam Workshop)._
 
 Board: [`art/step9_board.jpg`](art/step9_board.jpg) (co-op with two Donalds, co-op with Ironclad, the co-op rest site, and the full bot run).
 
