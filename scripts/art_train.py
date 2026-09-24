@@ -21,8 +21,9 @@ import time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import art_gen  # noqa: E402
+import presmod  # noqa: E402
 
-LORA_DIR = r"D:\Comfy-Desktop\ComfyUI-Shared\models\loras"
+LORA_DIR = presmod.COMFY_LORA_DIR  # per-PC settings: docs/SETUP.md
 CAPTION_PROMPT = (
     "Write one caption for this image, for training an image generator. In one or two sentences, describe what is "
     "shown: the subjects, what they are doing, the objects, the main colors and the composition. Do not describe the "

@@ -1,0 +1,8 @@
+{
+  "_about": "Copy this file to local_settings.json (git-ignored) and set the paths for your PC. Leave out any you don't need; environment variables with the same name in capitals (e.g. STS2_GAME_DIR) override these. See docs/SETUP.md.",
+  "sts2_game_dir": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Slay the Spire 2",
+  "comfy_dir": "D:\\Comfy-Desktop\\ComfyUI-Installs\\ComfyUI\\ComfyUI",
+  "comfy_python": "D:\\Comfy-Desktop\\ComfyUI-Installs\\ComfyUI\\ComfyUI\\.venv\\Scripts\\python.exe",
+  "comfy_models_yaml": "C:\\Users\\<you>\\AppData\\Roaming\\Comfy Desktop\\shared_model_paths.yaml",
+  "comfy_lora_dir": "D:\\Comfy-Desktop\\ComfyUI-Shared\\models\\loras"
+}

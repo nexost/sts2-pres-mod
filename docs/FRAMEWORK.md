@@ -38,7 +38,9 @@ To add a character, follow [ADDING_A_CHARACTER.md](ADDING_A_CHARACTER.md). The a
 | `mod/images`, `mod/scenes`, `mod/materials` | Assets at the exact paths the game loads for each character id |
 | `scripts/` | Build, test, design, art and packaging tools. `presmod.py` is their shared config |
 | `docs/` | The plan, mod-wide reports, these guides; `docs/reference/` holds base-game data (benchmarks, the Ironclad asset list) |
-| `re/`, `tools/`, `build/`, `backups/` | Decompiled game and unpacked PCK; Godot and GDRE; all output; save backups. All git-ignored |
+| `re/`, `tools/`, `build/`, `backups/` | Decompiled game and unpacked PCK (`scripts/extract_game.py`; `re/game_version.json` says which game version); Godot and GDRE; all output; save backups. All git-ignored |
+| `local_settings.json` | Paths for this PC (game folder, ComfyUI); git-ignored, see `local_settings.example.json` and [SETUP.md](SETUP.md) §3 |
+| `AGENTS.md`, `CLAUDE.md` | Entry point for AI agents: what to read for each task, the working rules |
 
 **One character's folder** (`characters/trump/`):
 
@@ -194,7 +196,9 @@ Command-line flags (all `--pres-*`):
 
 | Script | What |
 |---|---|
-| `presmod.py` | Shared config: paths, `mod.json`, `character(id)`, `characters()`, `slug()`, `KIND_OUTPUTS`, `art_outputs()`, `CHARACTER_SCENES`, `missing_files()` |
+| `presmod.py` | Shared config: paths and the per-PC settings (`setting()`: `GAME_DIR`, `COMFY_*`), `mod.json`, `character(id)`, `characters()`, `slug()`, `KIND_OUTPUTS`, `art_outputs()`, `CHARACTER_SCENES`, `missing_files()` |
+| `extract_game.py` | Step 1, repeatable: decompile `sts2.dll` into `re/code` (ilspycmd) and unpack the PCK into `re/pck` (GDRE); keeps the previous `re/` for diffing ([GAME_UPDATES.md](GAME_UPDATES.md)) |
+| `game_update_check.py` | After a game update: every patch target, member reached by name, Ancient and game file the mod relies on still exists |
 | `new_character.py` | Scaffold a new character ([ADDING_A_CHARACTER.md](ADDING_A_CHARACTER.md)) |
 | `build.py` | Build (and install) |
 | `make_placeholders.py [-c id] [--force]` | Stand-in art for anything missing; run by the build |

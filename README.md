@@ -8,12 +8,17 @@ One mod (id `pres_mod`), several lighthearted caricature characters. Targets StS
 | Joe Biden | `biden` | Planned | made with `scripts/new_character.py` |
 
 **Start with [`docs/00_project_plan.md`](docs/00_project_plan.md)**: the plan, the status, the decisions and how to resume.
+**New PC?** [`docs/SETUP.md`](docs/SETUP.md) goes from a fresh clone to a built and tested mod, and to making art.
+**Using an AI agent?** Point it at [`AGENTS.md`](AGENTS.md): what to read for each task and the working rules.
 
 ## Documents
 
 | File | What |
 |---|---|
+| [`AGENTS.md`](AGENTS.md) | For AI agents: what to read for each task, the working rules, pitfalls |
+| [`docs/SETUP.md`](docs/SETUP.md) | New PC: requirements, tools, paths (`local_settings.json`), extracting the game, first build and test, ComfyUI and models |
 | [`docs/00_project_plan.md`](docs/00_project_plan.md) | Master plan: steps, status, decision log, open items, how to resume |
+| [`docs/GAME_UPDATES.md`](docs/GAME_UPDATES.md) | After a game update: re-extract, check what the mod relies on, diff, rebuild and test, rebalance |
 | [`docs/FRAMEWORK.md`](docs/FRAMEWORK.md) | How the mod is built: shared code vs. character code, patches, scenes, build, tests, scripts |
 | [`docs/ADDING_A_CHARACTER.md`](docs/ADDING_A_CHARACTER.md) | **The playbook for a new character**, from the scaffold to the final checks, with the pitfalls already hit |
 | [`docs/ART_PIPELINE.md`](docs/ART_PIPELINE.md) | Making art: ComfyUI setup, what each character provides, recipes and destinations per kind, the review tool |
@@ -46,6 +51,10 @@ Scripts that work on one character take `-c <id>`; without it they use the first
 ```bash
 # New character (docs/ADDING_A_CHARACTER.md)
 python scripts/new_character.py biden --class Biden --name "Uncle Joe" --full-name "Joe Biden" --primary 2F6BD8
+
+# Setup and game updates (docs/SETUP.md, docs/GAME_UPDATES.md)
+python scripts/extract_game.py      # decompile + unpack the installed game into re/ (git-ignored)
+python scripts/game_update_check.py # everything the mod relies on in the game still exists
 
 # Build
 python scripts/build.py              # build into build/dist/ (placeholders for missing art, character and ID checks)

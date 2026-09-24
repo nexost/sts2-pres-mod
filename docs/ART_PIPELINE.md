@@ -11,18 +11,26 @@ In short:
 
 ## 1. Setup
 
-- **ComfyUI:** the Comfy Desktop install at `D:\Comfy-Desktop\ComfyUI-Installs\ComfyUI\ComfyUI`, run headless on port **8189** with its own input and output folders under `build/art/`. Your own ComfyUI folders are never touched.
-  - `art_review.py` starts it by itself and stops it on exit.
-  - To run it by hand (for `art_gen.py`):
+Installing ComfyUI, downloading the four model files and setting the paths for your PC are covered in [SETUP.md](SETUP.md) §3 and §5. The short version:
+
+- **ComfyUI** (0.33.0+, no custom nodes) runs headless on port **8189**, with its own input and output folders under `build/art/`. Your own ComfyUI folders are never touched.
+  - `art_review.py` starts it by itself, using the `comfy_dir` / `comfy_python` settings, and stops it on exit.
+  - To run it by hand (for `art_gen.py`), from the ComfyUI folder:
     ```
-    cd D:\Comfy-Desktop\ComfyUI-Installs\ComfyUI\ComfyUI
-    .venv\Scripts\python.exe -s main.py --extra-model-paths-config "%APPDATA%\Comfy Desktop\shared_model_paths.yaml" ^
-      --output-directory C:\Users\exeet\sts2-pres-mod\build\art\comfy_out --input-directory C:\Users\exeet\sts2-pres-mod\build\art\comfy_in ^
+    <comfy_python> -s main.py [--extra-model-paths-config "%APPDATA%\Comfy Desktop\shared_model_paths.yaml"] ^
+      --output-directory <repo>\build\art\comfy_out --input-directory <repo>\build\art\comfy_in ^
       --port 8189 --listen 127.0.0.1 --disable-pinned-memory --disable-auto-launch
     ```
-- **Models:** Krea 2 Turbo int8, the `krea2_style_reference` LoRA (ostris), and the Qwen3-VL 4B text encoder.
-  - The graph: `TextEncodeQwenImageEditPlus` with the reference images, then `FluxKontextMultiReferenceLatentMethod` (`index_timestep_zero`), then euler/simple at CFG 1.
+    The output and input folders must be those two: the tools read the images from them. Use the models-yaml option only with Comfy Desktop.
+- **Models** (from https://huggingface.co/Comfy-Org/Krea-2):
+  - `krea2_turbo_int8_convrot.safetensors` (diffusion model);
+  - `qwen3vl_4b_fp8_scaled.safetensors` (text encoder, loaded with type `krea2`);
+  - `qwen_image_vae.safetensors`;
+  - the `krea2_style_reference.safetensors` LoRA by ostris.
+  - The names are set in `scripts/art_gen.py`.
+  - The graph (built in code by `art_gen.py`): `TextEncodeQwenImageEditPlus` with the reference images, then `FluxKontextMultiReferenceLatentMethod` (`index_timestep_zero`), then euler/simple at CFG 1.
   - fp8 was tested and is no better than int8.
+- **On a fresh clone** the review tool shows every item as "not generated": the review history (`build/art/review/`) isn't in git. The kept art is already in `mod/`; **Keep** on a new version overwrites it.
 - **Style references:** the unpacked game in `re/pck/`: card portraits, relics, buttons, the Ironclad bust.
 - **The GPU is shared with the game.** Stop the review tool (or free ComfyUI's memory with `POST /free`) before in-game tests.
 

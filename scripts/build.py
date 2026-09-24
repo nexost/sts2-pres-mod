@@ -127,7 +127,8 @@ def check_ids():
 
 def build_dll():
     step("C# build")
-    run(["dotnet", "build", os.path.join(MOD, "PresMod.csproj"), "-c", "ExportRelease", "-nologo", "-v", "q"])
+    # GameDir: where the game's sts2.dll and 0Harmony.dll are referenced from (the same setting as the scripts).
+    run(["dotnet", "build", os.path.join(MOD, "PresMod.csproj"), "-c", "ExportRelease", "-nologo", "-v", "q", f"-p:GameDir={presmod.GAME_DIR}"])
     return os.path.join(MOD, ".godot", "mono", "temp", "bin", "ExportRelease", f"{MOD_ID}.dll")
 
 

@@ -36,8 +36,7 @@ import presmod  # noqa: E402
 REPO = presmod.REPO
 REVIEW_ROOT = os.path.join(REPO, "build", "art", "review")
 PAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "art_review", "index.html")
-COMFY_DIR = r"D:\Comfy-Desktop\ComfyUI-Installs\ComfyUI\ComfyUI"
-COMFY_MODELS_YAML = os.path.join(os.environ.get("APPDATA", ""), "Comfy Desktop", "shared_model_paths.yaml")
+COMFY_DIR = presmod.COMFY_DIR  # per-PC settings: docs/SETUP.md
 SERVE_ROOTS = [REVIEW_ROOT, os.path.join(REPO, "build", "art", "ref"), os.path.join(art_recipes.GAME, "images"),
                os.path.join(art_recipes.GAME, "animations")]  # the last two: game art used as style references
 PATH_KEYS = ("raw", "preview", "thumb")
@@ -116,11 +115,13 @@ class Hub:
             return False
 
     def start_comfy(self):
-        python = os.path.join(COMFY_DIR, ".venv", "Scripts", "python.exe")
         log = open(os.path.join(REPO, "build", "art", "comfy.log"), "w", encoding="utf-8")
-        args = [python, "-s", "main.py", "--extra-model-paths-config", COMFY_MODELS_YAML,
-                "--output-directory", art_gen.COMFY_OUT, "--input-directory", art_gen.COMFY_IN,
-                "--port", "8189", "--listen", "127.0.0.1", "--disable-pinned-memory", "--disable-auto-launch"]
+        # Output and input must be build/art/comfy_out and comfy_in: the tool reads the images from there.
+        args = [presmod.COMFY_PYTHON, "-s", "main.py"]
+        if os.path.exists(presmod.COMFY_MODELS_YAML):
+            args += ["--extra-model-paths-config", presmod.COMFY_MODELS_YAML]
+        args += ["--output-directory", art_gen.COMFY_OUT, "--input-directory", art_gen.COMFY_IN,
+                 "--port", "8189", "--listen", "127.0.0.1", "--disable-pinned-memory", "--disable-auto-launch"]
         flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
         self.comfy_proc = subprocess.Popen(args, cwd=COMFY_DIR, stdout=log, stderr=subprocess.STDOUT, creationflags=flags)
         print("Starting ComfyUI (log: build/art/comfy.log)...", flush=True)

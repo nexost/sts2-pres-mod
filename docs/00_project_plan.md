@@ -63,6 +63,7 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 
 ### Step 1: Research and feasibility ✅
 Set up the workspace and tools (ilspycmd, GDRE Tools, Godot 4.5.1 .NET, Pillow). Decompile the current build and unpack the resource pack.
+This part is now one command, `python scripts/extract_game.py`, rerun after every game update ([GAME_UPDATES.md](GAME_UPDATES.md)). Setting up a new PC: [SETUP.md](SETUP.md).
 Trace how a character is connected through the whole game, list every art asset needed, and write the feasibility report and risks.
 
 ### Step 2: Test character and build process ✅
@@ -240,6 +241,7 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-24 | **Step 8.5:** the mod becomes **sts2-pres-mod** (id `pres_mod`), a mod of playable presidents; Joe Biden comes later. **One mod with several characters**, not one mod per character. The game reads one set of text tables per mod, so each character keeps its own tables and the build merges them. The test flags became `--pres-*`, and the installer removes the old `trump_character` folder. |
 | 2026-09-24 | Step 8.5 committed (`f27d1bc`). **Step 9:** co-op is tested with two local instances (`--fastmp`); big paintings are stored lossy (PCK 71 → 17 MB); version 1.0.0. Nexus Mods bans US-politics mods, so the release targets the Steam Workshop (only when the user decides) or a direct zip. The user deferred testing with other mods. |
 | 2026-09-24 | GitHub: the repo is https://github.com/nexost/sts2-pres-mod, branch `master`, release `v1.0.0`, made public. Before going public all commits were rewritten from the global git identity (real name, work email) to `nexost` + GitHub noreply email, and the history went to a fresh repo. The old private repo was renamed `sts2-pres-mod-old`, for the user to delete. Mod author and Harmony ID are `nexost`. |
+| 2026-09-24 | Docs for other people and their AI agents: `AGENTS.md`, `SETUP.md` (tools, models, paths) and `GAME_UPDATES.md`. Per-PC paths moved to `local_settings.json` / environment variables. Step 1 is repeatable with `extract_game.py`, and `game_update_check.py` checks what the mod relies on. |
 | 2026-09-24 | A new character's id must be its class name in snake_case (the game derives every asset path from the class). The scaffold adds 5 stub cards so rewards and shops work before the real cards exist. Touch of Orobas became generic (`IUpgradableStarterRelic`). |
 
 ## Open items
@@ -254,8 +256,8 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 
 ## Resuming in a new session
 
-1. Open `C:\Users\exeet\sts2-pres-mod`. Read this file, [`README.md`](../README.md) (layout and commands) and [`FRAMEWORK.md`](FRAMEWORK.md). For a character's design, read `characters/<id>/design/design.md`.
-2. Claude's memory for this project is in `C:\Users\exeet\.claude\projects\C--Program-Files--x86--Steam-steamapps-common-Slay-the-Spire-2\memory\`. It holds the plan summary and the working rules.
-3. Check that the game version is still **v0.107.1** (`release_info.json` in the game folder). If it changed, re-decompile (`re/`) and diff before building.
+1. Open the repo (the author's copy is `C:\Users\exeet\sts2-pres-mod`). Read [`AGENTS.md`](../AGENTS.md), this file, [`README.md`](../README.md) and [`FRAMEWORK.md`](FRAMEWORK.md). For a character's design, read `characters/<id>/design/design.md`.
+2. On a new PC, follow [SETUP.md](SETUP.md) first. On the author's PC, Claude also has a project memory with the plan summary and working rules (they're in AGENTS.md too).
+3. Check the game version (`release_info.json` in the game folder) against `re/game_version.json`. If the game updated, follow [GAME_UPDATES.md](GAME_UPDATES.md) before building.
 4. `python scripts/build.py --install`, then `python scripts/test.py ui -c trump` to confirm everything still works.
 5. Carry on with the next ⏳ step above, and stop at its end.

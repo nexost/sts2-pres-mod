@@ -1,11 +1,14 @@
-# Decompiled game code and extracted assets (Mega Crit's, never commit)
-re/
-# Downloaded tools
-tools/
-# Build output
-build/
+# Decompiled game code and extracted assets (Mega Crit's, never commit). re_<version>/ = a previous extraction.
+/re/
+/re_*/
+# Downloaded tools (Godot, GDRE): docs/SETUP.md
+/tools/
+# Build output, save backups
+/build/
+/backups/
 bin/
 obj/
 .godot/
-backups/
 __pycache__/
+# Paths for this PC: docs/SETUP.md
+local_settings.json

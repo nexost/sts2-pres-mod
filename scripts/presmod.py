@@ -18,12 +18,30 @@ MOD_DIR = os.path.join(REPO, "mod")                       # the Godot project th
 CHARACTERS_DIR = os.path.join(REPO, "characters")
 GAME_PCK = os.path.join(REPO, "re", "pck")                # the unpacked game (Step 1), for style references
 BUILD = os.path.join(REPO, "build")
-GAME_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2"
 
 
 def _load_json(path):
     with open(path, encoding="utf-8") as f:
         return json.load(f)
+
+
+# Paths that differ per PC: an environment variable (the name in capitals, e.g. STS2_GAME_DIR), else
+# local_settings.json at the repo root (git-ignored; copy local_settings.example.json), else the default
+# (the original author's PC). docs/SETUP.md explains each one.
+_LOCAL_SETTINGS = os.path.join(REPO, "local_settings.json")
+_LOCAL = _load_json(_LOCAL_SETTINGS) if os.path.exists(_LOCAL_SETTINGS) else {}
+
+
+def setting(name, default):
+    return os.environ.get(name.upper()) or _LOCAL.get(name) or default
+
+
+GAME_DIR = setting("sts2_game_dir", r"C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2")
+COMFY_DIR = setting("comfy_dir", r"D:\Comfy-Desktop\ComfyUI-Installs\ComfyUI\ComfyUI")   # the folder with main.py
+COMFY_PYTHON = setting("comfy_python", os.path.join(COMFY_DIR, ".venv", "Scripts", "python.exe"))
+# Comfy Desktop keeps models in a shared folder listed in this file; other installs don't need it.
+COMFY_MODELS_YAML = setting("comfy_models_yaml", os.path.join(os.environ.get("APPDATA", ""), "Comfy Desktop", "shared_model_paths.yaml"))
+COMFY_LORA_DIR = setting("comfy_lora_dir", r"D:\Comfy-Desktop\ComfyUI-Shared\models\loras")   # art_train.py writes LoRAs here
 
 
 MOD = _load_json(os.path.join(REPO, "mod.json"))

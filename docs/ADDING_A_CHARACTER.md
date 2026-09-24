@@ -11,6 +11,7 @@ went into things that are now done once for every character:
 A new character starts **playable in minutes**. All the remaining work is the character itself: its design, its code,
 its jokes and its art.
 
+Before starting on a new PC: [SETUP.md](SETUP.md) (tools, `re/`, paths, a first passing `test.py ui`; §5 for art).
 How the pieces fit together: [FRAMEWORK.md](FRAMEWORK.md). Art: [ART_PIPELINE.md](ART_PIPELINE.md).
 The worked example throughout is The Donald: [`characters/trump/`](../characters/trump/) and
 [`mod/pres_mod/src/Characters/Trump/`](../mod/pres_mod/src/Characters/Trump/).
@@ -138,6 +139,7 @@ Replace the scaffold's starter relic and the starting deck in `<Class>.cs` with 
   - `events.json`: the Colorful Philosophers option.
   - `ancients.json`: every Ancient's lines. The keys are already there; the patterns are in `Framework/Patches/AncientDialoguePatch.cs`, and the Architect's lines are required for a win to finish.
   - The build counts the remaining `TODO`s.
+- **Writing 80+ texts:** a small one-off script that fills the tables from `cards.json` keeps them consistent. The Donald's are kept as examples in `characters/trump/tools/` (see its README).
 - **Tests:** `python scripts/test.py cards PRESTEST1 -c <id>` plays every card base and upgraded, checks key effects (`CheckCardEffect`), relics, potions and powers (`RelicChecks`, ...), and renders every text.
   - `cards SEED A,B` reruns a few cards.
   - `cards SEED relics` runs only the relic and potion checks.
