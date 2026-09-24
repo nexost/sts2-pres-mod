@@ -88,7 +88,7 @@ public static partial class DevHarness
 			ICombatState combat = await EnsureCardFight();
 			Player me = Me;
 			var ctx = new BlockingPlayerChoiceContext();
-			await PrepareCardTurn(ctx, combat);
+			await PrepareCardTurn(ctx, combat, canonical, upgraded);
 			// Tokens outside the card pool can't be added by the console; the character's kit adds those.
 			if (Kit.AddCardToHand == null || !await Kit.AddCardToHand(canonical, combat))
 			{
@@ -163,7 +163,7 @@ public static partial class DevHarness
 	}
 
 	/// <summary>Same starting point for every card: its turn, 300 Gold, 3+ Energy, a small hand, healthy enemies, then the character's own setup.</summary>
-	private static async Task PrepareCardTurn(PlayerChoiceContext ctx, ICombatState combat)
+	private static async Task PrepareCardTurn(PlayerChoiceContext ctx, ICombatState combat, CardModel canonical, bool upgraded)
 	{
 		Player me = Me;
 		await WaitUntil(() => me.PlayerCombatState?.Phase == PlayerTurnPhase.Play || !CombatManager.Instance.IsInProgress, TimeSpan.FromSeconds(30));
@@ -176,6 +176,10 @@ public static partial class DevHarness
 		if (Kit.PrepareCardTurn != null)
 		{
 			await Kit.PrepareCardTurn(ctx);
+		}
+		if (Kit.PrepareCardTurnFor != null)
+		{
+			await Kit.PrepareCardTurnFor(ctx, canonical, upgraded);
 		}
 		foreach (CardModel extra in PileType.Hand.GetPile(me).Cards.Skip(3).ToList())
 		{

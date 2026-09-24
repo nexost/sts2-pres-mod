@@ -65,7 +65,7 @@ Generated from `cards.json` by `scripts/render_design.py`. Numbers in parenthese
 | 23 | **Filibuster** | 2 | Skill | Tangents | Tangent. (1) Gain 12 (16) Block. (2) Draw 3 (4) cards. (3) Gain 2 Energy. | 12→16, 3→4 |
 | 24 | **Sugar Rush** | 0 | Skill | General | Gain 1 Energy. Draw 1 (2) card(s). *Exhaust.* | 1→2 |
 | 25 | **All Aboard** | 1 | Skill | General | Draw 2 (3) cards. Gain 4 (6) Block. | 2→3, 4→6 |
-| 26 | **Corvette Cruise** | 1 | Skill | General | Draw 2 (3) cards. The next Attack you play this turn costs 0. | 2→3 |
+| 26 | **Corvette Cruise** | 1 | Skill | General | Draw 2 (3) cards. Your next Attack costs 0. | 2→3 |
 | 27 | **Reach Across the Aisle** | 1 | Skill | General | ALL players gain 1 (2) Energy and draw 1 card. *Exhaust.* *(co-op only)* | 1→2 |
 | 28 | **Wide Awake** | 1 | Power | Brandon | Whenever you wake up, gain 5 (8) Block and draw 1 card. | 5→8 |
 | 29 | **Laser Focus** | 1 | Power | Brandon | Laser Eyes deal 4 (6) more damage. | 4→6 |
@@ -90,11 +90,11 @@ Generated from `cards.json` by `scripts/render_design.py`. Numbers in parenthese
 | 7 | **Zero to Sixty** | 2 | Attack | General | Deal 20 (26) damage. Costs 1 less for each other card you played this turn. | 20→26 |
 | 8 | **Motorcade** | 3 | Attack | General | Deal 14 (18) damage to ALL enemies. Gain 10 (14) Block. | 14→18, 10→14 |
 | 9 | **Second Cup** | 0 | Skill | Brandon | If you are Dark Brandon, gain 2 (3) Energy. Otherwise, Wake Up. | 2→3 |
-| 10 | **Unleashed** | 1 | Skill | Brandon | Wake Up. This turn, your Attacks deal double damage. *Exhaust.* |  |
+| 10 | **Unleashed** | 1 (0) | Skill | Brandon | Wake Up. This turn, your Attacks deal double damage. *Exhaust.* | cost 1→0 |
 | 11 | **Sound Asleep** | 1 (0) | Skill | Nap | Retain your hand this turn. Doze 1 for each card in your hand. | cost 1→0 |
 | 12 | **Deep Sleep** | 1 (0) | Skill | Nap | Nod off. Your next Laser Eyes deal double damage. | cost 1→0 |
 | 13 | **Hibernate** | 2 | Skill | Nap | Gain 18 (24) Block. Doze 6. | 18→24 |
-| 14 | **Repeat the Line** | 1 (0) | Skill | Tangents | Play the last card you played this turn again. | cost 1→0 |
+| 14 | **Repeat the Line** | 1 (0) | Skill | Tangents | Play the last card you played this turn again, if it's in your Discard Pile. | cost 1→0 |
 | 15 | **Moment of Clarity** | 1 | Skill | Tangents | This turn, your Tangent cards do all their lines. *Exhaust.* | No longer Exhausts. |
 | 16 | **Ice Cream Truck** | 1 | Skill | General | Heal 6 (9) HP. *Exhaust.* | 6→9 |
 | 17 | **Build Back Better** | 2 (1) | Skill | General | Discard your hand, then draw that many cards. Upgrade them for the rest of combat. | cost 2→1 |
@@ -103,10 +103,10 @@ Generated from `cards.json` by `scripts/render_design.py`. Numbers in parenthese
 | 20 | **Dark Brandon Rises** | 3 (2) | Power | Brandon | At the start of your turn, wake up. | cost 3→2 |
 | 21 | **Well Rested** | 1 | Power | Nap | Whenever you nod off, gain 1 Dexterity. | Innate. |
 | 22 | **Heavy Sleeper** | 1 | Power | Nap | Your nod-off line is 5 (8) higher. | 5→8 |
-| 23 | **Tall Tales** | 1 | Power | Tangents | Whenever a Tangent card changes line, its numbers go up by 1 for the rest of combat. | Innate. |
+| 23 | **Tall Tales** | 1 | Power | Tangents | Whenever a Tangent card changes line, its damage and Block go up by 1 for the rest of combat. | Innate. |
 | 24 | **Off Script** | 2 (1) | Power | Tangents | The first Tangent card you play each turn does all its lines. | cost 2→1 |
 | 25 | **Gaffe Machine** | 1 | Power | General | At the start of your turn, 1 (2) random card(s) in your hand cost 0 this turn. | 1→2 |
-| 26 | **Infrastructure Law** | 3 (2) | Power | General | At the start of your turn, gain 1 Energy and 4 (6) Block. | cost 3→2, 4→6 |
+| 26 | **Infrastructure Law** | 3 (2) | Power | General | At the start of your turn, gain 1 Energy. | cost 3→2 |
 
 ## Ancient (2)
 

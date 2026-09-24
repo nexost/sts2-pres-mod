@@ -21,6 +21,13 @@ about age, decline or health are not. Nothing may copy another character's or an
 
 ---
 
+**Settled while implementing (C4, [report](../docs/C4_content_report.md)):** Infrastructure Law is +1 Energy each turn
+(no Block); Wide Awake's draw stays 1 while its Block stacks; each Double Vision adds a hit; Corvette Cruise uses the
+game's Free Attack ("your next Attack costs 0"); Unleashed upgrades to cost 0; Repeat the Line only replays a card that's
+in the Discard Pile; Tall Tales grows damage and Block. Sleepy cards glow red when they'd nod him off mid-turn.
+
+---
+
 ## 1. At a glance
 
 | | |

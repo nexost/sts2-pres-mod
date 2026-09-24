@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Godot;
 using MegaCrit.Sts2.Core.Models;
+using PresMod.Characters.Biden.Potions;
 
 namespace PresMod.Characters.Biden.Pools;
 
-/// <summary>Empty until the character potions are designed (the base game also returns empty pools while locked).</summary>
+/// <summary>Sleepy Joe's 3 potions (design.md §7).</summary>
 public sealed class BidenPotionPool : PotionPoolModel
 {
 	public override string EnergyColorName => Biden.energyColorName;
@@ -15,6 +16,9 @@ public sealed class BidenPotionPool : PotionPoolModel
 	{
 		return new PotionModel[]
 		{
+			ModelDb.Potion<WarmMilk>(),
+			ModelDb.Potion<EspressoShot>(),
+			ModelDb.Potion<DarkRoast>()
 		};
 	}
 }

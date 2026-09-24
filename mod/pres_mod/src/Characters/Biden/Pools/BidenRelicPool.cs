@@ -17,7 +17,14 @@ public sealed class BidenRelicPool : RelicPoolModel
 		return new RelicModel[]
 		{
 			ModelDb.Relic<AviatorShades>(),
-			ModelDb.Relic<DarkAviators>()
+			ModelDb.Relic<DarkAviators>(),
+			ModelDb.Relic<TravelPillow>(),
+			ModelDb.Relic<IceCreamCone>(),
+			ModelDb.Relic<IndexCards>(),
+			ModelDb.Relic<Corvette>(),
+			ModelDb.Relic<DarkBrandonMug>(),
+			ModelDb.Relic<Teleprompter>(),
+			ModelDb.Relic<AmtrakPass>()
 		};
 	}
 }

@@ -5,7 +5,7 @@ If a chat session is lost, this file + [`README.md`](../README.md) + [`FRAMEWORK
 For a new character, follow [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md).
 
 _Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done. The repo is public at https://github.com/nexost/sts2-pres-mod with release v1.0.0. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md)).
-Joe Biden is in progress on branch `feature/biden`: C1 (scaffold) and C2 (design v1, reviewed: [Sleepy Joe Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv)) are done, and C3 (mechanics and starter set) is built and tested, waiting for review._
+Joe Biden is in progress on branch `feature/biden`: C1 (scaffold) and C2 (design v1, reviewed: [Sleepy Joe Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv)) are done, and C4 (all 88 cards, relics, potions and text) is built and tested, waiting for review._
 
 ---
 
@@ -68,8 +68,9 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 |---|---|---|
 | C1 Scaffold | ✅ Done | "Uncle Joe", class `Biden`, 75 HP / 99 Gold (placeholders until C2), stub starter Aviator Shades (6 Block), Ironclad's sounds. `test.py ui -c biden` passes |
 | C2 Design | ✅ v1 reviewed | [design.md](../characters/biden/design/design.md), [cards.json](../characters/biden/design/cards.json), [Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv). Sleepy Joe / Dark Brandon: **Drowsy** (he nods off at 10 and his turn ends; he wakes as Dark Brandon with Laser Eyes) and **Tangent** cards (only the lit line happens; as Dark Brandon, all of them). Styles: Dark Brandon, Power Nap, Tangents, General. 88 cards, 9 relics, 3 potions |
-| C3 Mechanics and starter set | ✅ Built, in review | [Report](../characters/biden/docs/C3_mechanics_report.md). Drowsy, nodding off, Dark Brandon and Laser Eyes, Tangent cards (lit line in the card text); Catnap, Here's the Deal, Aviator Shades / Dark Aviators. `test.py ui -c biden` passes (31 checks) |
-| C4–C7 | ⬜ | All content, balance, art, final checks |
+| C3 Mechanics and starter set | ✅ Done (`f818dfb`) | [Report](../characters/biden/docs/C3_mechanics_report.md). Drowsy, nodding off, Dark Brandon and Laser Eyes, Tangent cards (lit line in the card text); Catnap, Here's the Deal, Aviator Shades / Dark Aviators. `test.py ui -c biden` passes (31 checks) |
+| C4 All content and text | ✅ Built, in review | [Report](../characters/biden/docs/C4_content_report.md). 88 cards, 24 powers, 9 relics, 3 potions, every text and Ancient line; stubs removed. `test.py cards` 257 checks PASS, AutoSlay **victory** |
+| C5–C7 | ⬜ | Balance, art, final checks |
 
 ### Step 1: Research and feasibility ✅
 Set up the workspace and tools (ilspycmd, GDRE Tools, Godot 4.5.1 .NET, Pillow). Decompile the current build and unpack the resource pack.
@@ -257,6 +258,7 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-24 | **Joe Biden, C2 v1.** The user chose **Dark Brandon** as the signature, with **Sleepy Joe** as his other side (over Bipartisan and Build Back Better). Rules from the user: **sleepiness and confusion are on him, never on the enemies**, and **his identity must not copy another character or an enemy**. An earlier idea (putting enemies to sleep, using the game's Confused) was dropped for this. Tone: sleepiness, confusion and gaffes are fair game; age, decline and health are not. Result: **Drowsy** (a meter on him; nodding off ends his turn and he wakes as Dark Brandon) and **Tangent** cards (his cards change what they do while he rambles). design.md §10 lists the look-alikes and why each is different. |
 | 2026-09-24 | **Biden C2 review:** name **Sleepy Joe** (not Uncle Joe), **70 HP**. Left to the design and revisited in C5: nodding off ends the turn on the spot; Laser Eyes deal 1× Drowsy. |
 | 2026-09-24 | **Biden C3.** The Aviator Shades carry Sleepy Joe's end-of-turn Doze 2 (like Bound Phylactery carries Osty), and their text says so. Laser Eyes reuse the Defect's hyperbeam, tinted. Tangent text: the lit line's number is gold and the others are dimmed (`[color]` BBCode through `AddExtraArgsToDescription`). Framework: `NCharacterPoses.SetVariant` for a second pose set (Dark Brandon), with `placeholder_eyes` stand-ins. |
+| 2026-09-24 | C3 committed (`f818dfb`). **Biden C4:** all content. Implementation choices (listed in the C4 report and design.md): Infrastructure Law is energy only, Corvette Cruise uses the game's Free Attack, Repeat the Line replays from the Discard Pile only, Tall Tales grows damage and Block. The cards test got a shared `PrepareCardTurnFor` hook. |
 
 ## Open items
 

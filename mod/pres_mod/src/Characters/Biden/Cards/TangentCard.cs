@@ -26,6 +26,11 @@ public abstract class TangentCard : CardModel
 	/// <summary>The lit line, 1-based.</summary>
 	public int Line { get; private set; } = 1;
 
+	/// <summary>The line it was last played on (Index Cards), and whether that play did every line.</summary>
+	public int PlayedLine { get; private set; }
+
+	public bool PlayedAllLines { get; private set; }
+
 	protected override IEnumerable<IHoverTip> ExtraHoverTips => new[] { BidenHoverTips.Tangent };
 
 	/// <summary>Whether playing it now does every line: its owner is Dark Brandon, or something else says so.</summary>
@@ -41,12 +46,17 @@ public abstract class TangentCard : CardModel
 		}
 	}
 
+	/// <summary>Glows gold while it would do every line.</summary>
+	protected override bool ShouldGlowGoldInternal => IsMutable && CombatState != null && Pile?.Type == PileType.Hand && DoesAllLines;
+
 	/// <summary>One line's effect.</summary>
 	protected abstract Task PlayLine(int line, PlayerChoiceContext choiceContext, CardPlay cardPlay);
 
 	protected sealed override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
-		if (DoesAllLines)
+		PlayedLine = Line;
+		PlayedAllLines = DoesAllLines;
+		if (PlayedAllLines)
 		{
 			for (int line = 1; line <= LineCount; line++)
 			{
@@ -59,10 +69,36 @@ public abstract class TangentCard : CardModel
 		}
 	}
 
-	/// <summary>Test and tool hook: light a line directly.</summary>
+	/// <summary>Light a line directly (Brain Freeze; tests).</summary>
 	public void SetLine(int line)
 	{
 		Line = Math.Clamp(line, 1, LineCount);
+	}
+
+	/// <summary>Move to the next line (after another card is played; Where Was I?).</summary>
+	public async Task MoveToNextLine(PlayerChoiceContext choiceContext)
+	{
+		if (LineCount < 2)
+		{
+			return;
+		}
+		Line = Line % LineCount + 1;
+		foreach (IAfterTangentLineChanged listener in BidenHooks.ListenersOf<IAfterTangentLineChanged>(Owner.Creature))
+		{
+			await listener.AfterTangentLineChanged(choiceContext, this, Line);
+		}
+	}
+
+	/// <summary>Tall Tales: every damage and Block number on the card goes up for the rest of combat.</summary>
+	public void GrowNumbers(decimal by)
+	{
+		foreach (DynamicVar dynamicVar in DynamicVars.Values)
+		{
+			if (dynamicVar is DamageVar or BlockVar)
+			{
+				dynamicVar.BaseValue += by;
+			}
+		}
 	}
 
 	public override Task AfterCardDrawn(PlayerChoiceContext choiceContext, CardModel card, bool fromHandDraw)
@@ -85,15 +121,11 @@ public abstract class TangentCard : CardModel
 
 	public override async Task AfterCardPlayed(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
-		if (cardPlay.Card == this || cardPlay.Card.Owner != Owner || Pile?.Type != PileType.Hand || LineCount < 2)
+		if (cardPlay.Card == this || cardPlay.Card.Owner != Owner || Pile?.Type != PileType.Hand)
 		{
 			return;
 		}
-		Line = Line % LineCount + 1;
-		foreach (IAfterTangentLineChanged listener in BidenHooks.ListenersOf<IAfterTangentLineChanged>(Owner.Creature))
-		{
-			await listener.AfterTangentLineChanged(choiceContext, this, Line);
-		}
+		await MoveToNextLine(choiceContext);
 	}
 
 	protected override void AddExtraArgsToDescription(LocString description)

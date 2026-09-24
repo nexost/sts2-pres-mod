@@ -183,6 +183,7 @@ Every hook is optional. With none, all modes already work with the shared checks
 | `RelicChecks`, `PotionChecks`, `PowerChecks` | cards | Relic, potion and turn-power checks |
 | `ExtraCards`, `AddCardToHand` | cards | Tokens outside the pool, and how to put them in hand |
 | `PrepareCardTurn` | cards | Character state before every card (Trump: a 30 Wall) |
+| `PrepareCardTurnFor` | cards | The same, knowing the card and whether it's the upgraded play (Biden: base as Sleepy Joe, upgraded as Dark Brandon) |
 | `Snapshot`, `CheckCardEffect` | cards | Extra counters in the before/after snapshots; key-effect checks per card |
 | `BalanceInit`, `BalanceCombatStart`, `BalanceCombatStats` | balance | Per-fight numbers in `balance.json` |
 | `RemovesEnemy`, `CardValue` | balance | Teach the bot the character's non-damage effects |

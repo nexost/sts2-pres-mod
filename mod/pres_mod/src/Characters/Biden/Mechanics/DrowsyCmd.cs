@@ -53,6 +53,20 @@ public static class DrowsyCmd
 		return Math.Max(1, (int)line);
 	}
 
+	/// <summary>Whether a Doze of this much now would nod him off (sleepy cards glow red as a warning).</summary>
+	public static bool WouldNodOff(Creature owner, decimal amount)
+	{
+		if (owner.CombatState == null || IsDarkBrandon(owner) || HasNoddedOff(owner))
+		{
+			return false;
+		}
+		foreach (IDozeModifier modifier in BidenHooks.ListenersOf<IDozeModifier>(owner))
+		{
+			amount = modifier.ModifyDoze(owner, amount);
+		}
+		return amount > 0m && GetDrowsy(owner) + amount >= GetNodOffLine(owner);
+	}
+
 	/// <summary>
 	/// Gain Drowsy. Does nothing while he's Dark Brandon (wide awake) or once he has nodded off (asleep until next turn).
 	/// Reaching the line nods him off.

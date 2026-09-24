@@ -16,10 +16,21 @@ namespace PresMod.Dev;
 public static partial class DevHarness
 {
 	[CharacterTestKit("BIDEN")]
-	private static CharacterTests BidenTests() => new CharacterTests
+	private static CharacterTests BidenTests()
 	{
-		UiChecks = BidenMechanicsChecks
-	};
+		BidenCountEvents();
+		return new CharacterTests
+		{
+			UiChecks = BidenMechanicsChecks,
+			RelicChecks = BidenRelicChecks,
+			PotionChecks = BidenPotionChecks,
+			PowerChecks = BidenPowerChecks,
+			// Base versions play as Sleepy Joe with 3 Drowsy, upgraded versions as Dark Brandon, on a clean slate of powers.
+			PrepareCardTurnFor = async (ctx, card, upgraded) => await BidenResetState(ctx, awake: upgraded, drowsy: 3),
+			Snapshot = BidenSnapshot,
+			CheckCardEffect = BidenCheckCardEffect
+		};
+	}
 
 	// ---------------------------------------------------------------- ui test: the mechanics fight
 

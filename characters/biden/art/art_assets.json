@@ -130,9 +130,60 @@
       "id": "dark_aviators",
       "name": "Dark Aviators",
       "art": "a pair of black aviator sunglasses whose lenses glow with a faint red light"
+    },
+    {
+      "id": "travel_pillow",
+      "name": "Travel Pillow",
+      "art": "a navy blue U-shaped neck pillow with a small train patch"
+    },
+    {
+      "id": "ice_cream_cone",
+      "name": "Ice Cream Cone",
+      "art": "a waffle cone with one big scoop of chocolate chip ice cream"
+    },
+    {
+      "id": "index_cards",
+      "name": "Index Cards",
+      "art": "a small stack of white index cards with scribbled notes, held by a paperclip"
+    },
+    {
+      "id": "corvette",
+      "name": "'67 Corvette",
+      "art": "a toy-sized vintage green 1967 sports car, side view"
+    },
+    {
+      "id": "dark_brandon_mug",
+      "name": "Dark Brandon Mug",
+      "art": "a black coffee mug printed with glowing red laser eyes, steam rising"
+    },
+    {
+      "id": "teleprompter",
+      "name": "Teleprompter",
+      "art": "a glass teleprompter screen on a stand with scrolling text"
+    },
+    {
+      "id": "amtrak_pass",
+      "name": "Amtrak Pass",
+      "art": "a paper train ticket with a punched hole and a little locomotive printed on it"
     }
   ],
-  "potions": [],
+  "potions": [
+    {
+      "id": "warm_milk",
+      "name": "Warm Milk",
+      "art": "a glass bottle of warm milk with a tiny sleeping cap on the cork"
+    },
+    {
+      "id": "espresso_shot",
+      "name": "Espresso Shot",
+      "art": "a small flask of jet black espresso with a jagged energy spark on the label"
+    },
+    {
+      "id": "dark_roast",
+      "name": "Dark Roast",
+      "art": "a dark red potion flask shaped like a coffee cup, glowing with red light"
+    }
+  ],
   "powers": [
     {
       "id": "drowsy_power",
@@ -148,6 +199,111 @@
       "id": "nodded_off_power",
       "name": "Nodded Off",
       "art": "a crescent moon wearing a tiny sleeping cap"
+    },
+    {
+      "id": "wide_awake_power",
+      "name": "Wide Awake",
+      "art": "a single wide-open eye with a bright white iris"
+    },
+    {
+      "id": "laser_focus_power",
+      "name": "Laser Focus",
+      "art": "a red crosshair with a thin laser line through it"
+    },
+    {
+      "id": "early_riser_power",
+      "name": "Early Riser",
+      "art": "a rooster silhouette in front of a rising sun"
+    },
+    {
+      "id": "dark_brandon_rises_power",
+      "name": "Dark Brandon Rises",
+      "art": "aviator sunglasses rising like a sun, radiating red light"
+    },
+    {
+      "id": "no_malarkey_power",
+      "name": "No Malarkey",
+      "art": "a clenched fist crushing a crumpled sheet of paper"
+    },
+    {
+      "id": "double_vision_power",
+      "name": "Double Vision",
+      "art": "two overlapping pairs of glowing red eyes"
+    },
+    {
+      "id": "power_nap_power",
+      "name": "Power Nap",
+      "art": "a pillow with a small shield emblem on it"
+    },
+    {
+      "id": "snoring_power",
+      "name": "Snoring",
+      "art": "three big bold Z letters with shockwave lines"
+    },
+    {
+      "id": "well_rested_power",
+      "name": "Well Rested",
+      "art": "a small bed with a bright sparkle above it"
+    },
+    {
+      "id": "heavy_sleeper_power",
+      "name": "Heavy Sleeper",
+      "art": "a heavy iron anchor with a sleeping cap on top"
+    },
+    {
+      "id": "deep_sleep_power",
+      "name": "Deep Sleep",
+      "art": "a crescent moon sinking into dark water"
+    },
+    {
+      "id": "stream_of_consciousness_power",
+      "name": "Stream of Consciousness",
+      "art": "a winding river made of floating letters"
+    },
+    {
+      "id": "long_winded_power",
+      "name": "Long-Winded",
+      "art": "a gust of wind curling out of a speech bubble"
+    },
+    {
+      "id": "off_script_power",
+      "name": "Off Script",
+      "art": "a crumpled script page with a red scribble over it"
+    },
+    {
+      "id": "tall_tales_power",
+      "name": "Tall Tales",
+      "art": "a fish that is far too big, with a measuring tape"
+    },
+    {
+      "id": "moment_of_clarity_power",
+      "name": "Moment of Clarity",
+      "art": "a beam of light breaking through a cloud"
+    },
+    {
+      "id": "amtrak_joe_power",
+      "name": "Amtrak Joe",
+      "art": "a small silver passenger train, front view"
+    },
+    {
+      "id": "bipartisan_power",
+      "name": "Bipartisan",
+      "art": "a red hand and a blue hand shaking"
+    },
+    {
+      "id": "gaffe_machine_power",
+      "name": "Gaffe Machine",
+      "art": "a small clanking machine with a microphone spitting out letters"
+    },
+    {
+      "id": "infrastructure_law_power",
+      "name": "Infrastructure Law",
+      "art": "a steel bridge with a signed scroll hanging from it"
+    },
+    {
+      "id": "soul_of_the_nation_power",
+      "name": "Soul of the Nation",
+      "art": "a glowing flag rippling in the wind"
     }
   ],
   "ui": [

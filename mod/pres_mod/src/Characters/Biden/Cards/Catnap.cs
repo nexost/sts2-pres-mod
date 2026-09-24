@@ -1,9 +1,7 @@
-using PresMod.Characters.Biden.Mechanics;
-
 namespace PresMod.Characters.Biden.Cards;
 
 /// <summary>Starter: the sleepy Defend. Doze pushes toward nodding off, which brings Dark Brandon.</summary>
-public sealed class Catnap : CardModel
+public sealed class Catnap : SleepyCard
 {
 	public override bool GainsBlock => true;
 
@@ -23,7 +21,7 @@ public sealed class Catnap : CardModel
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
 		await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block, cardPlay);
-		await DrowsyCmd.Doze(choiceContext, Owner.Creature, DynamicVars[CardVars.Doze].BaseValue, this);
+		await Doze(choiceContext);
 	}
 
 	protected override void OnUpgrade()

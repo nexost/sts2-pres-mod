@@ -1,2 +1,8 @@
 {
+  "WARM_MILK.title": "Warm Milk",
+  "WARM_MILK.description": "[gold]Doze[/gold] [blue]{Doze}[/blue].",
+  "ESPRESSO_SHOT.title": "Espresso Shot",
+  "ESPRESSO_SHOT.description": "[gold]Wake Up[/gold].\nDraw [blue]{Cards}[/blue] cards.",
+  "DARK_ROAST.title": "Dark Roast",
+  "DARK_ROAST.description": "[gold]Wake Up[/gold].\nThis turn, your Attacks deal double damage."
 }

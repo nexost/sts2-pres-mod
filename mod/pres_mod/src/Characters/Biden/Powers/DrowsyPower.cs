@@ -31,7 +31,8 @@ public sealed class DrowsyPower : PowerModel
 		return Task.CompletedTask;
 	}
 
-	private void RefreshLine()
+	/// <summary>Also called when the line moves (Heavy Sleeper).</summary>
+	public void RefreshLine()
 	{
 		DynamicVars[_lineVar].BaseValue = DrowsyCmd.GetNodOffLine(Owner);
 	}

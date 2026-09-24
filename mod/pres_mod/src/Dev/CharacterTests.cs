@@ -52,6 +52,9 @@ public static partial class DevHarness
 		/// <summary>Character state for every card, after the shared setup (full HP, 300 Gold, 3 Energy): e.g. a 30 Wall.</summary>
 		public Func<PlayerChoiceContext, Task>? PrepareCardTurn;
 
+		/// <summary>Like PrepareCardTurn, knowing the card and whether it will be upgraded (Biden: base as Sleepy Joe, upgraded as Dark Brandon).</summary>
+		public Func<PlayerChoiceContext, CardModel, bool, Task>? PrepareCardTurnFor;
+
 		/// <summary>Adds the character's own counters to each before/after snapshot (Wall height, Tweets in hand, ...).</summary>
 		public Action<Player, Dictionary<string, decimal>>? Snapshot;
 
