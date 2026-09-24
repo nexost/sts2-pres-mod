@@ -8,7 +8,7 @@ position = Vector2(-2, 42)
 scale = Vector2(0.760006, 0.760006)
 script = ExtResource("1_qpoiy")
 
-[node name="TrumpSprite" type="Sprite2D" parent="."]
+[node name="CharacterSprite" type="Sprite2D" parent="."]
 position = Vector2(55, 330)
 centered = false
 

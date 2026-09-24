@@ -5,7 +5,8 @@ Compare balance-bot batches (scripts/test.py balance ...) across characters.
   python scripts/balance_report.py PREFIX          only batches whose runs used seeds starting with PREFIX (e.g. B18)
 
 Prints, per character: runs, win rate, floors reached, HP lost per fight by act and room type, deaths by encounter.
-For The Donald also: cards picked and played, Wall heights and Deports per fight, Gold gained.
+For the mod's characters also: cards picked and played, Gold gained, and the numbers their test kit adds
+(Trump: Wall heights and Deports per fight).
 """
 import glob
 import json
@@ -14,7 +15,10 @@ import statistics
 import sys
 from collections import Counter, defaultdict
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import presmod  # noqa: E402
+
+ROOT = presmod.REPO
 
 
 def load_batches(prefix):
@@ -51,7 +55,8 @@ def summarize(character, runs):
     print("  deaths by encounter: " + ", ".join(f"{k} {v}" for k, v in deaths.most_common(8)))
 
 
-def donald_details(runs):
+def mod_character_details(runs):
+    """Picks and plays for any character; the per-combat numbers a character's test kit adds (Trump: maxWall, deports)."""
     picks = Counter()
     offered = Counter()
     plays = Counter()
@@ -61,12 +66,14 @@ def donald_details(runs):
             offered.update(p["offered"])
         plays.update(r.get("plays", {}))
     combats = [c for r in runs for c in r["combats"]]
-    walls = [c["maxWall"] for c in combats]
-    print("  Wall max per fight: avg {:.1f}, median {:.0f}, reached 25+: {:.0f}%, 45+: {:.0f}%, 70+: {:.0f}%".format(
-        statistics.mean(walls), statistics.median(walls),
-        100 * sum(w >= 25 for w in walls) / len(walls), 100 * sum(w >= 45 for w in walls) / len(walls), 100 * sum(w >= 70 for w in walls) / len(walls)))
-    print("  Deports per fight: {:.2f}, fights with a Deport: {:.0f}%".format(
-        statistics.mean(c["deports"] for c in combats), 100 * sum(c["deports"] > 0 for c in combats) / len(combats)))
+    if combats and all("maxWall" in c for c in combats):
+        walls = [c["maxWall"] for c in combats]
+        print("  Wall max per fight: avg {:.1f}, median {:.0f}, reached 25+: {:.0f}%, 45+: {:.0f}%, 70+: {:.0f}%".format(
+            statistics.mean(walls), statistics.median(walls),
+            100 * sum(w >= 25 for w in walls) / len(walls), 100 * sum(w >= 45 for w in walls) / len(walls), 100 * sum(w >= 70 for w in walls) / len(walls)))
+    if combats and all("deports" in c for c in combats):
+        print("  Deports per fight: {:.2f}, fights with a Deport: {:.0f}%".format(
+            statistics.mean(c["deports"] for c in combats), 100 * sum(c["deports"] > 0 for c in combats) / len(combats)))
     print("  Gold gained per fight (rewards excluded): {:.1f}".format(statistics.mean(c["goldGained"] for c in combats)))
     print("  most played: " + ", ".join(f"{k} {v}" for k, v in plays.most_common(14)))
     rate = {k: picks[k] / offered[k] for k in offered if offered[k] >= 3}
@@ -80,8 +87,8 @@ def main():
         sys.exit("No balance batches found.")
     for character, (path, runs) in batches.items():
         summarize(character, runs)
-        if character == "TRUMP":
-            donald_details(runs)
+        if character.lower() in presmod.character_ids():
+            mod_character_details(runs)
         print(f"  ({path})")
 
 

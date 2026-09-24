@@ -1,21 +1,29 @@
 """
-Render docs/design/cards.json into readable tables and check it against the base-game benchmarks.
+Render a character's characters/<id>/design/cards.json into readable tables and check it against the base-game
+benchmarks (docs/reference/base_game_benchmarks.md).
 
-  python scripts/render_design.py
+  python scripts/render_design.py [-c trump]
 
-Writes docs/design/card_list.md and prints the validation report (also appended to that file).
+Writes characters/<id>/design/card_list.md and prints the validation report (also appended to that file).
 """
 import json
 import os
 import re
 from collections import Counter, defaultdict
+import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "docs", "design", "cards.json")
-OUT = os.path.join(ROOT, "docs", "design", "card_list.md")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import presmod  # noqa: E402
+
+# -c/--character NAME (default: the first character)
+_argv = sys.argv[1:]
+CH = presmod.character(_argv[_argv.index("-c") + 1] if "-c" in _argv else _argv[_argv.index("--character") + 1] if "--character" in _argv else None)
+ROOT = presmod.REPO
+SRC = CH.path("design", "cards.json")
+OUT = CH.path("design", "card_list.md")
 RARITIES = ["Basic", "Common", "Uncommon", "Rare", "Ancient", "Token"]
 TYPES = ["Attack", "Skill", "Power"]
-ARCHES = ["Wall", "Deport", "Deals", "Tweets", "General"]
+ARCHES = CH.get("archetypes", ["General"])  # play styles, in display order (character.json)
 # Base game averages per character (build/analysis/benchmarks.md)
 BASE_RARITY = {"Basic": 4, "Common": 20, "Uncommon": 36, "Rare": 26, "Ancient": 2}
 BASE_TYPE_BY_RARITY = {"Common": (11.0, 9.0, 0.0), "Uncommon": (11.0, 16.4, 8.6), "Rare": (7.4, 9.0, 9.6)}
@@ -49,7 +57,7 @@ def upgrade_str(c):
 def main():
     data = json.load(open(SRC, encoding="utf-8"))
     cards = data["cards"]
-    lines = ["# The Donald: full card list", "",
+    lines = [f"# {CH['name']}: full card list", "",
              "Generated from `cards.json` by `scripts/render_design.py`. Numbers in parentheses are the upgraded values.", ""]
     for rarity in RARITIES:
         group = [c for c in cards if c["rarity"] == rarity]

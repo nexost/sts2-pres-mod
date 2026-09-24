@@ -1,0 +1,48 @@
+{
+  "_about": "Everything the tools need to know about this character (scripts/presmod.py). Code: mod/pres_mod/src/Characters/<folder>/. Made by scripts/new_character.py; every TODO is filled during the character's design and art steps (docs/ADDING_A_CHARACTER.md).",
+  "id": "{{ID}}",
+  "class": "{{Class}}",
+  "folder": "{{Class}}",
+  "name": "{{Name}}",
+  "colors": {
+    "primary": "{{primary}}",
+    "secondary": "{{secondary}}",
+    "accent": "{{accent}}",
+    "text": "{{text}}"
+  },
+  "archetypes": [
+    "General"
+  ],
+  "art": {
+    "persona": "TODO {{FullName}} as a comic caricature, with <hair>, <face>, <outfit> and <one signature prop>",
+    "persona_sentence": "TODO {{FullName}} is drawn as a comic caricature with <the same description as persona>.",
+    "name_in_card_art": "{{FirstName}}",
+    "full_name": "{{FullName}}",
+    "placeholder_initial": "{{Initial}}",
+    "enemy_rule": "Every enemy, monster or foe is a Slay the Spire fantasy creature (cultists, slimes, goblins, beetles, jaw worms), never a human.",
+    "enemy_rule_archetypes": [],
+    "card_refs": {
+      "General": [
+        "ironclad/inflame",
+        "defect/momentum_strike",
+        "necrobinder/dirge"
+      ]
+    },
+    "card_backgrounds": {
+      "General": "TODO a background in the character's colours, e.g. warm crimson and navy background"
+    },
+    "default_archetype": "General",
+    "energy_tint": [
+      "{{tint_dark}}",
+      "{{tint_mid}}",
+      "{{tint_light}}"
+    ],
+    "sleeve": "TODO the character's sleeve for the co-op hands, e.g. a navy suit sleeve with a white shirt cuff"
+  },
+  "frame_hsv": {
+    "h": {{frame_h}},
+    "s": 1.0,
+    "v": 1.2
+  },
+  "sfx_proxy": "{{sfx}}"
+}

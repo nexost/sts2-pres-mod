@@ -1,11 +1,13 @@
 # Step 1: Feasibility Report
 
+> **Paths changed after Step 8** (Step 8.5): the mod is now sts2-pres-mod (id `pres_mod`, repo `C:\Users\exeet\sts2-pres-mod`), the code is in `mod/pres_mod/src/` (`Framework/`, `Dev/`, `Characters/Trump/`), The Donald's text and design are in `characters/trump/`, and the test flags are `--pres-*` with saves in `modded_prestest`. This report keeps the names of its time; [FRAMEWORK.md](FRAMEWORK.md) maps the new layout.
+
 **Game:** Slay the Spire 2 v0.107.1 (Early Access, build 59260271, June 18 2026)
 **Verdict: feasible, go.** Confidence is high for the code and content, and medium for the art.
 
 > **Status (updated after Step 3):** Step 1 is complete. Since this report:
 > - Step 2 built P1–P5 and found two more required patches, P6 and P7 (§5).
-> - Step 3 v2 changed the Wall and Deport rules (§4). The current design is in [`03_design.md`](03_design.md).
+> - Step 3 v2 changed the Wall and Deport rules (§4). The current design is in [`characters/trump/design/design.md`](../characters/trump/design/design.md).
 >
 > The overall plan and status are in [`00_project_plan.md`](00_project_plan.md).
 

@@ -122,7 +122,8 @@ main { padding: 14px 16px 60px; }
 <body>
 <header>
   <div class="row">
-    <h1>Art Review <span>· The Donald</span></h1>
+    <h1>Art Review <span id="charName"></span></h1>
+    <select id="charSelect" title="Whose art to show" style="display:none"></select>
     <span class="pill"><span id="comfyDot" class="dot"></span><span id="comfyTxt">ComfyUI</span></span>
     <span class="pill">Kept <b id="cKept">0</b></span>
     <span class="pill">To review <b id="cReview">0</b></span>
@@ -180,7 +181,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const SECTIONS = ["All", "Character", "Cards", "Relics", "Potions", "Powers", "UI & mechanics"];
 const ARCHS = ["Wall", "Deport", "Deals", "Tweets", "General"];
 const ICON_KINDS = new Set(["relic", "potion", "power"]);
-const CHECK_KINDS = new Set(["top_icon", "map_marker", "figure", "hand", "wall", "stamp", "orb", "small_icon", "char_button"]);
+const CHECK_KINDS = new Set(["top_icon", "map_marker", "figure", "hand", "prop", "decal", "orb", "small_icon", "energy_icon", "char_button"]);
 
 const store = (k, v) => { try { v === undefined ? null : localStorage.setItem("artreview." + k, JSON.stringify(v)); } catch (e) {} };
 const load = (k, d) => { try { const v = localStorage.getItem("artreview." + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };
@@ -189,9 +190,11 @@ let items = new Map(), order = [], summary = {}, clockOffset = 0;
 let tab = load("tab", "All"), arch = load("arch", ""), statusF = load("status", ""), search = "";
 let selected = new Set(), focusId = null, modalId = null, lastClicked = null;
 let showFrames = load("frames", true);
+// The character whose art is shown (one workspace per character on the server).
+let charId = new URLSearchParams(location.search).get("char") || load("char", "");
 
 function api(path, body) {
-  return fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+  return fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ char: charId }, body || {})) });
 }
 function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove("show"), 1800); }
 function working(it) { return it.pending.length > 0; }
@@ -487,10 +490,21 @@ document.addEventListener("keydown", e => {
 });
 
 // ---- data ----
-async function init() {
-  const res = await fetch("/api/state"); const data = await res.json();
+async function loadState() {
+  const res = await fetch("/api/state?char=" + encodeURIComponent(charId || "")); const data = await res.json();
+  charId = data.char; store("char", charId);
   clockOffset = (data.summary.now || Date.now() / 1000) - Date.now() / 1000;
   summary = data.summary; order = data.items.map(i => i.id); items = new Map(data.items.map(i => [i.id, i]));
+  const chars = data.characters || [];
+  $("#charName").textContent = "· " + (chars.find(c => c.id === charId)?.name || charId);
+  $("#charSelect").innerHTML = chars.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join("");
+  $("#charSelect").value = charId;
+  $("#charSelect").style.display = chars.length > 1 ? "" : "none";
+  return data;
+}
+
+async function init() {
+  const data = await loadState();
   const qs = data.qualities || [];
   $("#quality").innerHTML = qs.map(q => `<option value="${q.key}" title="${esc(q.desc)}">${esc(q.label)}</option>`).join("");
   const savedQ = load("quality", data.defaultQuality);
@@ -498,18 +512,23 @@ async function init() {
   const showDesc = () => { const q = qs.find(x => x.key === quality()); $("#qualityLabel").title = q ? q.desc : ""; };
   showDesc();
   $("#quality").onchange = () => { store("quality", quality()); showDesc(); if (modalId) renderModal(); };
+  $("#charSelect").onchange = async e => {
+    charId = e.target.value; selected.clear(); closeModal();
+    await loadState(); renderAll();
+  };
   renderAll();
   const es = new EventSource("/api/events");
   es.onmessage = ev => {
     const m = JSON.parse(ev.data);
     if (m.type === "item") {
+      if (m.char !== charId) return;
       items.set(m.item.id, m.item); renderTile(m.item.id);
       if (modalId === m.item.id) renderModal();
       renderCounts();
     } else if (m.type === "summary") { summary = m.summary; renderCounts(); }
   };
   es.onerror = () => { $("#comfyTxt").textContent = "Review server offline"; $("#comfyDot").className = "dot"; };
-  es.onopen = () => { fetch("/api/state").then(r => r.json()).then(d => { d.items.forEach(i => items.set(i.id, i)); summary = d.summary; order.forEach(renderTile); applyFilter(); }); };
+  es.onopen = () => { loadState().then(() => { order.forEach(renderTile); applyFilter(); }); };
 }
 init();
 </script>

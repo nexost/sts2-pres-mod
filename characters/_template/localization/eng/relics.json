@@ -1,0 +1,5 @@
+{
+  "{{STARTER_ID}}.title": "{{StarterName}}",
+  "{{STARTER_ID}}.description": "Start each combat with [blue]{Block}[/blue] [gold]Block[/gold].",
+  "{{STARTER_ID}}.flavor": "TODO"
+}

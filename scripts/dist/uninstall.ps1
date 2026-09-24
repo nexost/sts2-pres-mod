@@ -1,12 +1,12 @@
 <#
 .SYNOPSIS
-  Removes The Donald (trump_character) mod from Slay the Spire 2, including saves that depend on it.
+  Removes sts2-pres-mod (mod id pres_mod) from Slay the Spire 2, including saves that depend on it.
 .DESCRIPTION
-  A run in progress as The Donald (or a run-history entry using its cards) can't be loaded once the mod is gone.
+  A run in progress as one of the mod's characters (or a run-history entry using its cards) can't be loaded once the mod is gone.
   Steam Cloud also re-downloads any modded save that is missing locally, so deleting files on disk isn't enough.
   So, if such saves exist and the mod is still installed, this starts the game once in a short cleanup mode:
   the mod backs those saves up and deletes them through the game's own save system (local + cloud), then quits.
-  After that the mod folder is removed. Backups go to %APPDATA%\SlayTheSpire2\trump_character_uninstall_backup\.
+  After that the mod folder is removed. Backups go to %APPDATA%\SlayTheSpire2\pres_mod_uninstall_backup\.
 .PARAMETER GameDir
   Game folder. Found automatically through Steam if omitted.
 .PARAMETER KeepSaves
@@ -15,7 +15,7 @@
   Don't start the game for cleanup; move affected local save files to the backup folder instead
   (Steam Cloud may restore them later).
 .PARAMETER RemoveTestData
-  Also delete the automated-test save folders (modded_trumptest) and test output.
+  Also delete the automated-test save folders (modded_prestest, modded_bal*) and test output.
 .PARAMETER DryRun
   Show what would happen without changing anything.
 .PARAMETER Quiet
@@ -37,11 +37,12 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$ModId = 'trump_character'
+$ModId = 'pres_mod'
+$LegacyIds = @('trump_character')
 $AppId = '2868840'
 $UserData = Join-Path $env:APPDATA 'SlayTheSpire2'
 $Stamp = Get-Date -Format 'yyyyMMdd_HHmmss'
-$BackupRoot = Join-Path $UserData "trump_character_uninstall_backup\$Stamp"
+$BackupRoot = Join-Path $UserData "pres_mod_uninstall_backup\$Stamp"
 
 function Find-GameDir {
     $candidates = @()
@@ -132,8 +133,8 @@ try {
                     New-Item -ItemType Directory -Force -Path $out | Out-Null
                     $env:SteamAppId = $AppId
                     $env:SteamGameId = $AppId
-                    $gameArgs = @('--trump-cleanup', '--trump-out', "`"$out`"")
-                    if ($SaveDirName -ne 'modded') { $gameArgs += @('--trump-savedir', $SaveDirName) }
+                    $gameArgs = @('--pres-cleanup', '--pres-out', "`"$out`"")
+                    if ($SaveDirName -ne 'modded') { $gameArgs += @('--pres-savedir', $SaveDirName) }
                     $proc = Start-Process -FilePath (Join-Path $GameDir 'SlayTheSpire2.exe') -ArgumentList $gameArgs -WorkingDirectory $GameDir -PassThru
                     if (-not $proc.WaitForExit(180000)) { $proc.Kill(); throw 'Cleanup timed out (game did not exit within 3 minutes).' }
                     $resultFile = Join-Path $out 'cleanup_result.json'
@@ -166,11 +167,23 @@ try {
     } else {
         Write-Host 'Mod folder was not present.'
     }
+    foreach ($old in $LegacyIds) {
+        $oldDir = Join-Path $GameDir "mods\$old"
+        if (-not $KeepModFiles -and (Test-Path $oldDir)) {
+            if (-not $DryRun) { Remove-Item -LiteralPath $oldDir -Recurse -Force }
+            Write-Host "$(if ($DryRun) { 'Would remove' } else { 'Removed' }) old version $oldDir"
+        }
+    }
 
     # 3. Optional test data
     if ($RemoveTestData) {
-        $testDirs = @(Get-ChildItem -Path $UserData -Recurse -Directory -Filter 'modded_trumptest' -ErrorAction SilentlyContinue) +
-                    @(Get-Item (Join-Path $UserData 'trump_test') -ErrorAction SilentlyContinue)
+        $testDirs = @()
+        foreach ($name in @('modded_prestest', 'modded_trumptest', 'modded_bal*')) {
+            $testDirs += @(Get-ChildItem -Path $UserData -Recurse -Directory -Filter $name -ErrorAction SilentlyContinue)
+        }
+        foreach ($name in @('pres_test', 'trump_test')) {
+            $testDirs += @(Get-Item (Join-Path $UserData $name) -ErrorAction SilentlyContinue)
+        }
         foreach ($d in $testDirs) {
             if (-not $DryRun) { Remove-Item -LiteralPath $d.FullName -Recurse -Force }
             Write-Host "$(if ($DryRun) { 'Would remove' } else { 'Removed' }) test data $($d.FullName)"
@@ -182,7 +195,7 @@ try {
         Write-Host 'Dry run complete. Nothing was changed.' -ForegroundColor Yellow
         Finish 0
     }
-    Write-Host 'The Donald has left the Spire. Uninstall complete.' -ForegroundColor Green
+    Write-Host 'The presidents have left the Spire. Uninstall complete.' -ForegroundColor Green
     if (Test-Path $BackupRoot) { Write-Host "Backups: $BackupRoot" }
     Finish 0
 } catch {

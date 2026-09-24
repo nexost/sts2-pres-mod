@@ -1,14 +1,14 @@
-; Asset project for the Trump character mod.
+; Asset project for sts2-pres-mod (all characters).
 ; Paths inside mirror the game's res:// layout so the packed files land exactly where the game looks.
-; This project is only used to import textures and pack trump_character.pck (see scripts/build.ps1).
+; This project is only used to import textures and pack pres_mod.pck (see scripts/build.py).
 
 config_version=5
 
 [application]
 
-config/name="trump_character_assets"
+config/name="pres_mod_assets"
 config/features=PackedStringArray("4.5", "C#")
 
 [dotnet]
 
-project/assembly_name="trump_character"
+project/assembly_name="pres_mod"

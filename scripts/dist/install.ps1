@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-  Installs The Donald (trump_character) mod into Slay the Spire 2.
+  Installs sts2-pres-mod (mod id pres_mod: The Donald and friends) into Slay the Spire 2.
 .PARAMETER GameDir
   Game folder. Found automatically through Steam if omitted.
 .PARAMETER Quiet
@@ -12,7 +12,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$ModId = 'trump_character'
+$ModId = 'pres_mod'
 $AppId = '2868840'
 
 function Find-GameDir {
@@ -63,8 +63,20 @@ try {
     New-Item -ItemType Directory -Force -Path $dest | Out-Null
     Copy-Item -Path (Join-Path $src '*') -Destination $dest -Recurse -Force
 
-    $version = (Get-Content (Join-Path $dest 'manifest.json') -Raw | ConvertFrom-Json).version
-    Write-Host ("{0} The Donald v{1}" -f ($(if ($upgrade) { 'Updated' } else { 'Installed' }), $version)) -ForegroundColor Green
+    # Earlier versions of this mod under another id (trump_character): remove them, or both copies would load.
+    $legacyFile = Join-Path $PSScriptRoot 'legacy_ids.txt'
+    if (Test-Path $legacyFile) {
+        foreach ($old in (Get-Content $legacyFile | Where-Object { $_.Trim() })) {
+            $oldDir = Join-Path $GameDir "mods\$($old.Trim())"
+            if (Test-Path $oldDir) {
+                Remove-Item -LiteralPath $oldDir -Recurse -Force
+                Write-Host "Removed the old version of this mod ($oldDir)" -ForegroundColor Yellow
+            }
+        }
+    }
+
+    $manifest = Get-Content (Join-Path $dest 'manifest.json') -Raw | ConvertFrom-Json
+    Write-Host ("{0} {1} v{2}" -f ($(if ($upgrade) { 'Updated' } else { 'Installed' }), $manifest.name, $manifest.version)) -ForegroundColor Green
     Write-Host "  -> $dest"
     Write-Host ''
     Write-Host 'Notes:'

@@ -106,7 +106,7 @@ def build_graph(job):
                                    "sigmas": ["sched2", 0], "latent_image": ["up", 0]}}
         final = ["sample2", 0]
     g["decode"] = {"class_type": "VAEDecode", "inputs": {"samples": final, "vae": ["vae", 0]}}
-    g["save"] = {"class_type": "SaveImage", "inputs": {"images": ["decode", 0], "filename_prefix": "sts2trump/" + job["name"]}}
+    g["save"] = {"class_type": "SaveImage", "inputs": {"images": ["decode", 0], "filename_prefix": "presmod/" + job["name"]}}
     return g
 
 

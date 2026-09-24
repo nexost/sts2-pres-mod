@@ -1,14 +1,15 @@
-"""Art review tool (Step 7.5): every piece of art the mod needs, in one browser page.
+"""Art review tool: every piece of art each character needs, in one browser page.
 
-  python scripts/art_review.py [--port 8190] [--host 127.0.0.1] [--no-browser]
+  python scripts/art_review.py [--port 8190] [--host 127.0.0.1] [--no-browser] [--character trump]
 
 For each item (cards, relics, potions, powers, character screens, UI): keep the current image, regenerate it
-(one or several items at once, updated live in the page), flip between past versions, or edit its prompt.
-"Keep" copies the game-ready files into mod/ (then `python scripts/build.py --install` puts them in the game).
+(one or several items at once, updated live in the page), flip between past versions, edit its prompt or delete
+versions. "Keep" copies the game-ready files into mod/ (then `python scripts/build.py --install` puts them in the game).
+A character switcher at the top picks whose art is shown (only when the mod has several characters).
 
 It starts the headless ComfyUI (port 8189) itself when it isn't running, and stops it on exit.
-State lives in build/art/review/state.json; every generated version is kept in build/art/review/items/.
-Use --host 0.0.0.0 to open it from a phone on the same network.
+Each character has its own workspace in build/art/review/<id>/: state.json, items/ (every version) and trash/.
+Use --host 0.0.0.0 to open it from a phone on the same network. Details: docs/ART_PIPELINE.md.
 """
 import argparse
 import json
@@ -25,50 +26,174 @@ import urllib.error
 import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import art_gen  # noqa: E402
 import art_recipes  # noqa: E402
+import presmod  # noqa: E402
 
-REPO = art_recipes.REPO
-REVIEW = os.path.join(REPO, "build", "art", "review")
-STATE_FILE = os.path.join(REVIEW, "state.json")
+REPO = presmod.REPO
+REVIEW_ROOT = os.path.join(REPO, "build", "art", "review")
 PAGE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "art_review", "index.html")
 COMFY_DIR = r"D:\Comfy-Desktop\ComfyUI-Installs\ComfyUI\ComfyUI"
 COMFY_MODELS_YAML = os.path.join(os.environ.get("APPDATA", ""), "Comfy Desktop", "shared_model_paths.yaml")
-SERVE_ROOTS = [REVIEW, os.path.join(REPO, "build", "art", "ref"), os.path.join(art_recipes.GAME, "images"),
+SERVE_ROOTS = [REVIEW_ROOT, os.path.join(REPO, "build", "art", "ref"), os.path.join(art_recipes.GAME, "images"),
                os.path.join(art_recipes.GAME, "animations")]  # the last two: game art used as style references
+PATH_KEYS = ("raw", "preview", "thumb")
 
 
 def now():
     return time.time()
 
 
-class Review:
+def _rel(path):
+    """A version file's path relative to its workspace ("items/card__deport/v3_raw.png"). Older states stored
+    absolute paths (from before the repo moved); anything after the last /items/ is what matters."""
+    p = path.replace("\\", "/")
+    i = p.rfind("/items/")
+    return p[i + 1:] if i >= 0 else p
+
+
+def migrate_single_character_layout():
+    """Before the tool knew several characters, everything was in build/art/review/ directly: move it to the first
+    character's workspace (build/art/review/<id>/)."""
+    old_state = os.path.join(REVIEW_ROOT, "state.json")
+    if not os.path.exists(old_state):
+        return
+    target = os.path.join(REVIEW_ROOT, presmod.character_ids()[0])
+    os.makedirs(target, exist_ok=True)
+    for name in os.listdir(REVIEW_ROOT):
+        src = os.path.join(REVIEW_ROOT, name)
+        if name in presmod.character_ids():
+            continue
+        shutil.move(src, os.path.join(target, name))
+    print(f"Moved the single-character review state to {target}", flush=True)
+
+
+class Hub:
+    """What every character's workspace shares: the browser connections, ComfyUI and the generation queue."""
+
     def __init__(self):
         self.lock = threading.RLock()
-        self.items = art_recipes.load_items()
-        self.by_id = {it["id"]: it for it in self.items}
-        self.state = {"items": {}}
-        if os.path.exists(STATE_FILE):
-            with open(STATE_FILE, encoding="utf-8") as f:
-                self.state = json.load(f)
-        self.jobs = {j["id"]: j for j in self.state.pop("jobs", [])}  # local job id -> job (survive a restart)
-        self.recall_trashed_numbers()
-        for s in self.state["items"].values():
-            if "reviewed" not in s and s["versions"] and s["kept"]:
-                s["reviewed"] = max(v["v"] for v in s["versions"]) if s["current"] == s["kept"] else s["kept"]
-        self.errors = {}        # item id -> last error
         self.listeners = []
         self.comfy_up = False
         self.comfy_proc = None
         self.durations = []     # recent generation times, for the ETA
+        self.spaces = {}        # character id -> Workspace
+
+    def emit(self, msg):
+        data = json.dumps(msg)
+        for q in list(self.listeners):
+            q.put(data)
+
+    def summary(self):
+        jobs = [j for w in self.spaces.values() for j in w.jobs.values()]
+        running = [j for j in jobs if j["state"] == "running"]
+        waiting = [j for j in jobs if j["state"] != "running"]
+        avg = sum(self.durations[-20:]) / len(self.durations[-20:]) if self.durations else 26.0
+        return {"comfy": self.comfy_up, "running": len(running), "queued": len(waiting), "avg": round(avg, 1),
+                "eta": round(avg * (len(running) + len(waiting))), "now": now()}
+
+    def emit_summary(self):
+        self.emit({"type": "summary", "summary": self.summary()})
+
+    # ---- ComfyUI ------------------------------------------------------------------------------------------
+    def comfy_get(self, path, timeout=5):
+        return json.loads(urllib.request.urlopen(art_gen.SERVER + path, timeout=timeout).read())
+
+    def comfy_post(self, path, data):
+        try:
+            return art_gen._post(path, data)
+        except Exception as e:  # noqa: BLE001
+            return {"error": str(e)}
+
+    def check_comfy(self):
+        try:
+            self.comfy_get("/system_stats", timeout=2)
+            return True
+        except Exception:  # noqa: BLE001
+            return False
+
+    def start_comfy(self):
+        python = os.path.join(COMFY_DIR, ".venv", "Scripts", "python.exe")
+        log = open(os.path.join(REPO, "build", "art", "comfy.log"), "w", encoding="utf-8")
+        args = [python, "-s", "main.py", "--extra-model-paths-config", COMFY_MODELS_YAML,
+                "--output-directory", art_gen.COMFY_OUT, "--input-directory", art_gen.COMFY_IN,
+                "--port", "8189", "--listen", "127.0.0.1", "--disable-pinned-memory", "--disable-auto-launch"]
+        flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        self.comfy_proc = subprocess.Popen(args, cwd=COMFY_DIR, stdout=log, stderr=subprocess.STDOUT, creationflags=flags)
+        print("Starting ComfyUI (log: build/art/comfy.log)...", flush=True)
+
+    def stop_comfy(self):
+        if self.comfy_proc and self.comfy_proc.poll() is None:
+            self.comfy_proc.terminate()
+            print("Stopped ComfyUI.")
+
+    def loop(self):
+        """Background thread: submit waiting jobs, follow ComfyUI's queue, collect finished images."""
+        started_comfy = False
+        while True:
+            try:
+                up = self.check_comfy()
+                if up != self.comfy_up:
+                    self.comfy_up = up
+                    self.emit_summary()
+                if not up:
+                    if not started_comfy and self.comfy_proc is None:
+                        self.start_comfy()
+                        started_comfy = True
+                    time.sleep(1.5)
+                    continue
+                for space in list(self.spaces.values()):
+                    space.submit_waiting()
+                self.follow_queue()
+            except Exception as e:  # noqa: BLE001
+                print("loop error:", e, flush=True)
+            time.sleep(0.7)
+
+    def follow_queue(self):
+        q = self.comfy_get("/queue")
+        running = [r[1] for r in q.get("queue_running", [])]
+        pending = [r[1] for r in sorted(q.get("queue_pending", []), key=lambda r: r[0])]
+        for space in list(self.spaces.values()):
+            space.follow(running, pending)
+
+
+class Workspace:
+    """One character's art: its items (art_recipes), state (build/art/review/<id>/state.json) and jobs."""
+
+    def __init__(self, hub, ch):
+        self.hub = hub
+        self.lock = hub.lock
+        self.ch = ch
+        self.cid = ch.id
+        self.dir = os.path.join(REVIEW_ROOT, ch.id)
+        self.state_file = os.path.join(self.dir, "state.json")
+        os.makedirs(self.dir, exist_ok=True)
+        self.items = art_recipes.load_items(ch)
+        self.by_id = {it["id"]: it for it in self.items}
+        self.state = {"items": {}}
+        if os.path.exists(self.state_file):
+            with open(self.state_file, encoding="utf-8") as f:
+                self.state = json.load(f)
+        for s in self.state["items"].values():
+            for v in s["versions"]:
+                for k in PATH_KEYS:
+                    v[k] = os.path.join(self.dir, _rel(v[k]))
+                v["files"] = {k: os.path.join(self.dir, _rel(p)) for k, p in v["files"].items()}
+        self.jobs = {j["id"]: j for j in self.state.pop("jobs", [])}  # local job id -> job (survive a restart)
+        self.errors = {}        # item id -> last error
+        self.recall_trashed_numbers()
+        for s in self.state["items"].values():
+            if "reviewed" not in s and s["versions"] and s["kept"]:
+                s["reviewed"] = max(v["v"] for v in s["versions"]) if s["current"] == s["kept"] else s["kept"]
+        self.save()
 
     # ---- state --------------------------------------------------------------------------------------------
     def recall_trashed_numbers(self):
         """Version numbers are never reused: count the ones already moved to the trash too."""
-        trash = os.path.join(REVIEW, "trash")
+        trash = os.path.join(self.dir, "trash")
         if not os.path.isdir(trash):
             return
         for d in os.listdir(trash):
@@ -81,14 +206,23 @@ class Review:
             if item_id in self.by_id and numbers:
                 s = self.st(item_id)
                 s["last_v"] = max(s.get("last_v", 0), *numbers)
+
     def st(self, item_id):
         return self.state["items"].setdefault(item_id, {"versions": [], "current": None, "kept": None, "prompt": None})
 
     def save(self):
-        tmp = STATE_FILE + ".tmp"
+        """state.json with version paths relative to the workspace, so the repo can be moved or renamed."""
+        out = {"items": {}}
+        for item_id, s in self.state["items"].items():
+            s2 = dict(s)
+            s2["versions"] = [dict(v, **{k: _rel(v[k]) for k in PATH_KEYS}, files={k: _rel(p) for k, p in v["files"].items()})
+                              for v in s["versions"]]
+            out["items"][item_id] = s2
+        out["jobs"] = list(self.jobs.values())
+        tmp = self.state_file + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
-            json.dump(dict(self.state, jobs=list(self.jobs.values())), f, indent=1)
-        os.replace(tmp, STATE_FILE)
+            json.dump(out, f, indent=1)
+        os.replace(tmp, self.state_file)
 
     def url(self, path):
         for root in SERVE_ROOTS:
@@ -98,8 +232,8 @@ class Review:
         return None
 
     def vurl(self, path, v):
-        """A version's file URL. The creation time makes it unique: version numbers used to be reused after a
-        delete, and the browser (told these files never change) showed the old picture for the new one."""
+        """A version's file URL. The creation time makes it unique, so the browser (told these files never change)
+        can't show an old picture for a new version."""
         u = self.url(path)
         return f"{u}?t={int(v['created'] * 1000)}" if u else u
 
@@ -123,38 +257,20 @@ class Review:
                      "created": v["created"], "custom": v.get("custom", False),
                      "quality": art_recipes.QUALITY.get(v.get("quality") or "", {}).get("label", "Legacy (first batch)")}
                     for v in s["versions"]]
-        cur = s["current"]
-        status = self.status(s)
         return {
             "id": item_id, "section": it["section"], "kind": it["kind"], "name": it["name"], "sub": it["sub"],
             "arch": it.get("arch"), "ctype": it.get("ctype"), "rarity": it.get("rarity"), "text": it.get("text", ""),
             "art": it.get("art", ""), "note": it.get("note", ""), "frame": it.get("frame"), "frameMode": it.get("frameMode"),
             "prompt": s["prompt"] or it["prompt"], "promptCustom": bool(s["prompt"]), "defaultPrompt": it["prompt"],
             "refs": [self.url(r) or "" for r in it["refs"]], "outputs": list(it["outputs"].values()),
-            "versions": versions, "current": cur, "kept": s["kept"], "status": status,
+            "versions": versions, "current": s["current"], "kept": s["kept"], "status": self.status(s),
             "pending": [{"state": j["state"], "pos": j.get("pos"), "since": j.get("started") or j["created"],
                          "quality": art_recipes.QUALITY.get(j.get("quality") or "", {}).get("label", "")} for j in pend],
             "error": self.errors.get(item_id),
         }
 
-    def summary(self):
-        running = [j for j in self.jobs.values() if j["state"] == "running"]
-        waiting = [j for j in self.jobs.values() if j["state"] != "running"]
-        avg = sum(self.durations[-20:]) / len(self.durations[-20:]) if self.durations else 26.0
-        return {"comfy": self.comfy_up, "running": len(running), "queued": len(waiting), "avg": round(avg, 1),
-                "eta": round(avg * (len(running) + len(waiting))), "now": now()}
-
-    # ---- live updates -------------------------------------------------------------------------------------
-    def emit(self, msg):
-        data = json.dumps(msg)
-        for q in list(self.listeners):
-            q.put(data)
-
     def emit_item(self, item_id):
-        self.emit({"type": "item", "item": self.view(item_id)})
-
-    def emit_summary(self):
-        self.emit({"type": "summary", "summary": self.summary()})
+        self.hub.emit({"type": "item", "char": self.cid, "item": self.view(item_id)})
 
     # ---- actions ------------------------------------------------------------------------------------------
     def regenerate(self, ids, count=1, quality=None):
@@ -170,7 +286,7 @@ class Review:
                                       "seed": random.randint(1, 2 ** 31 - 1), "prompt_id": None, "quality": quality}
                 self.emit_item(item_id)
             self.save()
-            self.emit_summary()
+            self.hub.emit_summary()
 
     def keep(self, ids):
         with self.lock:
@@ -180,7 +296,7 @@ class Review:
                 if not v:
                     continue
                 for key, rel in self.by_id[item_id]["outputs"].items():
-                    dst = os.path.join(art_recipes.MOD, rel.replace("/", os.sep))
+                    dst = os.path.join(presmod.MOD_DIR, rel.replace("/", os.sep))
                     os.makedirs(os.path.dirname(dst), exist_ok=True)
                     shutil.copyfile(v["files"][key], dst)
                 s["kept"] = s["current"]
@@ -196,7 +312,7 @@ class Review:
             self.save()
 
     def delete_versions(self, item_id, numbers):
-        """Remove versions from an item. The kept version is never removed. Files go to build/art/review/trash/
+        """Remove versions from an item. The kept version is never removed. Files go to <workspace>/trash/
         (not erased), so a wrong click can be undone by hand."""
         with self.lock:
             s = self.st(item_id)
@@ -204,7 +320,7 @@ class Review:
             doomed = [v for v in s["versions"] if v["v"] in doomed_numbers]
             if not doomed:
                 return 0
-            trash = os.path.join(REVIEW, "trash", "%s_%d" % (item_id.replace(":", "__"), int(now() * 1000)))
+            trash = os.path.join(self.dir, "trash", "%s_%d" % (item_id.replace(":", "__"), int(now() * 1000)))
             os.makedirs(trash, exist_ok=True)
             for v in doomed:
                 for f in {v["raw"], v["preview"], v["thumb"], *v["files"].values()}:
@@ -254,79 +370,31 @@ class Review:
                     del self.jobs[j["id"]]
             self.save()
         if queued:
-            self.comfy_post("/queue", {"delete": queued})
+            self.hub.comfy_post("/queue", {"delete": queued})
         for j in running:
-            self.comfy_post("/interrupt", {"prompt_id": j["prompt_id"]})
+            self.hub.comfy_post("/interrupt", {"prompt_id": j["prompt_id"]})
         with self.lock:
             for item_id in set(ids):
                 if item_id in self.by_id:
                     self.emit_item(item_id)
-            self.emit_summary()
+            self.hub.emit_summary()
 
     def version(self, item_id, v):
         return next((x for x in self.st(item_id)["versions"] if x["v"] == v), None)
 
-    # ---- ComfyUI ------------------------------------------------------------------------------------------
-    def comfy_get(self, path, timeout=5):
-        return json.loads(urllib.request.urlopen(art_gen.SERVER + path, timeout=timeout).read())
-
-    def comfy_post(self, path, data):
-        try:
-            return art_gen._post(path, data)
-        except Exception as e:  # noqa: BLE001
-            return {"error": str(e)}
-
-    def check_comfy(self):
-        try:
-            self.comfy_get("/system_stats", timeout=2)
-            return True
-        except Exception:  # noqa: BLE001
-            return False
-
-    def start_comfy(self):
-        python = os.path.join(COMFY_DIR, ".venv", "Scripts", "python.exe")
-        log = open(os.path.join(REPO, "build", "art", "comfy.log"), "w", encoding="utf-8")
-        args = [python, "-s", "main.py", "--extra-model-paths-config", COMFY_MODELS_YAML,
-                "--output-directory", art_gen.COMFY_OUT, "--input-directory", art_gen.COMFY_IN,
-                "--port", "8189", "--listen", "127.0.0.1", "--disable-pinned-memory", "--disable-auto-launch"]
-        flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
-        self.comfy_proc = subprocess.Popen(args, cwd=COMFY_DIR, stdout=log, stderr=subprocess.STDOUT, creationflags=flags)
-        print("Starting ComfyUI (log: build/art/comfy.log)...", flush=True)
-
-    def stop_comfy(self):
-        if self.comfy_proc and self.comfy_proc.poll() is None:
-            self.comfy_proc.terminate()
-            print("Stopped ComfyUI.")
-
-    def loop(self):
-        """Background thread: submit waiting jobs, follow ComfyUI's queue, collect finished images."""
-        started_comfy = False
-        while True:
-            try:
-                up = self.check_comfy()
-                if up != self.comfy_up:
-                    self.comfy_up = up
-                    self.emit_summary()
-                if not up:
-                    if not started_comfy and self.comfy_proc is None:
-                        self.start_comfy()
-                        started_comfy = True
-                    time.sleep(1.5)
-                    continue
-                self.submit_waiting()
-                self.follow_queue()
-            except Exception as e:  # noqa: BLE001
-                print("loop error:", e, flush=True)
-            time.sleep(0.7)
-
+    # ---- generation ---------------------------------------------------------------------------------------
     def submit_waiting(self):
         with self.lock:
             waiting = sorted((j for j in self.jobs.values() if j["state"] == "waiting"), key=lambda j: j["created"])
         for j in waiting:
-            it = self.by_id[j["item"]]
+            it = self.by_id.get(j["item"])
+            if it is None:  # the item was removed from the design
+                with self.lock:
+                    self.jobs.pop(j["id"], None)
+                continue
             prompt = self.st(j["item"])["prompt"] or it["prompt"]
-            job = {"name": j["item"].replace(":", "__") + "_%d" % j["seed"], "method": it["method"], "prompt": prompt,
-                   "style": it["refs"], "size": it["size"], "seed": j["seed"]}
+            job = {"name": f"{self.cid}__" + j["item"].replace(":", "__") + "_%d" % j["seed"], "method": it["method"],
+                   "prompt": prompt, "style": it["refs"], "size": it["size"], "seed": j["seed"]}
             job.update(art_recipes.quality_settings(j.get("quality"), it))
             try:
                 res = art_gen._post("/prompt", {"prompt": art_gen.build_graph(job)})
@@ -339,10 +407,7 @@ class Review:
                     self.save()
                     self.emit_item(j["item"])
 
-    def follow_queue(self):
-        q = self.comfy_get("/queue")
-        running = [r[1] for r in q.get("queue_running", [])]
-        pending = [r[1] for r in sorted(q.get("queue_pending", []), key=lambda r: r[0])]
+    def follow(self, running, pending):
         changed = set()
         with self.lock:
             jobs = [j for j in self.jobs.values() if j["prompt_id"]]
@@ -358,7 +423,7 @@ class Review:
                     j["pos"] = pos
                     changed.add(j["item"])
             else:
-                hist = self.comfy_get("/history/" + pid)
+                hist = self.hub.comfy_get("/history/" + pid)
                 if pid not in hist:
                     # Not queued, not running, no result: ComfyUI restarted and lost it. Submit it again.
                     j.setdefault("missing", now())
@@ -381,7 +446,7 @@ class Review:
             for item_id in changed:
                 self.emit_item(item_id)
             if changed:
-                self.emit_summary()
+                self.hub.emit_summary()
 
     def fail(self, j, message):
         with self.lock:
@@ -389,7 +454,7 @@ class Review:
             self.save()
             self.errors[j["item"]] = message
             self.emit_item(j["item"])
-            self.emit_summary()
+            self.hub.emit_summary()
 
     def finish(self, j, h):
         img = h["outputs"]["save"]["images"][0]
@@ -405,15 +470,15 @@ class Review:
         os.remove(src)
         with self.lock:
             if j.get("started"):
-                self.durations.append(now() - j["started"])
+                self.hub.durations.append(now() - j["started"])
             self.jobs.pop(j["id"], None)
             self.save()
             self.emit_item(item_id)
-            self.emit_summary()
+            self.hub.emit_summary()
 
     def add_version(self, item_id, raw_src, seed, prompt, n, custom=False, make_current=True, quality=None):
         it = self.by_id[item_id]
-        d = os.path.join(REVIEW, "items", item_id.replace(":", "__"))
+        d = os.path.join(self.dir, "items", item_id.replace(":", "__"))
         os.makedirs(d, exist_ok=True)
         raw = os.path.join(d, f"v{n}_raw.png")
         shutil.copyfile(raw_src, raw)
@@ -432,33 +497,8 @@ class Review:
             self.save()
 
 
-# ---- Step 7 test pieces: imported once as the first versions of their items ----------------------------------
-STEP7 = [
-    ("card:build_the_wall", "B_build_the_wall_s%d.png", [1, 2, 3], 1),
-    ("card:deport", "B_deport_s%d.png", [1, 2, 3], 3),
-    ("card:net_worth", "B_net_worth_s%d.png", [1, 2, 3], 1),
-    ("relic:golden_shovel", "B_golden_shovel_s%d.png", [1, 2, 3], 3),
-    ("char:char_button", "B_portrait_v2_s%d.png", [1, 2, 3], 3),
-]
-
-
-def import_step7(r):
-    test = os.path.join(REPO, "build", "art", "test")
-    for item_id, pattern, seeds, chosen in STEP7:
-        s = r.st(item_id)
-        if s["versions"]:
-            continue
-        for i, seed in enumerate(seeds, 1):
-            src = os.path.join(test, pattern % seed)
-            if os.path.exists(src):
-                r.add_version(item_id, src, seed, r.by_id[item_id]["prompt"], i, make_current=False)
-        if s["versions"]:
-            s["current"] = s["kept"] = chosen  # these are the files already in the mod
-    r.save()
-
-
 # ---- HTTP ------------------------------------------------------------------------------------------------------
-def make_handler(r):
+def make_handler(hub, default_char):
     class H(BaseHTTPRequestHandler):
         def log_message(self, *a):
             pass
@@ -471,8 +511,12 @@ def make_handler(r):
             self.end_headers()
             self.wfile.write(body)
 
+        def space(self, cid):
+            return hub.spaces.get((cid or default_char).lower()) or hub.spaces[default_char]
+
         def do_GET(self):
-            path = urlparse(self.path).path
+            url = urlparse(self.path)
+            path = url.path
             if path in ("/", "/index.html"):
                 body = open(PAGE, "rb").read()
                 self.send_response(200)
@@ -482,8 +526,11 @@ def make_handler(r):
                 self.end_headers()
                 self.wfile.write(body)
             elif path == "/api/state":
-                with r.lock:
-                    self.send_json({"items": [r.view(it["id"]) for it in r.items], "summary": r.summary(),
+                w = self.space(parse_qs(url.query).get("char", [None])[0])
+                with hub.lock:
+                    self.send_json({"char": w.cid, "defaultChar": default_char,
+                                    "characters": [{"id": s.cid, "name": s.ch["name"]} for s in hub.spaces.values()],
+                                    "items": [w.view(it["id"]) for it in w.items], "summary": hub.summary(),
                                     "qualities": [{"key": k, "label": q["label"], "desc": q["desc"]} for k, q in art_recipes.QUALITY.items()],
                                     "defaultQuality": art_recipes.DEFAULT_QUALITY})
             elif path == "/api/events":
@@ -492,7 +539,7 @@ def make_handler(r):
                 self.send_header("Cache-Control", "no-cache")
                 self.end_headers()
                 q = queue.Queue()
-                r.listeners.append(q)
+                hub.listeners.append(q)
                 try:
                     while True:
                         try:
@@ -504,7 +551,7 @@ def make_handler(r):
                 except (BrokenPipeError, ConnectionResetError, ConnectionAbortedError, OSError):
                     pass
                 finally:
-                    r.listeners.remove(q)
+                    hub.listeners.remove(q)
             elif path.startswith("/files/"):
                 full = os.path.abspath(os.path.join(REPO, unquote(path[len("/files/"):])))
                 if not any(full.startswith(os.path.abspath(root)) for root in SERVE_ROOTS) or not os.path.isfile(full):
@@ -523,30 +570,31 @@ def make_handler(r):
         def do_POST(self):
             path = urlparse(self.path).path
             data = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
-            ids = [i for i in data.get("ids", []) if i in r.by_id]
+            w = self.space(data.get("char"))
+            ids = [i for i in data.get("ids", []) if i in w.by_id]
             if path == "/api/regenerate":
-                r.regenerate(ids, data.get("count", 1), data.get("quality"))
+                w.regenerate(ids, data.get("count", 1), data.get("quality"))
             elif path == "/api/generate_missing":
-                with r.lock:
-                    busy = {j["item"] for j in r.jobs.values()}
-                    todo = [it["id"] for it in r.items if not r.st(it["id"])["versions"] and it["id"] not in busy
+                with hub.lock:
+                    busy = {j["item"] for j in w.jobs.values()}
+                    todo = [it["id"] for it in w.items if not w.st(it["id"])["versions"] and it["id"] not in busy
                             and (not data.get("section") or it["section"] == data["section"])]
-                r.regenerate(todo, 1, data.get("quality"))
+                w.regenerate(todo, 1, data.get("quality"))
             elif path == "/api/keep":
-                r.keep(ids)
+                w.keep(ids)
             elif path == "/api/unkeep":
-                r.unkeep(ids)
+                w.unkeep(ids)
             elif path == "/api/version":
-                r.set_version(data["id"], int(data["v"]))
+                w.set_version(data["id"], int(data["v"]))
             elif path == "/api/prompt":
-                r.set_prompt(data["id"], data.get("prompt"))
+                w.set_prompt(data["id"], data.get("prompt"))
             elif path == "/api/cancel":
-                r.cancel(ids)
+                w.cancel(ids)
             elif path == "/api/delete":
-                self.send_json({"ok": True, "deleted": r.delete_versions(data["id"], [int(v) for v in data.get("versions", [])])})
+                self.send_json({"ok": True, "deleted": w.delete_versions(data["id"], [int(v) for v in data.get("versions", [])])})
                 return
             elif path == "/api/prune":
-                self.send_json({"ok": True, "deleted": r.prune(ids, bool(data.get("legacyOnly")))})
+                self.send_json({"ok": True, "deleted": w.prune(ids, bool(data.get("legacyOnly")))})
                 return
             else:
                 self.send_error(404)
@@ -561,15 +609,20 @@ def main():
     ap.add_argument("--port", type=int, default=8190)
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--no-browser", action="store_true")
+    ap.add_argument("--character", "-c", default=None, help="character shown first (default: the first one)")
     a = ap.parse_args()
-    os.makedirs(REVIEW, exist_ok=True)
-    r = Review()
-    import_step7(r)
-    threading.Thread(target=r.loop, daemon=True).start()
-    server = ThreadingHTTPServer((a.host, a.port), make_handler(r))
+    os.makedirs(REVIEW_ROOT, exist_ok=True)
+    migrate_single_character_layout()
+    hub = Hub()
+    for ch in presmod.characters():
+        hub.spaces[ch.id] = Workspace(hub, ch)
+    default_char = presmod.character(a.character).id
+    threading.Thread(target=hub.loop, daemon=True).start()
+    server = ThreadingHTTPServer((a.host, a.port), make_handler(hub, default_char))
     server.daemon_threads = True
     url = f"http://127.0.0.1:{a.port}/"
-    print(f"Art review: {url}  ({len(r.items)} items). Ctrl+C to stop.", flush=True)
+    counts = ", ".join(f"{w.ch['name']}: {len(w.items)} items" for w in hub.spaces.values())
+    print(f"Art review: {url}  ({counts}). Ctrl+C to stop.", flush=True)
     if not a.no_browser:
         webbrowser.open(url)
     try:
@@ -577,7 +630,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
-        r.stop_comfy()
+        hub.stop_comfy()
 
 
 if __name__ == "__main__":

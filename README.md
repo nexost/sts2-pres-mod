@@ -1,114 +1,81 @@
-# The Donald: Slay the Spire 2 character mod
+# sts2-pres-mod: playable presidents for Slay the Spire 2
 
-Workspace for the mod. Targets STS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
+One mod (id `pres_mod`), several lighthearted caricature characters. Targets StS2 **v0.107.1** (Godot 4.5.1 .NET, .NET 9).
 
-**Start with [`docs/00_project_plan.md`](docs/00_project_plan.md)**: the step-by-step plan, current status, decision log and how to resume.
+| Character | Id | Status | Folder |
+|---|---|---|---|
+| **The Donald**: builds walls, makes deals, deports the Spire's riff-raff | `trump` | Complete: 89 cards, 9 relics, 3 potions, full art | [`characters/trump/`](characters/trump/) |
+| Joe Biden | `biden` | Planned | made with `scripts/new_character.py` |
+
+**Start with [`docs/00_project_plan.md`](docs/00_project_plan.md)**: the plan, the status, the decisions and how to resume.
 
 ## Documents
 
 | File | What |
 |---|---|
-| [`docs/00_project_plan.md`](docs/00_project_plan.md) | Master plan, step status, decisions, open items, how to resume |
-| [`docs/01_feasibility_report.md`](docs/01_feasibility_report.md) | Step 1: how the game works, the patches it needs, the asset list, risks |
-| [`docs/02_step2_report.md`](docs/02_step2_report.md) | Step 2: build pipeline, installer and uninstaller, tests, findings |
-| [`docs/03_design.md`](docs/03_design.md) | Step 3: the character design (v2): mechanics, play styles, relics, balance |
-| [`docs/04_step4_report.md`](docs/04_step4_report.md) | Step 4: Wall, Deport, Tariff, Pay Gold and Tweet systems, starter kit, tests |
-| [`docs/05_step5_report.md`](docs/05_step5_report.md) | Step 5: every card, power, relic, potion and Ancient line; the card test |
-| [`docs/06_step6_report.md`](docs/06_step6_report.md) | Step 6: the balance bot, the comparison with Ironclad and Silent, the first tuning pass |
-| [`docs/07_step7_report.md`](docs/07_step7_report.md) | Step 7: the game's art style, the art method and recipe (Krea 2 + style reference), the test pieces |
-| [`docs/design/cards.json`](docs/design/cards.json) | **Source of truth** for every card, relic and potion (text, numbers, art direction) |
-| [`docs/design/art_assets.json`](docs/design/art_assets.json) | Art direction for everything that isn't a card portrait (relics, potions, powers, character screens, UI) |
-| [`docs/design/card_list.md`](docs/design/card_list.md) | Card tables and validation, generated from `cards.json` |
-| [`docs/design/base_game_benchmarks.md`](docs/design/base_game_benchmarks.md) | Balance numbers mined from the 5 base characters |
-| [`docs/design/compendium.html`](docs/design/compendium.html) | The review page, published as the [Compendium](https://claude.ai/artifact/NbS8DJ6hybAPBYPtvt7qak) |
-| [`docs/design/gallery.html`](docs/design/gallery.html) | Local card gallery (open in a browser) |
+| [`docs/00_project_plan.md`](docs/00_project_plan.md) | Master plan: steps, status, decision log, open items, how to resume |
+| [`docs/FRAMEWORK.md`](docs/FRAMEWORK.md) | How the mod is built: shared code vs. character code, patches, scenes, build, tests, scripts |
+| [`docs/ADDING_A_CHARACTER.md`](docs/ADDING_A_CHARACTER.md) | **The playbook for a new character**, from the scaffold to the final checks, with the pitfalls already hit |
+| [`docs/ART_PIPELINE.md`](docs/ART_PIPELINE.md) | Making art: ComfyUI setup, what each character provides, recipes and destinations per kind, the review tool |
+| [`docs/01_feasibility_report.md`](docs/01_feasibility_report.md), [`docs/02_step2_report.md`](docs/02_step2_report.md) | Steps 1–2: how the game works, the patches it needs, build, installer and uninstaller |
+| [`docs/reference/`](docs/reference/) | Base-game data: balance benchmarks from the 5 characters, Ironclad's asset list |
+| [`characters/trump/design/design.md`](characters/trump/design/design.md) | The Donald's design (v2): mechanics, play styles, relics, balance |
+| [`characters/trump/design/cards.json`](characters/trump/design/cards.json) | **Source of truth** for The Donald's cards, relics and potions |
+| [`characters/trump/docs/`](characters/trump/docs/) | The Donald's Step 4–7 reports and art boards |
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `mod/` | Godot asset project **and** C# project (`TrumpMod.csproj`). Paths inside mirror the game's `res://` layout |
-| `mod/trump_character/src/` | Mod code: `ModEntry.cs` (initializer), `GlobalUsings.cs`, `Mechanics/` (Wall, Deport, Gold commands and mod hooks), `Models/` (character, pools, 89 cards, 26 powers, 9 relics, 3 potions), `Nodes/` (combat UI), `Patches/` (Harmony), `Dev/` (test harness, save cleanup) |
-| `mod/trump_character/localization/eng/` | Text, merged into the game's tables |
-| `mod/images`, `mod/scenes`, `mod/materials` | Assets at the exact paths the game loads for character `TRUMP` |
-| `scripts/` | Build, test, design and packaging scripts (below); `dist/` holds the installer and uninstaller; `templates/` holds the Compendium page |
-| `docs/` | Plan, step reports and design; `docs/art/` holds the art review boards |
-| `art/jobs/` | Art generation job lists for `scripts/art_gen.py` (prompts, style references, sizes) |
-| `re/` | Decompiled game code (`re/code`) and recovered Godot project (`re/pck`); git-ignored |
-| `tools/` | GDRE Tools, Godot 4.5.1 .NET; git-ignored |
-| `build/` | Output (git-ignored): `dist/` mod + installer, `test/` test runs, `analysis/` base-game card data, `art/` ComfyUI input/output and raw generations |
-| `backups/` | Save backups taken before testing; git-ignored |
+| `mod.json` | Mod id, name, version, description, old ids the installer removes |
+| `characters/<id>/` | One character: `character.json`, `design/`, `art/art_assets.json`, `localization/eng/`, `docs/` |
+| `characters/_template/` | What `new_character.py` fills in for a new character |
+| `mod/` | Godot asset project **and** C# project (`PresMod.csproj`); paths mirror the game's `res://` |
+| `mod/pres_mod/src/` | Code: `Framework/` (shared by all characters), `Dev/` (tests, save cleanup), `Characters/<Class>/` (one folder each) |
+| `mod/images`, `mod/scenes`, `mod/materials` | Assets at the exact paths the game loads for each character id |
+| `scripts/` | Build, test, design, art and packaging tools; `presmod.py` is their shared config; `dist/` holds the installer and uninstaller |
+| `re/`, `tools/`, `build/`, `backups/` | Decompiled game and unpacked PCK; Godot and GDRE; output; save backups (all git-ignored) |
 
 ## Commands
 
+Scripts that work on one character take `-c <id>`; without it they use the first one (`trump`).
+
 ```bash
-python scripts/build.py              # build into build/dist/
+# New character (docs/ADDING_A_CHARACTER.md)
+python scripts/new_character.py biden --class Biden --name "Uncle Joe" --full-name "Joe Biden" --primary 2F6BD8
+
+# Build
+python scripts/build.py              # build into build/dist/ (placeholders for missing art, character and ID checks)
 python scripts/build.py --install    # build + install into the game
-python scripts/test.py ui            # scripted walkthrough + every Step 4 mechanic, with screenshots (~3 min)
-python scripts/test.py deportsweep SEED A,B,C  # Deport enemies one at a time in the listed encounters (all 80 if no list; ~45 min)
-python scripts/test.py cards         # every card base and upgraded in real fights, key effects, relics, potions, all text (~15 min)
-python scripts/test.py cards SEED relics  # just the relic and potion checks (~1 min)
-python scripts/test.py balance TRUMP,IRONCLAD,SILENT 9 PREFIX 9 fullheal  # balance bot, 9 games at once, tiled + muted
-python scripts/balance_report.py PREFIX   # compare balance batches (floors, HP lost per fight by act, deaths, picks)
-python scripts/test.py autoslay SEED # the game's AutoSlay bot plays a full run as our character (god mode)
 
-python scripts/analyze_cards.py      # mine base-game cards into build/analysis/ (benchmarks, per-character lists)
-python scripts/render_design.py      # cards.json -> docs/design/card_list.md + validation report
-python scripts/render_gallery.py     # cards.json -> docs/design/gallery.html
-python scripts/render_compendium.py  # cards.json -> docs/design/compendium.html (then republish the Compendium)
+# Tests (the game runs in a test mode; saves go to modded_prestest/, never your real saves)
+python scripts/test.py ui -c trump                 # walkthrough + the character's mechanics, with screenshots (~3 min)
+python scripts/test.py cards PRESTEST1 -c trump    # every card base and upgraded, relics, potions, all text (~15 min)
+python scripts/test.py cards PRESTEST1 relics      # just the relic and potion checks (~1 min)
+python scripts/test.py autoslay SEED -c trump      # the game's bot plays a full run (god mode)
+python scripts/test.py deportsweep SEED A,B        # Trump's own mode: Deport enemies one at a time in the listed encounters
+python scripts/test.py balance TRUMP,IRONCLAD,SILENT 9 PREFIX 9 fullheal   # balance bot, 9 games at once, tiled + muted
+python scripts/balance_report.py PREFIX            # compare balance batches
+python scripts/test.py cleansaves [ID]             # clear test runs of a removed character (goes through the game for Steam Cloud)
 
-# Art
-python scripts/art_review.py                                       # review page for all 152 art items: keep / regenerate live (starts ComfyUI)
-# (the scripts below need the headless ComfyUI on port 8189; launch command in docs/07_step7_report.md)
-python scripts/art_gen.py art/jobs/step7_styleref.json --seeds 3   # Krea 2 + style reference, 3 seeds per job
-python scripts/art_post.py card|relic|portrait SRC DST             # game-ready sizes, relic keying + outline, button mask
-python scripts/art_train.py dataset|caption|train                  # optional Step 11: style LoRA on the game's art
+# Design
+python scripts/analyze_cards.py                    # mine base-game cards into build/analysis/ (the benchmarks)
+python scripts/render_design.py -c trump           # cards.json -> card_list.md + validation
+python scripts/render_gallery.py -c trump          # cards.json -> gallery.html
+python scripts/render_compendium.py -c trump       # cards.json -> compendium.html (then republish)
+
+# Art (docs/ART_PIPELINE.md)
+python scripts/art_review.py [-c trump]            # review page for every character's art: keep / regenerate live (starts ComfyUI)
+python scripts/make_placeholders.py [-c trump]     # stand-ins for missing art (the build runs it)
 ```
 
-### Updating art later
+**Updating art:**
+1. Keep the new version in the review tool; it writes into `mod/`.
+2. Run `python scripts/build.py --install` and restart the game.
+3. Check with `test.py ui`.
 
-The art review tool writes straight into the mod, so changing art is two steps:
+Details: [ART_PIPELINE.md](docs/ART_PIPELINE.md) §5.
 
-1. In `python scripts/art_review.py`, regenerate the item and **Keep** the version you want. Keep copies the game-ready files into `mod/` at the paths the game and our scenes load; every item's detail view lists them under "Goes to".
-2. Run `python scripts/build.py --install`, then restart the game.
-
-Nothing else needs changing: scenes and code don't hard-code image sizes.
-- Figures (combat poses, shop, rest site) are placed by their feet at runtime, and Wall stages by their visible area.
-- Relic and potion hover outlines are rebuilt from the new icons during the build.
-- Before shipping, run `python scripts/test.py ui` and look at the screenshots in `build/test/ui_*/shots`.
-
-Things to know:
-- The character select painting only shows its **left 3/4 shifted right**: the game displays screen width out of the 2560-px background, and we shift the painting 640 px left. Keep the subject in the right half, as its prompt asks.
-- Figures should face **right** (toward the enemies) and must not include furniture that gets cut off at the image edge.
-- Quality: use Standard or High in the tool. The "Legacy" preset is the muddier first-batch setting.
-- The Wall paintings stretch up to 1.6× their height, then repeat a strip from their lower half as the Wall grows. Paintings with even texture top to bottom (bricks, panels) tile best.
-
-Test output lands in `build/test/<mode>_<time>/` (report.json, screenshots, godot.log).
-Test runs use save folder `modded_trumptest/`, never your real saves.
-
-Install for players: run `build/dist/install.cmd`. Remove: `build/dist/uninstall.cmd` (options in `scripts/dist/README.txt`).
-
-## How the mod hooks in
-
-* The game's `ModManager` loads `mods/trump_character/{manifest.json, trump_character.dll, trump_character.pck}` and calls `ModEntry.Initialize`.
-* All `AbstractModel` subclasses in the DLL are registered automatically; IDs come from class names (`StrikeTrump` → `CARD.STRIKE_TRUMP`).
-  The build and the mod both refuse class names that clash with base game models.
-* Harmony patches (`Patches/`); numbers match the Step 1 report:
-  * P1 `CharacterRegistrationPatch`: adds our character to the hardcoded `ModelDb.AllCharacters`.
-  * P2 and P6 `EpochCheckPatch`: skips timeline unlock checks that throw for unknown characters (crash after elites, bosses and act bosses).
-  * P3 `CardLibraryTabPatch`: adds our card library tab (the library crashed mid-run otherwise).
-  * P4 `CharacterSfxPatch`: points attack/cast/death sounds at existing FMOD events.
-  * P5 `ModEntry`: registers our Godot node scripts (`ScriptManagerBridge.LookupScriptsInAssembly`).
-  * P7 `ArchitectDialoguePatch`: gives our character dialogue in the final Architect event (it had none, so a win couldn't finish).
-  * `AtlasFallbackPatch`: lets `ui_atlas` sprites fall back to loose PNGs under `res://trump_character/atlas_fallback/`.
-  * `TouchOfOrobasPatch`: the Ancient's starter-relic upgrade maps Golden Shovel to Diamond Shovel.
-  * `PayGoldBadgePatch`: Pay-Gold cards show their gold cost in the star-cost badge, with a coin icon.
-  * `CombatUiPatch`: adds `Nodes/NTrumpCombatUi` to every combat room (Wall display, Deport line and stamp, DEPORTED! popup).
-  * `TargetFilterPatch`: lets a card or potion refuse targets (You're Fired! and the Deportation Draught skip immune bosses).
-  * `RubberStampPatch`: with Rubber Stamp, Deported enemies count as defeated for the Gold reward.
-  * `AncientDialoguePatch`: The Donald's own lines with Neow, Darv, Orobas, Pael, Tanx, Tezcatara, Nonupeipe and Vakuu.
-* `ModEntry` also registers our `[SavedProperty]` members with the save system (the game only knows its own types),
-  so relic counters and permanently grown cards survive save and quit.
-* Mechanics go through `Mechanics/WallCmd`, `DeportCmd` and `GoldCmd`; cards and relics plug in through the interfaces in `Mechanics/Hooks.cs`
-  (`IBuildModifier`, `ISectionBlockModifier`, `IDeportLineModifier`, `IAfterDeport`, `IAfterPayGold`, `IAfterWallStage`).
-* `Dev/DevHarness.cs` only runs with `--trump-test`; `Dev/SaveCleanup.cs` only with `--trump-cleanup` (used by the uninstaller).
+**For players:**
+- Install with `build/dist/install.cmd`. It also removes the old `trump_character` version.
+- Remove with `build/dist/uninstall.cmd`. It also cleans saves that use the mod; options are in `scripts/dist/README.txt`.

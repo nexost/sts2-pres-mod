@@ -1,0 +1,78 @@
+{
+  "_about": "Everything the tools need to know about this character (scripts/presmod.py). Code: mod/pres_mod/src/Characters/<folder>/.",
+  "id": "TRUMP",
+  "class": "Trump",
+  "folder": "Trump",
+  "name": "The Donald",
+  "colors": {
+    "primary": "F2B92E",
+    "secondary": "162242",
+    "accent": "B22234",
+    "text": "FAF0D7"
+  },
+  "archetypes": [
+    "Wall",
+    "Deport",
+    "Deals",
+    "Tweets",
+    "General"
+  ],
+  "art": {
+    "persona": "Donald Trump as a comic caricature, with his iconic swooping blond comb-over, orange-tan face, pouting lips, navy suit and an extra-long red tie",
+    "persona_sentence": "Donald Trump is drawn as a comic caricature with his iconic swooping blond comb-over, orange-tan face, pouting lips, navy suit and an extra-long red tie.",
+    "name_in_card_art": "Donald",
+    "full_name": "Donald Trump",
+    "placeholder_initial": "T",
+    "enemy_rule": "Every enemy, monster or foe is a Slay the Spire fantasy creature (cultists, slimes, goblins, beetles, jaw worms), never a human.",
+    "enemy_rule_archetypes": [
+      "Deport"
+    ],
+    "card_refs": {
+      "Wall": [
+        "regent/heirloom_hammer",
+        "ironclad/inflame",
+        "ironclad/bludgeon"
+      ],
+      "Deport": [
+        "colorless/rolling_boulder",
+        "silent/snakebite",
+        "ironclad/break"
+      ],
+      "Deals": [
+        "colorless/hand_of_greed",
+        "colorless/the_bomb",
+        "ironclad/sword_boomerang"
+      ],
+      "Tweets": [
+        "defect/signal_boost",
+        "defect/hologram",
+        "defect/tempest"
+      ],
+      "General": [
+        "ironclad/inflame",
+        "defect/momentum_strike",
+        "necrobinder/dirge"
+      ]
+    },
+    "card_backgrounds": {
+      "Wall": "radial red and orange burst background",
+      "Deport": "deep purple and red background",
+      "Deals": "dark purple background with a golden orange burst",
+      "Tweets": "electric blue and purple background",
+      "General": "warm crimson and navy background"
+    },
+    "default_archetype": "General",
+    "energy_tint": [
+      "2D1900",
+      "D6961E",
+      "FFEEAA"
+    ],
+    "sleeve": "a navy suit sleeve with a white shirt cuff and a gold cufflink"
+  },
+  "frame_hsv": {
+    "h": 0.15,
+    "s": 1.1,
+    "v": 1.3
+  },
+  "sfx_proxy": "ironclad"
+}

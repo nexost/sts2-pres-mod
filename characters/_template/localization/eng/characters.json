@@ -1,0 +1,17 @@
+{
+  "{{ID}}.title": "{{Name}}",
+  "{{ID}}.titleObject": "{{Name}}",
+  "{{ID}}.description": "TODO one or two lines for the character select screen.",
+  "{{ID}}.pronounSubject": "{{he}}",
+  "{{ID}}.pronounObject": "{{him}}",
+  "{{ID}}.pronounPossessive": "{{his_pronoun}}",
+  "{{ID}}.possessiveAdjective": "{{his}}",
+  "{{ID}}.cardsModifierTitle": "{{Name}} Cards",
+  "{{ID}}.cardsModifierDescription": "{{Name}} cards will now appear in rewards and shops.",
+  "{{ID}}.eventDeathPrevention": "TODO a defiant line when an event would kill {{him}}.",
+  "{{ID}}.goldMonologue": "[sine]TODO a line about gold...[/sine]",
+  "{{ID}}.aromaPrinciple": "[sine][gold]TODO a rousing line.[/gold][/sine]",
+  "{{ID}}.banter.alive.endTurnPing": "TODO a line nudging a co-op partner to end the turn.",
+  "{{ID}}.banter.dead.endTurnPing": "TODO...",
+  "{{ID}}.unlockText": "Play a run as {Prerequisite} to unlock."
+}

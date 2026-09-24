@@ -10,7 +10,7 @@
       Trains a LoRA with ComfyUI's TrainLoraNode and copies it into the shared loras folder.
 
 Train on Krea 2 Raw (--unet krea2_raw_fp8_scaled.safetensors, a 13.1 GB download) and run on Turbo: see Step 11 in
-docs/00_project_plan.md. The server must be running (see docs/07_step7_report.md).
+docs/00_project_plan.md. The server must be running (see docs/ART_PIPELINE.md).
 """
 import argparse
 import glob

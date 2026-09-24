@@ -1,0 +1,4 @@
+{
+  "COLORFUL_PHILOSOPHERS.pages.INITIAL.options.{{ID}}.title": "{{ColorWordTitle}}",
+  "COLORFUL_PHILOSOPHERS.pages.INITIAL.options.{{ID}}.description": "Obtain [blue]{Cards}[/blue] {{FirstName}} {Cards:plural:card|cards}."
+}

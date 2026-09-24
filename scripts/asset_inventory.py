@@ -2,7 +2,10 @@
 import os, sys, csv
 from PIL import Image
 
-ROOT = r"C:\Users\exeet\sts2-trump-mod\re\pck"
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import presmod  # noqa: E402
+
+ROOT = presmod.GAME_PCK
 char = sys.argv[1] if len(sys.argv) > 1 else "ironclad"
 out = sys.argv[2] if len(sys.argv) > 2 else None
 rows = []

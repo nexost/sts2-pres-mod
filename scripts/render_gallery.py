@@ -1,22 +1,29 @@
 """
-Build a self-contained, filterable card gallery (docs/design/gallery.html) from docs/design/cards.json.
+Build a self-contained, filterable card gallery (characters/<id>/design/gallery.html) from its design/cards.json.
 
-  python scripts/render_gallery.py
+  python scripts/render_gallery.py [-c trump]
 """
 import html
 import json
 import os
+import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SRC = os.path.join(ROOT, "docs", "design", "cards.json")
-OUT = os.path.join(ROOT, "docs", "design", "gallery.html")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import presmod  # noqa: E402
+
+# -c/--character NAME (default: the first character)
+_argv = sys.argv[1:]
+CH = presmod.character(_argv[_argv.index("-c") + 1] if "-c" in _argv else _argv[_argv.index("--character") + 1] if "--character" in _argv else None)
+ROOT = presmod.REPO
+SRC = CH.path("design", "cards.json")
+OUT = CH.path("design", "gallery.html")
 
 PAGE = r"""<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Donald: Card Gallery</title>
+<title>__NAME__: Card Gallery</title>
 <style>
 :root {
   --bg: #15171c; --panel: #1f232b; --ink: #ece6d6; --muted: #9a9384; --line: #343a46;
@@ -154,7 +161,7 @@ items("relics", DATA.relics); items("potions", DATA.potions); draw();
 def main():
     data = json.load(open(SRC, encoding="utf-8"))
     data.pop("_format", None)
-    page = PAGE.replace("__DATA__", json.dumps(data, ensure_ascii=False))
+    page = PAGE.replace("__DATA__", json.dumps(data, ensure_ascii=False)).replace("__NAME__", html.escape(CH["name"]))
     with open(OUT, "w", encoding="utf-8") as fh:
         fh.write(page)
     print("wrote", OUT)

@@ -1,21 +1,27 @@
 """
-Launch the game in the mod's test mode and collect results.
+Launch the game in the mod's test mode and collect results. Works for every character of the mod: pick one with
+-c/--character (default: the first one in characters/).
 
-  python scripts/test.py ui          scripted UI walk-through (char select, run start, card library, combat)
-  python scripts/test.py autoslay    AutoSlay bot plays a full run as our character (god mode)
-  python scripts/test.py deportsweep Every encounter: Deport non-boss enemies one at a time, a turn after each
-  python scripts/test.py deportsweep SEED A,B  ...only encounters A and B
-  python scripts/test.py cards       every card base and upgraded, key effects, relics, potions and all their text
-  python scripts/test.py cards SEED relics     ...relic and potion checks only
-  python scripts/test.py cards SEED A,B        ...relic and potion checks, then only cards A and B
-  python scripts/test.py balance CHARACTERS RUNS [SEED_PREFIX] [PARALLEL] [fullheal] [favor=Wall|Deport|Deals|Tweets]
-                                     RUNS runs per character by the heuristic balance bot; CHARACTERS is e.g.
-                                     TRUMP or TRUMP,IRONCLAD,SILENT (one shared queue). One game launch per run,
-                                     PARALLEL at once, tiled on the main monitor and muted; results per character in
-                                     build/balance/<character>_<time>/
+  python scripts/test.py ui [-c trump]      scripted UI walk-through: char select, run start, card library, a fight with the
+                                            pose checks and the character's own mechanics, then the shop and rest site
+  python scripts/test.py autoslay [SEED]    AutoSlay bot plays a full run as the character (god mode)
+  python scripts/test.py cards [SEED]       every card base and upgraded, key effects, relics, potions and all their text
+  python scripts/test.py cards SEED relics  ...relic and potion checks only
+  python scripts/test.py cards SEED A,B     ...relic and potion checks, then only cards A and B
+  python scripts/test.py deportsweep [SEED] [A,B]  a character's own extra mode (Trump: Deport enemies one at a time,
+                                            in every encounter or only A and B)
+  python scripts/test.py balance CHARACTERS RUNS [SEED_PREFIX] [PARALLEL] [fullheal] [favor=STYLE]
+                                            RUNS runs per character by the heuristic balance bot; CHARACTERS is e.g.
+                                            TRUMP or TRUMP,IRONCLAD,SILENT (one shared queue). One game launch per run,
+                                            PARALLEL at once, tiled on the main monitor and muted; results per character in
+                                            build/balance/<character>_<time>/. favor=STYLE makes the bot prefer the cards
+                                            whose "arch" is STYLE in characters/<id>/design/cards.json.
+  python scripts/test.py cleansaves [ID,...]  remove test runs and run history that use the mod, or a character that
+                                            was removed (e.g. SMOKETEST): needed after deleting a character, or the next
+                                            test fails on the game's "model not found" errors
 
 Output: build/test/<mode>_<timestamp>/ with report.json, shots/*.png, godot.log excerpt.
-Test saves live in .../modded_trumptest/, never in real profiles.
+Test saves live in .../modded_prestest/ (balance: modded_bal<slot>/), never in real profiles.
 """
 import glob
 import json
@@ -26,36 +32,75 @@ import subprocess
 import sys
 import time
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GAME_DIR = r"C:\Program Files (x86)\Steam\steamapps\common\Slay the Spire 2"
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import presmod  # noqa: E402
+
+ROOT = presmod.REPO
+GAME_DIR = presmod.GAME_DIR
 USER_DATA = os.path.join(os.environ["APPDATA"], "SlayTheSpire2")
-TIMEOUTS = {"ui": 300, "autoslay": 3600, "deportsweep": 3600, "cards": 1800, "balance": 2400}
+TIMEOUTS = {"ui": 300, "autoslay": 3600, "cards": 1800, "balance": 2400}
+EXTRA_MODE_TIMEOUT = 3600
+
+
+def take_character_option(argv):
+    """Removes -c/--character NAME from argv; returns the character (a presmod.Character)."""
+    for flag in ("-c", "--character"):
+        if flag in argv:
+            i = argv.index(flag)
+            name = argv[i + 1]
+            del argv[i:i + 2]
+            return presmod.character(name)
+    return presmod.character()
+
+
+def clean_test_saves(removed_entries):
+    """Runs the mod's save cleanup (Dev/SaveCleanup.cs) on each test save folder: run saves and run history that use
+    the mod's models, or a removed character's (removed_entries, e.g. ["BIDEN"]). It goes through the game because
+    Steam Cloud also syncs the test folders and would bring back files deleted by hand."""
+    ids = ",".join(f"CHARACTER.{e.upper()}" for e in removed_entries)
+    # The ui/cards/extra-mode saves; balance slots (modded_bal*) only ever hold the character they last ran.
+    folders = sorted({os.path.basename(p) for p in glob.glob(os.path.join(USER_DATA, "steam", "*", "modded_prestest"))})
+    env = dict(os.environ, SteamAppId="2868840", SteamGameId="2868840")
+    for folder in folders:
+        out = os.path.join(ROOT, "build", "test", f"cleansaves_{folder}_{time.strftime('%Y%m%d_%H%M%S')}")
+        os.makedirs(out)
+        args = [os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--pres-cleanup", "--pres-out", out, "--pres-savedir", folder]
+        if ids:
+            args += ["--pres-cleanup-ids", ids]
+        subprocess.run(args, cwd=GAME_DIR, env=env, timeout=300)
+        result = json.load(open(os.path.join(out, "cleanup_result.json"), encoding="utf-8"))
+        print(f"{folder}: removed {len(result['removed'])} file(s)" + (f", errors: {result['errors']}" if result["errors"] else ""))
 
 
 def main():
-    mode = sys.argv[1] if len(sys.argv) > 1 else "ui"
+    argv = sys.argv[1:]
+    ch = take_character_option(argv)
+    mode = argv[0] if argv else "ui"
     if mode == "balance":
-        options = sys.argv[6:]
+        options = argv[5:]
         favor = next((o.split("=", 1)[1] for o in options if o.startswith("favor=")), None)
-        balance_batch(sys.argv[2] if len(sys.argv) > 2 else "TRUMP", int(sys.argv[3]) if len(sys.argv) > 3 else 5,
-                      sys.argv[4] if len(sys.argv) > 4 else "BAL", int(sys.argv[5]) if len(sys.argv) > 5 else 1,
+        balance_batch(argv[1] if len(argv) > 1 else ch.entry, int(argv[2]) if len(argv) > 2 else 5,
+                      argv[3] if len(argv) > 3 else "BAL", int(argv[4]) if len(argv) > 4 else 1,
                       fullheal="fullheal" in options, favor=favor)
         return
-    seed = sys.argv[2] if len(sys.argv) > 2 else "TRUMPTEST1"
-    extra = []
-    if len(sys.argv) > 3:
-        extra = ["--trump-only", sys.argv[3]] if mode == "cards" else ["--trump-encounters", sys.argv[3]]
+    if mode == "cleansaves":
+        clean_test_saves(argv[1].split(",") if len(argv) > 1 else [])
+        return
+    seed = argv[1] if len(argv) > 1 else "PRESTEST1"
+    extra = ["--pres-character", ch.entry]
+    if len(argv) > 2:
+        extra += ["--pres-only", argv[2]] if mode == "cards" else ["--pres-encounters", argv[2]]
     if subprocess.run(["tasklist", "/FI", "IMAGENAME eq SlayTheSpire2.exe"], capture_output=True, text=True).stdout.count("SlayTheSpire2.exe"):
         sys.exit("The game is already running; close it first.")
     out = os.path.join(ROOT, "build", "test", f"{mode}_{time.strftime('%Y%m%d_%H%M%S')}")
     os.makedirs(out)
     env = dict(os.environ, SteamAppId="2868840", SteamGameId="2868840")
     started = time.time()
-    print(f"Launching game: mode={mode} seed={seed}\n  output: {out}", flush=True)
-    proc = subprocess.Popen([os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--trump-test", mode, "--trump-out", out, "--trump-seed", seed] + extra,
+    print(f"Launching game: mode={mode} character={ch.entry} seed={seed}\n  output: {out}", flush=True)
+    proc = subprocess.Popen([os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--pres-test", mode, "--pres-out", out, "--pres-seed", seed] + extra,
                             cwd=GAME_DIR, env=env)
     try:
-        code = proc.wait(timeout=TIMEOUTS.get(mode, 600))
+        code = proc.wait(timeout=TIMEOUTS.get(mode, EXTRA_MODE_TIMEOUT))
     except subprocess.TimeoutExpired:
         proc.kill()
         code = "TIMEOUT"
@@ -81,7 +126,7 @@ def main():
     print(f"Log problems: {len(problems)}")
     for p in problems[:60]:
         print("  ", p)
-    if mode in ("deportsweep", "cards") and log:
+    if (report or {}).get("sweep") and log:
         sweep_summary(log, report, out)
     shots = sorted(glob.glob(os.path.join(out, "shots", "*.png")))
     print(f"Screenshots: {len(shots)} in {os.path.join(out, 'shots')}")
@@ -90,10 +135,13 @@ def main():
     sys.exit(0 if ok else 1)
 
 
-def style_cards(style):
-    """Model IDs of The Donald's cards of one play style (the `arch` field in docs/design/cards.json)."""
-    cards = json.load(open(os.path.join(ROOT, "docs", "design", "cards.json"), encoding="utf-8"))["cards"]
-    return [re.sub(r"(?<=[A-Za-z0-9])([A-Z])", r"_\1", c["id"]).upper() for c in cards if c["arch"].lower() == style.lower()]
+def style_cards(character_entry, style):
+    """Model IDs of a mod character's cards of one play style (the `arch` field in characters/<id>/design/cards.json).
+    Empty for base-game characters."""
+    if character_entry.lower() not in presmod.character_ids():
+        return []
+    cards = presmod.character(character_entry).cards["cards"]
+    return [presmod.slug(c["id"]).upper() for c in cards if c.get("arch", "").lower() == style.lower()]
 
 
 def balance_batch(characters, runs, prefix, parallel=1, fullheal=False, favor=None):
@@ -115,7 +163,7 @@ def balance_batch(characters, runs, prefix, parallel=1, fullheal=False, favor=No
     stamp = time.strftime('%Y%m%d_%H%M%S')
     tag = f"_{favor.upper()}" if favor else ""
     batches = {c: os.path.join(ROOT, "build", "balance", f"{c}{tag}_{stamp}") for c in names}
-    favored = ",".join(style_cards(favor)) if favor else None
+    favored = {c: ",".join(style_cards(c, favor)) for c in names} if favor else {}
     for path in batches.values():
         os.makedirs(path)
     slots = queue.Queue()
@@ -132,13 +180,13 @@ def balance_batch(characters, runs, prefix, parallel=1, fullheal=False, favor=No
         try:
             env = dict(os.environ, SteamAppId="2868840", SteamGameId="2868840")
             started = time.time()
-            args = [os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--trump-test", "balance", "--trump-out", out,
-                    "--trump-seed", seed, "--trump-character", character, "--trump-savedir", f"modded_bal{slot}",
-                    "--trump-tile", f"{slot}/{parallel}", "--trump-mute"]
+            args = [os.path.join(GAME_DIR, "SlayTheSpire2.exe"), "--pres-test", "balance", "--pres-out", out,
+                    "--pres-seed", seed, "--pres-character", character, "--pres-savedir", f"modded_bal{slot}",
+                    "--pres-tile", f"{slot}/{parallel}", "--pres-mute"]
             if fullheal:
-                args.append("--trump-fullheal")
-            if favored:
-                args += ["--trump-favor", favored]
+                args.append("--pres-fullheal")
+            if favored.get(character):
+                args += ["--pres-favor", favored[character]]
             proc = subprocess.Popen(args, cwd=GAME_DIR, env=env)
             try:
                 proc.wait(timeout=TIMEOUTS["balance"])
@@ -190,7 +238,7 @@ def sweep_summary(log, report, out):
     """Tie every log problem to the encounter that was running (BEGIN/END markers) and list the encounters with any."""
     per = {}
     current = None
-    marker = re.compile(r"\[trump_character:sweep\] (BEGIN|END) (\S+)")
+    marker = re.compile(r"\[" + presmod.MOD_ID + r":sweep\] (BEGIN|END) (\S+)")
     lines = open(log, encoding="utf-8", errors="replace").read().splitlines()
     problem_lines = {int(p.split()[1][1:].rstrip(":")) for p in scan_log(log) if p.startswith("!")}
     for i, line in enumerate(lines, 1):
@@ -221,8 +269,9 @@ def newest_log(since):
 def scan_log(path):
     """Errors/exceptions, plus anything mentioning our mod. Lines starting with '!' are treated as failures."""
     problems = []
-    # Case-sensitive on purpose: the test save folder "modded_trumptest" is not a mod error.
-    ours = re.compile(r"trump_character|TRUMP|Trump")
+    # Our mod id and every character's model ID and class name (case-sensitive, so save folder names don't match).
+    names = [presmod.MOD_ID] + [n for c in presmod.characters() for n in (c.entry, c["class"])]
+    ours = re.compile("|".join(re.escape(n) for n in names))
     bad = re.compile(r"(Exception|\bERROR\b|\[ERROR\]|USER ERROR|SCRIPT ERROR|Failed to|Missing sprite|not found)", re.I)
     # Godot's leak report at process exit happens in the unmodded game too.
     exit_noise = re.compile(r"RID allocations of type|shaders of type .* were never freed|resources still in use at exit|RIDs of type .* were leaked")

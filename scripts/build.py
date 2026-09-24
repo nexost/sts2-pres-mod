@@ -1,10 +1,11 @@
 """
-One-command build for the Trump character mod.
+One-command build of the whole mod (every character in characters/).
 
   python scripts/build.py              build into build/dist/
   python scripts/build.py --install    build, then install into the game (runs dist/install.ps1)
 
-Steps: placeholders -> model ID check -> C# build -> Godot import -> pack PCK -> assemble dist/ (mod + installer).
+Steps: placeholders -> model ID check -> C# build -> Godot import -> merge localization -> pack PCK ->
+assemble dist/ (mod + installer). The mod's id, name and version come from mod.json.
 """
 import argparse
 import json
@@ -14,35 +15,39 @@ import shutil
 import subprocess
 import sys
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOD = os.path.join(ROOT, "mod")
-SRC = os.path.join(MOD, "trump_character", "src")
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import presmod  # noqa: E402
+
+ROOT = presmod.REPO
+MOD = presmod.MOD_DIR
+SRC = presmod.SRC_DIR
 BUILD = os.path.join(ROOT, "build")
 DIST = os.path.join(BUILD, "dist")
 GAME_CODE = os.path.join(ROOT, "re", "code", "MegaCrit", "sts2", "Core", "Models")
 GODOT = os.path.join(ROOT, "tools", "godot", "Godot_v4.5.1-stable_mono_win64", "Godot_v4.5.1-stable_mono_win64_console.exe")
 
-MOD_ID = "trump_character"
+MOD_ID = presmod.MOD_ID
 MANIFEST = {
     "id": MOD_ID,
-    "name": "The Donald",
-    "author": "exeet",
-    "description": "Adds The Donald, a new playable character who builds walls, makes deals and deports the Spire's riff-raff.",
-    "version": "0.2.0",
+    "name": presmod.MOD["name"],
+    "author": presmod.MOD["author"],
+    "description": presmod.MOD["description"],
+    "version": presmod.MOD["version"],
     "has_dll": True,
     "has_pck": True,
     "affects_gameplay": True,
-    "min_game_version": "0.107.1",
+    "min_game_version": presmod.MOD["min_game_version"],
     "dependencies": [],
 }
 
 # Files in mod/ that are never packed.
 SKIP_DIRS = {".godot", "obj", "bin"}
-SKIP_FILES = {"project.godot", "TrumpMod.csproj", "icon.svg"}
+SKIP_FILES = {"project.godot", "PresMod.csproj", "icon.svg"}
 # Imported source assets: the PCK gets their .import remap + the imported file, not the source.
 IMPORTED_EXT = {".png", ".jpg", ".jpeg", ".webp", ".svg", ".wav", ".ogg", ".mp3", ".ttf", ".otf"}
-# Folder whose .cs files are Godot Node scripts; the PCK needs a stub at each res:// path (like the base game).
-NODE_SCRIPT_DIR = os.path.join(SRC, "Nodes")
+# Folders named "Nodes" hold Godot Node scripts (Framework/Nodes, Characters/<Name>/Nodes); the PCK needs a stub at
+# each of their res:// paths (like the base game).
+NODE_SCRIPT_DIR_NAME = "Nodes"
 
 
 def step(name):
@@ -95,6 +100,13 @@ def our_models():
 def check_ids():
     step("Model ID check")
     models = our_models()
+    # Model IDs come from class names alone: two characters can't both have a "Strike" (name it StrikeBiden).
+    seen = {}
+    for n, i in models:
+        seen.setdefault(i, []).append(n)
+    dupes = {i: ns for i, ns in seen.items() if len(ns) > 1}
+    if dupes:
+        sys.exit("Two classes with the same model ID: " + ", ".join(f"{i} ({', '.join(ns)})" for i, ns in dupes.items()))
     game_entries = set()
     if os.path.isdir(GAME_CODE):
         for dp, _, files in os.walk(GAME_CODE):
@@ -113,7 +125,7 @@ def check_ids():
 
 def build_dll():
     step("C# build")
-    run(["dotnet", "build", os.path.join(MOD, "TrumpMod.csproj"), "-c", "ExportRelease", "-nologo", "-v", "q"])
+    run(["dotnet", "build", os.path.join(MOD, "PresMod.csproj"), "-c", "ExportRelease", "-nologo", "-v", "q"])
     return os.path.join(MOD, ".godot", "mono", "temp", "bin", "ExportRelease", f"{MOD_ID}.dll")
 
 
@@ -136,7 +148,7 @@ def pack_list():
             if f in SKIP_FILES or ext in IMPORTED_EXT:
                 continue
             if in_src:
-                if ext == ".cs" and os.path.abspath(dp).startswith(os.path.abspath(NODE_SCRIPT_DIR)):
+                if ext == ".cs" and os.path.basename(dp) == NODE_SCRIPT_DIR_NAME:
                     entries.append((rel, "STUB"))
                 continue
             if ext == ".import":
@@ -146,7 +158,41 @@ def pack_list():
                     entries.append((imported, os.path.join(MOD, imported.replace("/", os.sep))))
                 continue
             entries.append((rel, full))
+    entries += merge_localization()
     return sorted(set(entries))
+
+
+def merge_localization():
+    """The game reads a mod's text from res://<mod id>/localization/<lang>/<table>.json, one file per table for the
+    whole mod. Each character keeps its own in characters/<id>/localization/<lang>/; merge them here (a key defined
+    twice is an error) and pack the merged files."""
+    merged = {}
+    for ch in presmod.characters():
+        loc = ch.path("localization")
+        if not os.path.isdir(loc):
+            continue
+        for lang in os.listdir(loc):
+            for f in os.listdir(os.path.join(loc, lang)):
+                if not f.endswith(".json"):
+                    continue
+                with open(os.path.join(loc, lang, f), encoding="utf-8") as fh:
+                    table = json.load(fh)
+                target = merged.setdefault((lang, f), {})
+                clash = sorted(set(target) & set(table))
+                if clash:
+                    sys.exit(f"Localization key defined twice ({ch.id}, {lang}/{f}): {', '.join(clash[:5])}")
+                target.update(table)
+    out_dir = os.path.join(BUILD, "loc")
+    shutil.rmtree(out_dir, ignore_errors=True)
+    entries = []
+    for (lang, f), table in sorted(merged.items()):
+        path = os.path.join(out_dir, lang, f)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(table, fh, ensure_ascii=False, indent=1)
+        entries.append((f"{MOD_ID}/localization/{lang}/{f}", path))
+    print(f"  localization: {len(entries)} tables from {len(presmod.character_ids())} character(s)")
+    return entries
 
 
 def pack(pck_path):
@@ -178,10 +224,29 @@ def assemble(dll, ids):
     # Used by the uninstaller to find saves that reference this mod's content.
     with open(os.path.join(mod_dir, "mod_ids.txt"), "w", encoding="utf-8") as fh:
         fh.write("\n".join(ids) + "\n")
+    # Earlier ids of this mod (mod.json legacy_ids): the installer removes those folders, or both copies would load.
+    with open(os.path.join(DIST, "legacy_ids.txt"), "w", encoding="utf-8") as fh:
+        fh.write("\n".join(presmod.MOD.get("legacy_ids", [])) + "\n")
     for f in ("install.ps1", "install.cmd", "uninstall.ps1", "uninstall.cmd", "README.txt"):
         shutil.copy2(os.path.join(ROOT, "scripts", "dist", f), os.path.join(DIST, f))
     for f in sorted(os.listdir(mod_dir)):
         print(f"  {MOD_ID}/{f:<28} {os.path.getsize(os.path.join(mod_dir, f)):>10,} bytes")
+
+
+def check_characters():
+    """Every character has the scenes, localization tables and class the game loads by name."""
+    step("Characters")
+    problems = []
+    for ch in presmod.characters():
+        missing = presmod.missing_files(ch)
+        problems += [f"{ch.id}: missing {m}" for m in missing]
+        if presmod.slug(ch["class"]) != ch.id:
+            problems.append(f"{ch.id}: the game will call class {ch['class']} '{presmod.slug(ch['class'])}', so its assets must use that id")
+        todo = sum(json.dumps(json.load(open(ch.path("localization", "eng", t + ".json"), encoding="utf-8"))).count("TODO")
+                   for t in presmod.LOC_TABLES if os.path.exists(ch.path("localization", "eng", t + ".json")))
+        print(f"  {ch.id}: {ch['name']}" + (f"  ({todo} TODO texts left in localization)" if todo else ""))
+    if problems:
+        sys.exit("\n".join(problems) + "\n(scripts/new_character.py creates all of these for a new character)")
 
 
 def main():
@@ -194,6 +259,7 @@ def main():
 
     step("Placeholders (only missing files)")
     run([sys.executable, os.path.join(ROOT, "scripts", "make_placeholders.py")])
+    check_characters()
     ids = check_ids()
     dll = build_dll()
     godot_import()

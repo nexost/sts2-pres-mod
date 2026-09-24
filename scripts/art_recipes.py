@@ -1,29 +1,27 @@
-"""Every piece of art the mod needs, and how to make each one (Step 7.5).
+"""Every piece of art a character needs, and how to make each one.
 
-An item = what to draw (cards.json for card portraits, docs/design/art_assets.json for everything else) plus a recipe:
-style references from the unpacked game, a prompt template, a generation size, post-processing and the mod paths
-the finished files go to. Used by scripts/art_review.py.
+An item = what to draw (characters/<id>/design/cards.json for card portraits, characters/<id>/art/art_assets.json for
+everything else) plus a recipe: style references from the unpacked game, a prompt template, a generation size,
+post-processing, and the mod paths the finished files go to (presmod.art_outputs). The character's own look comes from
+characters/<id>/character.json ("art": persona, card references and backgrounds per archetype, energy tint, ...).
+Used by scripts/art_review.py; the recipe per kind is documented in docs/ART_PIPELINE.md.
 """
-import json
 import os
 import re
 
 from PIL import Image, ImageEnhance, ImageFilter, ImageOps
 
 import art_post
+import presmod
+from presmod import slug  # noqa: F401  (re-exported for older callers)
 
-REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-GAME = os.path.join(REPO, "re", "pck")
-MOD = os.path.join(REPO, "mod")
+REPO = presmod.REPO
+GAME = presmod.GAME_PCK
+MOD = presmod.MOD_DIR
 KIT = os.path.join(REPO, "build", "art", "ref", "kit")      # prepared style references
 FRAMES = os.path.join(REPO, "build", "art", "ref", "frames")  # card frame overlays for the preview
 CARDS = os.path.join(GAME, "images", "packed", "card_portraits")
 
-DONALD = "Donald Trump as a comic caricature, with his iconic swooping blond comb-over, orange-tan face, pouting lips, navy suit and an extra-long red tie"
-DONALD_LOOK = ("Donald Trump is drawn as a comic caricature with his iconic swooping blond comb-over, orange-tan face, "
-               "pouting lips, navy suit and an extra-long red tie.")
-MONSTERS = ("Every enemy, monster or foe is a Slay the Spire fantasy creature (cultists, slimes, goblins, beetles, "
-            "jaw worms), never a human.")
 CARD_STYLE = ("Flat cel-shaded digital painting with hard-edged dark shadow shapes, dark outlines, strong readable "
               "silhouette, saturated limited palette, in the exact painting style of the reference images.")
 FRAMING = "Keep the main subject centered and in the upper two thirds of the image."
@@ -31,11 +29,13 @@ FRAMING_ANCIENT = ("Tall full-card art: keep the main subject and faces in the u
                    "is covered by the card's text box, so keep it simple background there.")
 LIGHT_BG = "isolated on a plain flat light gray background, no shadow, no text"
 GREEN_BG = "isolated on a plain flat bright green background, no ground, no shadow, no text"
+CARD_ACTION = {"attack": "dynamic diagonal action with impact lines", "skill": "a clear, readable scene", "power": "an iconic, glowing, almost symmetrical composition"}
+ENEMY_WORDS = re.compile(r"\b(enem|monster|foe|goblin|slime|beetle|cultist|elite|silhouette|crowd)", re.I)
 
-# Quality presets for the review tool (tested in docs/07_step7_report.md §7). The style-reference LoRA at full strength
-# with three references is what made the first batch muddy; lower strength, two references and more steps give clean,
-# crisp images that still take the game's style. The optional second pass upscales 1.5-2x and re-samples for detail.
-# int8 and fp8 give the same quality here and int8 is twice as fast, so every preset uses int8.
+# Quality presets for the review tool (tested in characters/trump/docs/07_step7_report.md §7). The style-reference LoRA
+# at full strength with three references is what made the first batch muddy; lower strength, two references and more
+# steps give clean, crisp images that still take the game's style. The optional second pass upscales 1.5-2x and
+# re-samples for detail. int8 and fp8 give the same quality here and int8 is twice as fast, so every preset uses int8.
 INT8 = "krea2_turbo_int8_convrot.safetensors"
 FP8 = "krea2_turbo_fp8_scaled.safetensors"
 QUALITY = {
@@ -61,35 +61,17 @@ def quality_settings(key, item):
     return out
 
 
-# Card references per archetype: three game cards whose subject matter is close.
-CARD_REFS = {
-    "Wall": ["regent/heirloom_hammer", "ironclad/inflame", "ironclad/bludgeon"],
-    "Deport": ["colorless/rolling_boulder", "silent/snakebite", "ironclad/break"],
-    "Deals": ["colorless/hand_of_greed", "colorless/the_bomb", "ironclad/sword_boomerang"],
-    "Tweets": ["defect/signal_boost", "defect/hologram", "defect/tempest"],
-    "General": ["ironclad/inflame", "defect/momentum_strike", "necrobinder/dirge"],
-}
-CARD_BG = {
-    "Wall": "radial red and orange burst background",
-    "Deport": "deep purple and red background",
-    "Deals": "dark purple background with a golden orange burst",
-    "Tweets": "electric blue and purple background",
-    "General": "warm crimson and navy background",
-}
-CARD_ACTION = {"attack": "dynamic diagonal action with impact lines", "skill": "a clear, readable scene", "power": "an iconic, glowing, almost symmetrical composition"}
-ENEMY_WORDS = re.compile(r"\b(enem|monster|foe|goblin|slime|beetle|cultist|elite|silhouette|crowd)", re.I)
-
-
-def slug(class_name):
-    return re.sub(r"(?<=[A-Za-z0-9])([A-Z])", r"_\1", class_name).lower()
-
-
 def _game(rel):
     return os.path.join(GAME, rel.replace("/", os.sep))
 
 
 def _card_ref(name):
     return os.path.join(CARDS, name.replace("/", os.sep) + ".png")
+
+
+def _rgb(hex_color):
+    h = hex_color.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -109,20 +91,22 @@ def _enlarge(src, dst, canvas=(1024, 1024), fill=0.72, bg=(225, 225, 225), crop=
     return dst
 
 
-def _gold(src, dst):
-    """A gold-recoloured copy of a red reference (Ironclad's energy orb), so Krea takes the gold palette from it."""
+def _tint(src, dst, colors):
+    """A recoloured copy of a reference (Ironclad's red energy orb) in the character's energy colours (character.json
+    art.energy_tint: dark, mid, light), so Krea takes the palette from it."""
     if not os.path.exists(dst):
         im = Image.open(src).convert("RGB")
-        bg = Image.new("L", im.size, 0)
         gray = ImageOps.grayscale(im)
         # Keep the light gray backdrop as is; recolour only the object.
         mask = Image.eval(ImageOps.grayscale(Image.eval(im, lambda v: abs(v - 225))), lambda v: 255 if v > 18 else 0)
-        gold = ImageOps.colorize(gray, black=(45, 25, 0), mid=(214, 150, 30), white=(255, 238, 170))
-        Image.composite(gold, im, mask).save(dst)
+        dark, mid, light = (_rgb(c) for c in colors)
+        tinted = ImageOps.colorize(gray, black=dark, mid=mid, white=light)
+        Image.composite(tinted, im, mask).save(dst)
     return dst
 
 
-def ensure_kit():
+def ensure_kit(ch):
+    """The style references for every kind, for one character (only the energy ones depend on the character)."""
     os.makedirs(KIT, exist_ok=True)
     k = lambda name: os.path.join(KIT, name)
     if not os.path.exists(k("orb_ironclad.png")):
@@ -130,6 +114,8 @@ def ensure_kit():
         for n in range(1, 6):
             orb.alpha_composite(Image.open(_game(f"images/ui/combat/energy_counters/ironclad/ironclad_orb_layer_{n}.png")).convert("RGBA"))
         orb.resize((1024, 1024), Image.LANCZOS).convert("RGB").save(k("orb_ironclad.png"))
+    tint = ch["art"].get("energy_tint", ["2D1900", "D6961E", "FFEEAA"])
+    energy = _enlarge("images/packed/sprite_fonts/ironclad_energy_icon.png", k("energy_ironclad.png"), fill=0.6)
     kit = {
         "relic": [_enlarge("images/relics/shovel.png", k("relic_shovel.png")),
                   _enlarge("images/relics/golden_compass.png", k("relic_golden_compass.png"))],
@@ -150,10 +136,11 @@ def ensure_kit():
                  _card_ref("ironclad/inflame")],
         "fullscreen": [os.path.join(KIT, "ironclad_bust.png"), _game("animations/character_select/silent/character_select_silent_bg.png")],
         "transition": [_game("images/ui/transitions/ironclad_transition.png")],
-        "orb": [_gold(k("orb_ironclad.png"), k("orb_gold.png"))],
-        "small_icon": [_gold(_enlarge("images/packed/sprite_fonts/ironclad_energy_icon.png", k("energy_ironclad.png"), fill=0.6), k("energy_gold.png")),
-                       os.path.join(KIT, "relic_golden_compass.png")],
-        "wall": [_card_ref("ironclad/barricade"), _card_ref("ironclad/blood_wall")],
+        "orb": [_tint(k("orb_ironclad.png"), k(f"orb_{ch.id}.png"), tint)],
+        "energy_icon": [_tint(energy, k(f"energy_{ch.id}.png"), tint), os.path.join(KIT, "relic_golden_compass.png")],
+        "small_icon": [_tint(energy, k(f"energy_{ch.id}.png"), tint), os.path.join(KIT, "relic_golden_compass.png")],
+        "prop": [_card_ref("ironclad/barricade"), _card_ref("ironclad/blood_wall")],
+        "decal": [],
     }
     ensure_frames()
     return kit
@@ -213,149 +200,144 @@ def ensure_ancient_frames():
 # ---------------------------------------------------------------------------------------------------------------
 # Items
 
-def _load_json(rel):
-    with open(os.path.join(REPO, rel), encoding="utf-8") as f:
-        return json.load(f)
-
-
-def _donald(text):
-    return text.replace("THE_DONALD", DONALD)
-
-
-def card_prompt(c):
+def card_prompt(ch, c):
+    """Card portrait prompt: the card's art direction, the character's look when the character is in it (character.json
+    art.name_in_card_art, e.g. "Donald"), the enemy rule, the archetype's background, framing and the shared style."""
+    a = ch["art"]
     art = c["art"].rstrip(".")
     kind = c["type"].lower()
     parts = ["Slay the Spire card illustration."]
-    if re.search(r"\bDonald\b", art):
-        parts.append(re.sub(r"\bDonald\b", "Donald Trump", art) + ".")
-        parts.append(DONALD_LOOK)
+    name = a.get("name_in_card_art")
+    if name and re.search(rf"\b{re.escape(name)}\b", art):
+        parts.append(re.sub(rf"\b{re.escape(name)}\b", a.get("full_name", name), art) + ".")
+        parts.append(a["persona_sentence"])
     else:
         parts.append(art + ".")
-    if c["arch"] == "Deport" or ENEMY_WORDS.search(art):
-        parts.append(MONSTERS)
-    parts.append(f"{CARD_ACTION.get(kind, CARD_ACTION['skill']).capitalize()}, {CARD_BG.get(c['arch'], CARD_BG['General'])}.")
+    if a.get("enemy_rule") and (c.get("arch") in a.get("enemy_rule_archetypes", []) or ENEMY_WORDS.search(art)):
+        parts.append(a["enemy_rule"])
+    backgrounds = a.get("card_backgrounds", {})
+    background = backgrounds.get(c.get("arch"), backgrounds.get(a.get("default_archetype"), "deep saturated background"))
+    parts.append(f"{CARD_ACTION.get(kind, CARD_ACTION['skill']).capitalize()}, {background}.")
     parts.append(FRAMING_ANCIENT if c["rarity"] == "Ancient" else FRAMING)
     parts.append(CARD_STYLE)
     return " ".join(parts)
 
 
-def load_items():
-    """All items in display order, each a dict with the recipe filled in."""
-    kit = ensure_kit()
-    items = []
-    assets = _load_json("docs/design/art_assets.json")
-    design = _load_json("docs/design/cards.json")
+def _card_refs(ch, arch):
+    refs = ch["art"].get("card_refs", {})
+    names = refs.get(arch) or refs.get(ch["art"].get("default_archetype")) or ["ironclad/inflame", "defect/momentum_strike", "necrobinder/dirge"]
+    return [_card_ref(r) for r in names]
 
-    def add(**it):
+
+def load_items(ch):
+    """All items of one character (a presmod.Character) in display order, each a dict with the recipe filled in."""
+    if isinstance(ch, str):
+        ch = presmod.character(ch)
+    kit = ensure_kit(ch)
+    a = ch["art"]
+    persona = a["persona"]
+    items = []
+    assets = ch.assets
+    design = ch.cards
+
+    def add(spec=None, **it):
         it.setdefault("method", "styleref")
+        it["outputs"] = presmod.art_outputs(ch, it["id"].split(":", 1)[1], it["kind"], spec)
         items.append(it)
 
-    for a in assets["character"]:
-        kind = a["kind"]
-        art = _donald(a["art"])
-        base = dict(id="char:" + a["id"], section="Character", name=a["name"], sub=kind.replace("_", " "),
-                    art=a["art"].replace("THE_DONALD", "The Donald"), text="")
+    def fill(text):
+        return text.replace("{persona}", persona)
+
+    for s in assets.get("character", []):
+        kind = s["kind"]
+        art = fill(s["art"])
+        base = dict(id="char:" + s["id"], section="Character", name=s["name"], sub=kind.replace("_", " "),
+                    art=s["art"].replace("{persona}", ch["name"]), text="", kind=kind)
         if kind == "char_button":
-            add(**base, kind=kind, refs=kit["char_button"], size=[832, 1216], prompt=(
+            add(s, **base, refs=kit["char_button"], size=[832, 1216], prompt=(
                 f"{art[0].upper() + art[1:]}. Bold simplified painting with big flat color shapes, graphic hard-edged shading, "
-                "a thin bright rim light, strong dark outline accents, in the exact style of the reference images."),
-                outputs={"button": "images/packed/character_select/char_select_trump.png",
-                         "locked": "images/packed/character_select/char_select_trump_locked.png"})
+                "a thin bright rim light, strong dark outline accents, in the exact style of the reference images."))
         elif kind == "fullscreen":
-            add(**base, kind=kind, refs=kit["fullscreen"], size=[1792, 832], prompt=(
+            add(s, **base, refs=kit["fullscreen"], size=[1792, 832], prompt=(
                 f"Slay the Spire character select screen painting. {art}. Painterly digital painting with bold flat color shapes, "
                 "visible brush strokes, dramatic rim light and deep shadows, in the exact style of the reference images."),
-                outputs={"image": "images/trump/char_select_bg.png"}, note="Step 8 wires this into the character select scene.")
+                note="Only the right 3/4 is on screen: keep the subject in the right half.")
         elif kind == "top_icon":
-            add(**base, kind=kind, refs=kit["top_icon"], size=[1024, 1024], prompt=(
+            add(s, **base, refs=kit["top_icon"], size=[1024, 1024], prompt=(
                 f"Tiny game UI icon of {art}, simple bold shapes, flat cel shading, thick dark outline, {LIGHT_BG}, "
-                "in the exact style of the reference images."),
-                outputs={"icon": "images/ui/top_panel/character_icon_trump.png",
-                         "outline": "images/ui/top_panel/character_icon_trump_outline.png"})
+                "in the exact style of the reference images."))
         elif kind == "map_marker":
-            add(**base, kind=kind, refs=kit["map_marker"], size=[832, 1088], prompt=(
+            add(s, **base, refs=kit["map_marker"], size=[832, 1088], prompt=(
                 f"Tiny game map marker icon: {art}, simple bold shapes, flat cel shading, thick dark outline, {LIGHT_BG}, "
-                "in the exact style of the reference images."),
-                outputs={"marker": "images/packed/map/icons/map_marker_trump.png"})
+                "in the exact style of the reference images."))
         elif kind == "figure":
-            add(**base, kind=kind, refs=kit["figure"], size=[832, 1216], prompt=(
-                f"Full-body game character art of {DONALD}, {a['art']}. The whole figure is visible from head to shoes, "
+            add(s, **base, refs=kit["figure"], size=[832, 1216], prompt=(
+                f"Full-body game character art of {persona}, {art}. The whole figure is visible from head to shoes, "
                 f"facing right, {GREEN_BG}. Painterly digital painting with bold flat color shapes, hard-edged shading "
                 "and warm rim light, in the exact style of the reference images."),
-                outputs={"sprite": f"images/trump/{a['id']}.png"},
-                note="Source art: Step 8 turns it into the combat rig (or sprite fallback), shop and rest-site scenes.")
+                note="A sprite placed by its feet: combat poses, shop and rest site (Framework/Patches/ArtPatches.cs).")
         elif kind == "hand":
-            gesture = a["id"].split("_")[1]
-            add(**base, kind=kind, refs=kit["hand"], size=[640, 1792], prompt=(
-                "Game UI art of a single arm reaching up from the bottom edge of the frame: a navy suit sleeve with a white "
-                f"shirt cuff and a gold cufflink, the hand {a['art']}. Vertical composition, the arm fills the height of the "
-                f"frame, {GREEN_BG}. Painterly digital painting with bold flat color shapes and hard-edged shading, "
-                "in the exact style of the reference images."),
-                outputs={"hand": f"images/ui/hands/multiplayer_hand_trump_{gesture}.png"})
+            sleeve = a.get("sleeve", "a sleeve of the character's outfit")
+            add(s, **base, refs=kit["hand"], size=[640, 1792], prompt=(
+                f"Game UI art of a single arm reaching up from the bottom edge of the frame: {sleeve}, the hand {art}. "
+                f"Vertical composition, the arm fills the height of the frame, {GREEN_BG}. Painterly digital painting with "
+                "bold flat color shapes and hard-edged shading, in the exact style of the reference images."))
         elif kind == "transition":
-            add(**base, kind=kind, refs=kit["transition"], size=[1792, 832], prompt=(
+            add(s, **base, refs=kit["transition"], size=[1792, 832], prompt=(
                 f"Abstract grayscale texture: {art}. Black, white and gray only, soft painted smoky shapes filling the whole "
                 "frame, no text, in the exact style of the reference image."),
-                outputs={"mask": "images/ui/transitions/trump_transition.png"},
                 note="Grayscale dissolve mask for the screen transition material.")
 
-    for c in design["cards"]:
+    for c in design.get("cards", []):
         ancient = c["rarity"] == "Ancient"
-        sub = f"{c['type']} · {c['rarity']} · {c['arch']}"
-        add(id="card:" + slug(c["id"]), section="Cards", kind="card_ancient" if ancient else "card", name=c["name"], sub=sub,
-            arch=c["arch"], ctype=c["type"].lower(), rarity=c["rarity"], text=c["text"], art=c["art"],
-            refs=[_card_ref(r) for r in CARD_REFS.get(c["arch"], CARD_REFS["General"])],
-            size=[832, 1168] if ancient else [1216, 928], prompt=card_prompt(c),
-            outputs={"portrait": f"images/packed/card_portraits/trump/{slug(c['id'])}.png"},
+        sub = f"{c['type']} · {c['rarity']} · {c.get('arch', '')}"
+        add(id="card:" + presmod.slug(c["id"]), section="Cards", kind="card_ancient" if ancient else "card", name=c["name"], sub=sub,
+            arch=c.get("arch"), ctype=c["type"].lower(), rarity=c["rarity"], text=c["text"], art=c.get("art", c["name"]),
+            refs=_card_refs(ch, c.get("arch")), size=[832, 1168] if ancient else [1216, 928], prompt=card_prompt(ch, dict(c, art=c.get("art", c["name"]))),
             frame=("ancient_" if ancient else "") + c["type"].lower(), frameMode="full" if ancient else "window",
             note="Ancient cards use full-card art (606x852); the text box covers the lower half." if ancient else "")
 
-    for r in assets["relics"]:
-        add(id="relic:" + r["id"], section="Relics", kind="relic", name=r["name"], sub="relic", art=r["art"],
-            text=next((x["text"] for x in design["relics"] if slug(x["id"]) == r["id"]), ""), refs=kit["relic"], size=[1024, 1024],
+    for r in assets.get("relics", []):
+        add(r, id="relic:" + r["id"], section="Relics", kind="relic", name=r["name"], sub="relic", art=r["art"],
+            text=next((x["text"] for x in design.get("relics", []) if presmod.slug(x["id"]) == r["id"]), ""), refs=kit["relic"], size=[1024, 1024],
             prompt=(f"Game item icon of a single {r['art']}, centered, filling most of the frame, {LIGHT_BG}. Hand-painted digital "
-                    "painting with soft brush texture and simple shading, in the exact style of the reference images."),
-            outputs={"icon": f"images/relics/{r['id']}.png"})
-    for p in assets["potions"]:
-        add(id="potion:" + p["id"], section="Potions", kind="potion", name=p["name"], sub="potion", art=p["art"],
-            text=next((x["text"] for x in design["potions"] if slug(x["id"]) == p["id"]), ""), refs=kit["potion"], size=[1024, 1024],
+                    "painting with soft brush texture and simple shading, in the exact style of the reference images."))
+    for p in assets.get("potions", []):
+        add(p, id="potion:" + p["id"], section="Potions", kind="potion", name=p["name"], sub="potion", art=p["art"],
+            text=next((x["text"] for x in design.get("potions", []) if presmod.slug(x["id"]) == p["id"]), ""), refs=kit["potion"], size=[1024, 1024],
             prompt=(f"Game potion icon: {p['art']}, centered, filling most of the frame, {LIGHT_BG}. Flat cel-shaded painting with "
-                    "a thin light inner outline, glass highlights and simple bold shapes, in the exact style of the reference images."),
-            outputs={"icon": f"images/potions/{p['id']}.png"})
-    for p in assets["powers"]:
-        add(id="power:" + p["id"], section="Powers", kind="power", name=p["name"], sub="power icon", art=p["art"], text="",
+                    "a thin light inner outline, glass highlights and simple bold shapes, in the exact style of the reference images."))
+    for p in assets.get("powers", []):
+        add(p, id="power:" + p["id"], section="Powers", kind="power", name=p["name"], sub="power icon", art=p["art"], text="",
             refs=kit["power"], size=[1024, 1024],
             prompt=(f"Game status effect icon: {p['art']}. One bold simple symbol, centered, filling the frame, {LIGHT_BG}. Flat "
                     "vector-like cel shading, thick black outline, bright saturated colors, very simple readable shapes, "
-                    "in the exact style of the reference images."),
-            outputs={"icon": f"images/powers/{p['id']}.png"})
+                    "in the exact style of the reference images."))
 
-    for u in assets["ui"]:
+    for u in assets.get("ui", []):
         kind = u["kind"]
-        base = dict(id="ui:" + u["id"], section="UI & mechanics", kind=kind, name=u["name"], sub=kind.replace("_", " "), art=u["art"], text="")
+        base = dict(id="ui:" + u["id"], section="UI & mechanics", kind=kind, name=u["name"], sub=kind.replace("_", " "), art=fill(u["art"]), text="")
         if kind == "orb":
-            add(**base, refs=kit["orb"], size=[1024, 1024], layers=u["layers"], prompt=(
+            add(u, **base, refs=kit["orb"], size=[1024, 1024], layers=u["layers"], prompt=(
                 f"Game UI element: {u['art']}, centered, {LIGHT_BG}. Flat cel shading with bold simple shapes, "
                 "in the exact style of the reference image."),
-                outputs={f"layer{n}": f"images/ui/combat/energy_counters/trump/trump_orb_layer_{n}.png" for n in u["layers"]},
-                note="Step 8 points the energy counter scene at these layers.")
-        elif kind == "small_icon":
-            outs = ({"text": "images/packed/sprite_fonts/trump_energy_icon.png",
-                     "gem": "trump_character/atlas_fallback/ui_atlas/card/energy_trump.png"} if u["id"] == "energy_icon"
-                    else {"badge": "trump_character/ui/gold_cost_icon.png"})
-            add(**base, refs=kit["small_icon"], size=[1024, 1024], prompt=(
+                note="Layers of the energy counter (scenes/combat/energy_counters/<id>_energy_counter.tscn).")
+        elif kind in ("energy_icon", "small_icon"):
+            add(u, **base, refs=kit[kind], size=[1024, 1024], sizes=u.get("sizes", {}), prompt=(
                 f"Tiny game UI icon: {u['art']}, centered, filling the frame, {LIGHT_BG}. Simple bold shapes, flat cel shading, "
-                "thick dark outline, readable at very small size, in the exact style of the reference images."),
-                outputs=outs)
-        elif kind == "wall":
-            add(**base, refs=kit["wall"], size=[1344, 768], prompt=(
-                f"Side view game art of {u['art']}, a wide wall segment filling the width of the frame, {GREEN_BG}. Painterly "
+                "thick dark outline, readable at very small size, in the exact style of the reference images."))
+        elif kind == "prop":
+            add(u, **base, refs=kit["prop"], size=[1344, 768], fit=u.get("fit", [640, 400]), prompt=(
+                f"Side view game art of {fill(u['art'])}, filling the width of the frame, {GREEN_BG}. Painterly "
                 "digital painting with bold flat color shapes and hard-edged shading, in the exact style of the reference images."),
-                outputs={"sprite": f"images/trump/wall/{u['id']}.png"}, note="Step 8 shows these in front of the character.")
-        elif kind == "stamp":
-            add(**base, method="t2i", refs=[], size=[1216, 704], prompt=(
-                f"{u['art'][0].upper() + u['art'][1:]}, isolated on a plain flat white background, nothing else in the image."),
-                outputs={"stamp": f"images/trump/ui/{u['id']}.png"}, note="Step 8 swaps the drawn DENIED stamp for this.")
+                note=u.get("note", ""))
+        elif kind == "decal":
+            art = fill(u["art"])
+            add(u, **base, method="t2i", refs=[], size=[1216, 704], fit=u.get("fit", [512, 300]), prompt=(
+                f"{art[0].upper() + art[1:]}, isolated on a plain flat white background, nothing else in the image."),
+                note=u.get("note", ""))
+        else:
+            raise ValueError(f"{ch.id}: unknown art kind '{kind}' for ui item {u['id']}")
     return items
 
 
@@ -368,6 +350,9 @@ def _outline(icon, width=3):
     out = Image.new("RGBA", icon.size, (255, 255, 255, 0))
     out.putalpha(grown)
     return out
+
+
+SMALL_ICON_SIZES = {"text": 24, "gem": 74, "badge": 64}
 
 
 def postprocess(item, raw, out_dir, stem):
@@ -410,12 +395,14 @@ def postprocess(item, raw, out_dir, stem):
     elif kind == "hand":
         art_post.keyed_fit(im, (422, 1200), margin=0, green=True, anchor="bottom").save(p("hand"))
         files["hand"] = p("hand")
-    elif kind == "wall":
-        art_post.keyed_fit(im, (640, 400), margin=4, green=True, anchor="bottom").save(p("sprite"))
-        files["sprite"] = p("sprite")
-    elif kind == "stamp":
-        art_post.keyed_fit(im, (512, 300), margin=4).save(p("stamp"))
-        files["stamp"] = p("stamp")
+    elif kind == "prop":
+        key = next(iter(item["outputs"]))
+        art_post.keyed_fit(im, tuple(item.get("fit", [640, 400])), margin=4, green=True, anchor="bottom").save(p(key))
+        files[key] = p(key)
+    elif kind == "decal":
+        key = next(iter(item["outputs"]))
+        art_post.keyed_fit(im, tuple(item.get("fit", [512, 300])), margin=4).save(p(key))
+        files[key] = p(key)
     elif kind == "orb":
         base = art_post.keyed_fit(im, (256, 256), margin=4)
         for n in item["layers"]:
@@ -429,9 +416,9 @@ def postprocess(item, raw, out_dir, stem):
                 layer.putalpha(base.getchannel("A").point(lambda v: v * 6 // 10))
             layer.save(p(f"layer{n}"))
             files[f"layer{n}"] = p(f"layer{n}")
-    elif kind == "small_icon":
+    elif kind in ("energy_icon", "small_icon"):
         big = art_post.keyed_fit(im, (256, 256), margin=4)
-        sizes = {"text": 24, "gem": 74, "badge": 64}
+        sizes = dict(SMALL_ICON_SIZES, **item.get("sizes", {}))
         for key in item["outputs"]:
             big.resize((sizes[key], sizes[key]), Image.LANCZOS).save(p(key))
             files[key] = p(key)

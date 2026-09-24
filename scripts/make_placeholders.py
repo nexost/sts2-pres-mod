@@ -1,24 +1,36 @@
 """
-Step 2 placeholders: simple generated images at the exact sizes/paths the game expects, plus scene/material
-copies of the Ironclad ones (still pointing at Ironclad's animations) so the character is fully wired.
-Every file written here gets replaced by real art in Step 8. Existing files are left alone unless --force.
+Placeholders for every character: simple generated images at the exact sizes and paths the game expects, so a character
+is fully playable before its art exists. The art review tool (scripts/art_review.py) replaces them with the real art on
+Keep. Existing files are never overwritten unless --force. Run by build.py before every build.
 
-Usage: python scripts/make_placeholders.py [--force]
+  python scripts/make_placeholders.py [--force] [--character trump]
+
+What gets a placeholder, per character (colours from characters/<id>/character.json "colors"):
+  - every card, relic, power and potion class in mod/pres_mod/src/Characters/<Folder>/ (found by their base class);
+  - the character's UI: top-bar icon, character select button, map marker, energy icon;
+  - every other art item in characters/<id>/art/art_assets.json (poses, select screen, orb, hands, props, ...);
+  - hover outlines for all relics and potions (derived from the icons, rebuilt when an icon changes);
+  - the two scenes copied from Ironclad: the top-bar icon scene (if missing) and the card frame colour (rewritten
+    whenever character.json "frame_hsv" changes).
 """
+import argparse
 import os
 import re
 import sys
-from PIL import Image, ImageDraw, ImageFont
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MOD = os.path.join(ROOT, "mod")
-GAME = os.path.join(ROOT, "re", "pck")
-FORCE = "--force" in sys.argv
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
-GOLD = (242, 185, 46)
-NAVY = (22, 34, 66)
-CREAM = (250, 240, 215)
-RED = (178, 34, 52)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import presmod  # noqa: E402
+
+MOD = presmod.MOD_DIR
+GAME = presmod.GAME_PCK
+FORCE = False
+
+
+def rgb(hex_color):
+    h = hex_color.lstrip("#")
+    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
 def out(rel):
@@ -52,7 +64,16 @@ def save(img, rel):
     print("wrote", rel)
 
 
-def badge(size, text, bg=NAVY, fg=GOLD, circle=True, outline_only=False):
+class Palette:
+    def __init__(self, ch):
+        c = ch.get("colors", {})
+        self.primary = rgb(c.get("primary", "F2B92E"))
+        self.secondary = rgb(c.get("secondary", "162242"))
+        self.accent = rgb(c.get("accent", "B22234"))
+        self.text = rgb(c.get("text", "FAF0D7"))
+
+
+def badge(size, text, bg, fg, circle=True, outline_only=False):
     w, h = size
     img = Image.new("RGBA", size, (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -66,147 +87,166 @@ def badge(size, text, bg=NAVY, fg=GOLD, circle=True, outline_only=False):
     return img
 
 
-def card_portrait(title, kind):
-    w, h = 1000, 760
+def card_portrait(title, kind, pal, size=(1000, 760)):
+    w, h = size
     img = Image.new("RGBA", (w, h))
     d = ImageDraw.Draw(img)
-    top = {"attack": (120, 30, 40), "skill": (30, 60, 110), "power": (90, 60, 20)}[kind]
+    top = {"attack": (120, 30, 40), "skill": (30, 60, 110), "power": (90, 60, 20)}.get(kind, (60, 60, 60))
     for y in range(h):
         t = y / h
-        d.line([(0, y), (w, y)], fill=tuple(int(top[i] * (1 - t) + NAVY[i] * t) for i in range(3)) + (255,))
+        d.line([(0, y), (w, y)], fill=tuple(int(top[i] * (1 - t) + pal.secondary[i] * t) for i in range(3)) + (255,))
     for i in range(0, w + h, 60):
         d.line([(i, 0), (i - h, h)], fill=(255, 255, 255, 18), width=14)
-    centered(d, (0, 180, w, 520), title, 110, GOLD + (255,))
-    centered(d, (0, 560, w, 680), "PLACEHOLDER ART", 44, CREAM + (200,))
+    centered(d, (0, h * 0.24, w, h * 0.68), title, int(w * 0.11), pal.primary + (255,))
+    centered(d, (0, h * 0.74, w, h * 0.9), "PLACEHOLDER ART", int(w * 0.044), pal.text + (200,))
     return img
 
 
-def find_models(bases):
-    """Class names of every concrete model in the mod source deriving directly from one of the given base classes."""
-    names = []
-    src = os.path.join(MOD, "trump_character", "src")
-    for dp, _, files in os.walk(src):
-        for f in files:
-            if f.endswith(".cs"):
-                text = open(os.path.join(dp, f), encoding="utf-8").read()
-                names += [m.group(1) for m in re.finditer(r"public\s+sealed\s+class\s+(\w+)\s*:\s*(\w+)", text) if m.group(2) in bases]
-    return sorted(set(names))
-
-
-def slug(class_name):
-    """The game's model ID entry, lowercased: GoldenShovel -> golden_shovel."""
-    return re.sub(r"(?<=[A-Za-z0-9])([A-Z])", r"_\1", class_name).lower()
+def figure(size, pal):
+    """A stand-in figure: body in the secondary colour, a tie in the accent colour, on transparent."""
+    w, h = size
+    img = Image.new("RGBA", size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([w * 0.25, h * 0.3, w * 0.75, h * 0.97], radius=int(w * 0.08), fill=pal.secondary + (255,))
+    d.polygon([(w * 0.47, h * 0.32), (w * 0.53, h * 0.32), (w * 0.55, h * 0.75), (w * 0.5, h * 0.8), (w * 0.45, h * 0.75)], fill=pal.accent + (255,))
+    d.ellipse([w * 0.33, h * 0.08, w * 0.67, h * 0.33], fill=(235, 160, 110, 255))
+    d.ellipse([w * 0.28, h * 0.03, w * 0.74, h * 0.16], fill=pal.primary + (255,))
+    centered(d, (0, int(h * 0.82), w, h), "PLACEHOLDER", max(12, w // 14), pal.text + (230,))
+    return img
 
 
 def initials(class_name):
     return "".join(re.findall(r"[A-Z0-9]", class_name))[:3] or class_name[:2].upper()
 
 
-def find_cards():
-    """(class name, 'attack'|'skill'|'power') for every concrete card class in the mod source."""
-    cards = []
-    src = os.path.join(MOD, "trump_character", "src")
-    for dp, _, files in os.walk(src):
+# ---------------------------------------------------------------------------------------------------------------
+# The character's model classes, read from its C# source
+
+def all_classes():
+    """{class name: (base class, file path, source text)} for every class in mod/pres_mod/src."""
+    classes = {}
+    for dp, _, files in os.walk(presmod.SRC_DIR):
         for f in files:
-            if not f.endswith(".cs"):
-                continue
-            text = open(os.path.join(dp, f), encoding="utf-8").read()
-            for m in re.finditer(r"public\s+sealed\s+class\s+(\w+)(\([^)]*\))?\s*:\s*(\w+)\s*(\([^;{]*\))?", text):
-                name, base = m.group(1), m.group(3)
-                if base not in ("CardModel", "PayGoldCard"):
-                    continue
-                args = m.group(4) or ""
-                if not args:  # classic constructor: base(cost, CardType.X, ...)
-                    ctor = re.search(r"base\(\s*-?\w+\s*,\s*CardType\.(\w+)", text[m.end():])
-                    args = ctor.group(0) if ctor else ""
-                kind = re.search(r"CardType\.(\w+)", args)
-                cards.append((name, (kind.group(1) if kind else "Skill").lower()))
-    return cards
+            if f.endswith(".cs"):
+                path = os.path.join(dp, f)
+                text = open(path, encoding="utf-8").read()
+                for m in re.finditer(r"public\s+(?:sealed\s+|abstract\s+|partial\s+)*class\s+(\w+)(\([^)]*\))?\s*:\s*(\w+)\s*(\([^;{]*\))?", text):
+                    classes[m.group(1)] = (m.group(3), path, text, m)
+    return classes
 
 
-def make_images():
-    save(badge((88, 88), "T"), "images/ui/top_panel/character_icon_trump.png")
-    save(badge((88, 88), "", outline_only=True), "images/ui/top_panel/character_icon_trump_outline.png")
+def models_of(ch, root_bases):
+    """(class name, match, text) of concrete classes in the character's folder whose base chain reaches one of root_bases."""
+    classes = all_classes()
+    found = []
+    for name, (base, path, text, m) in classes.items():
+        if not os.path.abspath(path).startswith(os.path.abspath(ch.src)) or "abstract" in m.group(0):
+            continue
+        root = base
+        while root in classes and root not in root_bases:
+            root = classes[root][0]
+        if root in root_bases:
+            found.append((name, m, text))
+    return sorted(found)
 
+
+def card_kind(m, text):
+    args = m.group(4) or ""
+    if not args:  # classic constructor: base(cost, CardType.X, ...)
+        ctor = re.search(r"base\(\s*-?\w+\s*,\s*CardType\.(\w+)", text[m.end():])
+        args = ctor.group(0) if ctor else ""
+    kind = re.search(r"CardType\.(\w+)", args)
+    return (kind.group(1) if kind else "Skill").lower()
+
+
+# ---------------------------------------------------------------------------------------------------------------
+
+def make_images(ch):
+    pal = Palette(ch)
+    cid = ch.id
+    letter = ch["art"].get("placeholder_initial", ch["name"][:1])
+    ui = presmod.KIND_OUTPUTS
+    save(badge((88, 88), letter, pal.secondary, pal.primary), ui["top_icon"]["icon"].format(id=cid))
+    save(badge((88, 88), "", pal.secondary, pal.primary, outline_only=True), ui["top_icon"]["outline"].format(id=cid))
     for locked in (False, True):
         img = Image.new("RGBA", (132, 195), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
-        d.rounded_rectangle([4, 4, 128, 191], radius=18, fill=((60, 60, 60) if locked else NAVY) + (255,), outline=((120, 120, 120) if locked else GOLD) + (255,), width=5)
-        centered(d, (4, 20, 128, 140), "?" if locked else "T", 90, ((150, 150, 150) if locked else GOLD) + (255,))
-        centered(d, (4, 140, 128, 185), "TRUMP", 22, CREAM + (255,))
-        save(img, f"images/packed/character_select/char_select_trump{'_locked' if locked else ''}.png")
-
+        d.rounded_rectangle([4, 4, 128, 191], radius=18, fill=((60, 60, 60) if locked else pal.secondary) + (255,),
+                            outline=((120, 120, 120) if locked else pal.primary) + (255,), width=5)
+        centered(d, (4, 20, 128, 140), "?" if locked else letter, 90, ((150, 150, 150) if locked else pal.primary) + (255,))
+        centered(d, (4, 140, 128, 185), ch["name"].split()[-1].upper()[:8], 22, pal.text + (255,))
+        save(img, ui["char_button"]["locked" if locked else "button"].format(id=cid))
     marker = Image.new("RGBA", (49, 64), (0, 0, 0, 0))
     d = ImageDraw.Draw(marker)
-    d.polygon([(24, 63), (4, 30), (44, 30)], fill=GOLD + (255,))
-    d.ellipse([2, 2, 46, 46], fill=NAVY + (255,), outline=GOLD + (255,), width=3)
-    centered(d, (2, 2, 46, 46), "T", 28, GOLD + (255,))
-    save(marker, "images/packed/map/icons/map_marker_trump.png")
-
-    for class_name, card_type in find_cards():
-        title = re.sub(r"(?<=[a-z0-9])([A-Z])", r" \1", class_name).replace(" Trump", "").upper()
-        save(card_portrait(title, card_type), f"images/packed/card_portraits/trump/{slug(class_name)}.png")
-
-    # Relics, powers and potions: loose PNGs are picked up by the game's own atlas fallback (images/<kind>/<id>.png).
-    for name in find_models(("RelicModel",)):
-        save(badge((256, 256), initials(name), bg=RED, fg=CREAM), f"images/relics/{slug(name)}.png")
-    for name in find_models(("PowerModel", "TemporaryStrengthPower")):
-        save(badge((256, 256), initials(name.removesuffix("Power"))), f"images/powers/{slug(name)}.png")
-    for name in find_models(("PotionModel",)):
-        save(badge((256, 256), initials(name), bg=(40, 110, 90), fg=CREAM), f"images/potions/{slug(name)}.png")
-
-    # Gold coin that replaces the star-cost badge on Pay-Gold cards (PayGoldBadgePatch).
-    save(badge((64, 64), "$", bg=GOLD, fg=(110, 70, 10)), "trump_character/ui/gold_cost_icon.png")
-
+    d.polygon([(24, 63), (4, 30), (44, 30)], fill=pal.primary + (255,))
+    d.ellipse([2, 2, 46, 46], fill=pal.secondary + (255,), outline=pal.primary + (255,), width=3)
+    centered(d, (2, 2, 46, 46), letter, 28, pal.primary + (255,))
+    save(marker, ui["map_marker"]["marker"].format(id=cid))
     # Energy icon inside card text ([img] tag) and on the card cost gem (ui_atlas, served by our atlas fallback).
-    save(badge((24, 24), "", bg=GOLD, fg=NAVY), "images/packed/sprite_fonts/trump_energy_icon.png")
-    save(badge((74, 74), "", bg=GOLD, fg=NAVY), "trump_character/atlas_fallback/ui_atlas/card/energy_trump.png")
+    save(badge((24, 24), "", pal.primary, pal.secondary), ui["energy_icon"]["text"].format(id=cid))
+    save(badge((74, 74), "", pal.primary, pal.secondary), ui["energy_icon"]["gem"].format(id=cid))
+
+    for name, m, text in models_of(ch, {"CardModel"}):
+        kind = card_kind(m, text)
+        title = re.sub(r"(?<=[a-z0-9])([A-Z])", r" \1", name).replace(" " + ch["class"], "").upper()
+        save(card_portrait(title, kind, pal), f"images/packed/card_portraits/{cid}/{presmod.slug(name)}.png")
+    # Relics, powers and potions: loose PNGs are picked up by the game's own atlas fallback (images/<kind>/<id>.png).
+    for name, _, _ in models_of(ch, {"RelicModel"}):
+        save(badge((256, 256), initials(name), pal.accent, pal.text), f"images/relics/{presmod.slug(name)}.png")
+    for name, _, _ in models_of(ch, {"PowerModel", "TemporaryStrengthPower"}):
+        save(badge((256, 256), initials(name.removesuffix("Power")), pal.secondary, pal.primary), f"images/powers/{presmod.slug(name)}.png")
+    for name, _, _ in models_of(ch, {"PotionModel"}):
+        save(badge((256, 256), initials(name), (40, 110, 90), pal.text), f"images/potions/{presmod.slug(name)}.png")
 
 
-def copy_scene(src_rel, dst_rel, renames=(), replace=()):
-    dst = out(dst_rel)
-    if os.path.exists(dst) and not FORCE:
-        return
-    with open(os.path.join(GAME, src_rel.replace("/", os.sep)), encoding="utf-8") as fh:
-        text = fh.read()
-    # Drop the copied resource's own uid so it never clashes with the original in the game's UID cache.
-    text = re.sub(r'^(\[gd_(?:scene|resource)[^\]]*?) uid="uid://[a-z0-9]+"', r"\1", text, count=1, flags=re.M)
-    for old, new in renames:
-        text = text.replace(f'[node name="{old}"', f'[node name="{new}"', 1)
-    for old, new in replace:
-        text = text.replace(old, new)
-    with open(dst, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(text)
-    print("wrote", dst_rel)
-
-
-def make_scenes():
-    # Step 8: the combat, shop, rest-site and character select scenes, the energy counter, the card trail and the
-    # transition material are our own now (sprites of the generated art, gold VFX); only these two stay copies.
-    copy_scene("scenes/ui/character_icons/ironclad_icon.tscn", "scenes/ui/character_icons/trump_icon.tscn", [("IroncladIcon", "TrumpIcon")],
-               [('uid="uid://x2neryjvbtwy" path="res://images/ui/top_panel/character_icon_ironclad.png"', 'path="res://images/ui/top_panel/character_icon_trump.png"')])
-    # Card frame: same HSV shader as every character, tinted gold (Regent's orange is h=0.12).
-    copy_scene("materials/cards/frames/card_frame_orange_mat.tres", "materials/cards/frames/card_frame_trump_mat.tres",
-               replace=[("shader_parameter/h = 0.12", "shader_parameter/h = 0.15"), ("shader_parameter/s = 1.5", "shader_parameter/s = 1.1"), ("shader_parameter/v = 1.2", "shader_parameter/v = 1.3")])
-
-
-def figure(size):
-    """A stand-in Donald: navy suit, red tie, blond swoop, on a transparent background."""
-    w, h = size
-    img = Image.new("RGBA", size, (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    d.rounded_rectangle([w * 0.25, h * 0.3, w * 0.75, h * 0.97], radius=int(w * 0.08), fill=NAVY + (255,))
-    d.polygon([(w * 0.47, h * 0.32), (w * 0.53, h * 0.32), (w * 0.55, h * 0.75), (w * 0.5, h * 0.8), (w * 0.45, h * 0.75)], fill=RED + (255,))
-    d.ellipse([w * 0.33, h * 0.08, w * 0.67, h * 0.33], fill=(235, 160, 110, 255))
-    d.ellipse([w * 0.28, h * 0.03, w * 0.74, h * 0.16], fill=(245, 205, 90, 255))
-    centered(d, (0, int(h * 0.82), w, h), "PLACEHOLDER", max(12, w // 14), CREAM + (230,))
-    return img
+def make_art_standins(ch):
+    """Every other art item of art_assets.json that has no file yet gets a stand-in of the right size."""
+    pal = Palette(ch)
+    assets = ch.assets
+    for spec in assets.get("character", []) + assets.get("ui", []):
+        kind = spec["kind"]
+        if kind in ("char_button", "top_icon", "map_marker", "energy_icon"):
+            continue  # made above
+        outputs = presmod.art_outputs(ch, spec["id"], kind, spec)
+        for key, rel in outputs.items():
+            if kind == "figure":
+                img = figure((600, 900), pal)
+            elif kind == "fullscreen":
+                img = Image.new("RGBA", (2560, 1200))
+                d = ImageDraw.Draw(img)
+                for y in range(1200):
+                    t = y / 1200
+                    d.line([(0, y), (2560, y)], fill=tuple(int(pal.secondary[i] * (1 - t * 0.5)) for i in range(3)) + (255,))
+                centered(d, (1300, 300, 2500, 900), ch["name"].upper(), 160, pal.primary + (255,))
+            elif kind == "hand":
+                img = Image.new("RGBA", (422, 1200), (0, 0, 0, 0))
+                d = ImageDraw.Draw(img)
+                d.rectangle([130, 500, 292, 1199], fill=pal.secondary + (255,))
+                d.ellipse([110, 300, 312, 540], fill=(235, 160, 110, 255))
+                centered(d, (0, 560, 422, 700), spec["id"].split("_", 1)[-1].upper(), 40, pal.text + (255,))
+            elif kind == "transition":
+                img = Image.radial_gradient("L").resize((2560, 1200)).convert("RGBA")
+            elif kind == "orb":
+                n = int(key.removeprefix("layer"))
+                img = badge((256, 256), "", pal.primary, pal.secondary) if n == 1 else Image.new("RGBA", (256, 256), (0, 0, 0, 0))
+            elif kind in ("prop", "decal"):
+                w, h = spec.get("fit", [640, 400] if kind == "prop" else [512, 300])
+                img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+                d = ImageDraw.Draw(img)
+                d.rectangle([10, int(h * 0.15), w - 10, h - 1], fill=(pal.primary if kind == "prop" else (0, 0, 0)) + ((255,) if kind == "prop" else (0,)),
+                            outline=pal.accent + (255,), width=6)
+                centered(d, (10, int(h * 0.15), w - 10, h - 1), spec["name"].split(":")[-1].strip().upper()[:14], max(18, h // 7), pal.text + (255,))
+            elif kind == "small_icon":
+                size = spec.get("sizes", {}).get(key, 64)
+                img = badge((size, size), "", pal.primary, pal.secondary)
+            else:
+                continue
+            save(img, rel)
 
 
 def derive_outlines():
     """Hover outlines for relics and potions, like the game's relic/potion_outline_atlas: a white silhouette a little
     larger than the icon. Rebuilt whenever the icon is newer (the art review tool replaces icons on Keep)."""
-    from PIL import ImageFilter
     for kind in ("relics", "potions"):
         src_dir = os.path.join(MOD, "images", kind)
         if not os.path.isdir(src_dir):
@@ -215,7 +255,7 @@ def derive_outlines():
             if not f.endswith(".png"):
                 continue
             src = os.path.join(src_dir, f)
-            rel = f"trump_character/atlas_fallback/{kind[:-1]}_outline_atlas/{f}"
+            rel = f"{presmod.MOD_ID}/atlas_fallback/{kind[:-1]}_outline_atlas/{f}"
             dst = out(rel)
             if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src) and not FORCE:
                 continue
@@ -227,46 +267,56 @@ def derive_outlines():
             print("wrote", rel)
 
 
-def make_art_standins():
-    """Step 8 art paths the scenes and code expect. The art review tool (scripts/art_review.py) overwrites these
-    with the generated art on Keep; these only fill paths that have nothing yet, so the build always works."""
-    for pose in ("combat_idle", "combat_attack", "combat_cast", "combat_hurt", "merchant_pose", "rest_site_pose"):
-        save(figure((600, 900)), f"images/trump/{pose}.png")
-    bg = Image.new("RGBA", (2560, 1200))
-    d = ImageDraw.Draw(bg)
-    for y in range(1200):
-        t = y / 1200
-        d.line([(0, y), (2560, y)], fill=(int(90 - 50 * t), int(20 + 10 * t), int(24 + 10 * t), 255))
-    centered(d, (1300, 300, 2500, 900), "THE DONALD", 160, GOLD + (255,))
-    save(bg, "images/trump/char_select_bg.png")
-    stage_colors = [(150, 156, 160), (150, 60, 42), (150, 150, 146), (220, 170, 40)]
-    for n, color in enumerate(stage_colors, 1):
-        wall = Image.new("RGBA", (640, 400), (0, 0, 0, 0))
-        d = ImageDraw.Draw(wall)
-        d.rectangle([10, 60, 630, 399], fill=color + (255,), outline=(26, 20, 16, 255), width=6)
-        centered(d, (10, 60, 630, 399), f"STAGE {n}", 60, CREAM + (255,))
-        save(wall, f"images/trump/wall/wall_stage_{n}.png")
-    stamp = Image.new("RGBA", (512, 300), (0, 0, 0, 0))
-    d = ImageDraw.Draw(stamp)
-    d.rectangle([20, 60, 492, 240], outline=(224, 51, 42, 255), width=14)
-    centered(d, (20, 60, 492, 240), "DENIED", 110, (224, 51, 42, 255))
-    save(stamp, "images/trump/ui/deport_stamp.png")
-    save(badge((256, 256), "", bg=GOLD, fg=NAVY), "images/ui/combat/energy_counters/trump/trump_orb_layer_1.png")
-    for n in range(2, 6):
-        save(Image.new("RGBA", (256, 256), (0, 0, 0, 0)), f"images/ui/combat/energy_counters/trump/trump_orb_layer_{n}.png")
-    mask = Image.radial_gradient("L").resize((2560, 1200)).convert("RGBA")
-    save(mask, "images/ui/transitions/trump_transition.png")
-    for gesture in ("rock", "paper", "scissors", "point"):
-        hand = Image.new("RGBA", (422, 1200), (0, 0, 0, 0))
-        d = ImageDraw.Draw(hand)
-        d.rectangle([130, 500, 292, 1199], fill=NAVY + (255,))
-        d.ellipse([110, 300, 312, 540], fill=(235, 160, 110, 255))
-        centered(d, (0, 560, 422, 700), gesture.upper(), 40, CREAM + (255,))
-        save(hand, f"images/ui/hands/multiplayer_hand_trump_{gesture}.png")
+def copy_scene(src_rel, dst_rel, renames=(), replace=(), derived=False):
+    """Copy a game scene or resource into the mod. derived: it only holds values from character.json, so rewrite it
+    whenever they change (otherwise an existing file is kept)."""
+    dst = out(dst_rel)
+    if os.path.exists(dst) and not FORCE and not derived:
+        return
+    with open(os.path.join(GAME, src_rel.replace("/", os.sep)), encoding="utf-8") as fh:
+        text = fh.read()
+    # Drop the copied resource's own uid so it never clashes with the original in the game's UID cache.
+    text = re.sub(r'^(\[gd_(?:scene|resource)[^\]]*?) uid="uid://[a-z0-9]+"', r"\1", text, count=1, flags=re.M)
+    for old, new in renames:
+        text = text.replace(f'[node name="{old}"', f'[node name="{new}"', 1)
+    for old, new in replace:
+        text = text.replace(old, new)
+    if os.path.exists(dst):
+        with open(dst, encoding="utf-8") as fh:
+            if fh.read() == text:
+                return
+    with open(dst, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(text)
+    print("wrote", dst_rel)
+
+
+def make_scenes(ch):
+    """The two resources every character copies from Ironclad. The rest of its scenes (combat body, shop, rest site,
+    character select, energy counter, card trail, transition) are created by scripts/new_character.py."""
+    cid, cls = ch.id, ch["class"]
+    copy_scene("scenes/ui/character_icons/ironclad_icon.tscn", f"scenes/ui/character_icons/{cid}_icon.tscn", [("IroncladIcon", f"{cls}Icon")],
+               [('uid="uid://x2neryjvbtwy" path="res://images/ui/top_panel/character_icon_ironclad.png"', f'path="res://images/ui/top_panel/character_icon_{cid}.png"')])
+    # Card frame: the game's HSV shader on the orange frame, tinted per character (character.json "frame_hsv").
+    hsv = ch.get("frame_hsv", {"h": 0.15, "s": 1.1, "v": 1.3})
+    copy_scene("materials/cards/frames/card_frame_orange_mat.tres", f"materials/cards/frames/card_frame_{cid}_mat.tres",
+               replace=[("shader_parameter/h = 0.12", f"shader_parameter/h = {hsv['h']}"), ("shader_parameter/s = 1.5", f"shader_parameter/s = {hsv['s']}"),
+                        ("shader_parameter/v = 1.2", f"shader_parameter/v = {hsv['v']}")], derived=True)
+
+
+def main():
+    global FORCE
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--force", action="store_true", help="overwrite existing files (replaces real art!)")
+    ap.add_argument("--character", "-c", help="only this character (default: all)")
+    a = ap.parse_args()
+    FORCE = a.force
+    chars = [presmod.character(a.character)] if a.character else presmod.characters()
+    for ch in chars:
+        make_images(ch)
+        make_art_standins(ch)
+        make_scenes(ch)
+    derive_outlines()
 
 
 if __name__ == "__main__":
-    make_images()
-    make_art_standins()
-    derive_outlines()
-    make_scenes()
+    main()
