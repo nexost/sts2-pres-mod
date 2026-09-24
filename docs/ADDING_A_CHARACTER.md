@@ -157,7 +157,10 @@ python scripts/balance_report.py BIDEN1
 
 - The bot plays the real game logic 9 games at a time: tiled 3×3 on the main monitor, muted, on one shared queue.
 - It values damage and block by itself. Teach it the character's other effects with the `CardValue` hook (Trump values Build, Tariff and Gold paid), and `RemovesEnemy` if something removes enemies without killing them.
+- If a card's printed numbers don't all happen (Biden's Tangents do only the lit line), score the whole card with `CardValueOverride`, using the shared `DamageValue` and `BlockValue`.
+- A mechanic that ends the turn or skips cards needs a cost in its value too (Biden: each Energy left unspent when he nods off counts against the nap).
 - Add per-fight numbers with `BalanceCombatStats`; they show up in the report.
+- Compare on **two seed sets** before settling a change: one set of 18 runs moves by 2–3 floors from luck alone (Biden's Doze 3 read +6 floors on the seeds it was tuned on, and level with Ironclad on fresh ones).
 - `favor=STYLE` makes the bot prefer one play style's cards, to check that each style wins on its own.
 - Ask the user before runs over 30 minutes.
 

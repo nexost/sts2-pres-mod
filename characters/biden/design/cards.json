@@ -101,8 +101,8 @@
   ],
 
   "relics": [
-    {"id": "AviatorShades", "name": "Aviator Shades", "rarity": "Starter", "text": "At the end of your turn, Doze 2. When you nod off, gain 8 Block.", "flavor": "Nobody can tell whether his eyes are open. That's the point."},
-    {"id": "DarkAviators", "name": "Dark Aviators", "rarity": "Ancient (starter upgrade)", "text": "At the end of your turn, Doze 2. When you nod off, gain 14 Block.", "flavor": "Replaces Aviator Shades via Touch of Orobas. They glow a little. Nobody asks."},
+    {"id": "AviatorShades", "name": "Aviator Shades", "rarity": "Starter", "text": "At the end of your turn, Doze 3. When you nod off, gain 8 Block.", "flavor": "Nobody can tell whether his eyes are open. That's the point."},
+    {"id": "DarkAviators", "name": "Dark Aviators", "rarity": "Ancient (starter upgrade)", "text": "At the end of your turn, Doze 3. When you nod off, gain 14 Block.", "flavor": "Replaces Aviator Shades via Touch of Orobas. They glow a little. Nobody asks."},
     {"id": "TravelPillow", "name": "Travel Pillow", "rarity": "Common", "text": "Whenever you Doze, Doze 1 additional.", "flavor": "Amtrak-approved. Smells faintly of the Northeast Corridor."},
     {"id": "IceCreamCone", "name": "Ice Cream Cone", "rarity": "Uncommon", "text": "Whenever you wake up, heal 3 HP.", "flavor": "Chocolate chip. Always chocolate chip."},
     {"id": "IndexCards", "name": "Index Cards", "rarity": "Uncommon", "text": "Whenever you play a Tangent card on its last line, draw 1 card.", "flavor": "Numbered, then dropped, then renumbered. Mostly."},

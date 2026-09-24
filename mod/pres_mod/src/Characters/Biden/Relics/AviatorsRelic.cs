@@ -4,7 +4,7 @@ namespace PresMod.Characters.Biden.Relics;
 
 /// <summary>
 /// The starter and its Ancient version. They carry Sleepy Joe's own sleepiness, the way Bound Phylactery carries Osty:
-/// at the end of each Sleepy Joe turn, Doze 2 (not while he's Dark Brandon or already asleep), and when he nods off,
+/// at the end of each Sleepy Joe turn, Doze 3 (not while he's Dark Brandon or already asleep), and when he nods off,
 /// gain Block ("nobody can tell whether his eyes are open").
 /// </summary>
 public abstract class AviatorsRelic : RelicModel, IAfterNodOff
@@ -15,7 +15,7 @@ public abstract class AviatorsRelic : RelicModel, IAfterNodOff
 
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{
-		new DynamicVar("Doze", 2m),
+		new DynamicVar("Doze", 3m),
 		new BlockVar(NapBlock, ValueProp.Unpowered)
 	};
 

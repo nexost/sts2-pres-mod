@@ -247,26 +247,16 @@ public static partial class DevHarness
 		{
 			return 0;
 		}
+		CharacterTests kit = KitFor(card.Owner.Character.Id.Entry);
+		if (kit.CardValueOverride?.Invoke(card, fight, target, turn) is double overridden)
+		{
+			return overridden > 0 ? overridden : 3;
+		}
 		DynamicVarSet v = card.DynamicVars;
 		double Get(string key) => v.TryGetValue(key, out DynamicVar? var) ? (double)var.BaseValue : 0;
-		double hit = Damage(card, target);
-		double value = 0;
-		if (hit > 0)
-		{
-			IEnumerable<Creature> hitEnemies = card.TargetType == TargetType.AllEnemies ? fight.Enemies
-				: target != null ? new[] { target }
-				: fight.Enemies.Take(1);
-			foreach (Creature enemy in hitEnemies)
-			{
-				value += Math.Min(hit, enemy.CurrentHp + enemy.Block) * fight.DamageWeight;
-				if (fight.Kills(enemy, hit, card))
-				{
-					value += 6 + fight.Intent[enemy];
-				}
-			}
-		}
+		double value = DamageValue(card, fight, target, Damage(card, target), card.TargetType == TargetType.AllEnemies);
 		double block = v.ContainsKey("CalculatedBlock") ? (double)v.CalculatedBlock.Calculate(null) : Get("Block");
-		value += Math.Min(block, fight.Incoming) + Math.Max(0, block - fight.Incoming) * 0.1;
+		value += BlockValue(fight, block);
 		value += Get("Summon") * 0.8;
 		value += Get("Cards") * 2 + Get("Energy") * 5 + Get("Stars") * 3 + Get("Forge") * 1.2;
 		int spread = card.TargetType == TargetType.AllEnemies ? Math.Max(1, fight.Enemies.Count) : 1;
@@ -274,13 +264,41 @@ public static partial class DevHarness
 		value += Get("StrengthPower") * 6 + Get("DexterityPower") * 5 + (Get("WeakPower") + Get("VulnerablePower")) * 2.5 * spread;
 		value += Get("Gold") * 0.15;
 		// The character's own effects (Trump: Build, Tariff, Pay Gold).
-		value += KitFor(card.Owner.Character.Id.Entry).CardValue?.Invoke(card, fight, Get) ?? 0;
+		value += kit.CardValue?.Invoke(card, fight, Get) ?? 0;
 		value += card.TargetType == TargetType.AnyEnemy ? Get("HpLoss") * fight.DamageWeight : -Get("HpLoss") * 0.5;
 		if (card.Type == CardType.Power)
 		{
 			value += turn <= 2 ? 20 : 10;
 		}
 		return value > 0 ? value : 3;
+	}
+
+	/// <summary>Value of a hit: damage that lands (weighted by how dangerous the fight is) and a bonus per kill.</summary>
+	internal static double DamageValue(CardModel card, FightView fight, Creature? target, double hit, bool allEnemies)
+	{
+		if (hit <= 0)
+		{
+			return 0;
+		}
+		IEnumerable<Creature> hitEnemies = allEnemies ? fight.Enemies
+			: target != null ? new[] { target }
+			: fight.Enemies.Take(1);
+		double value = 0;
+		foreach (Creature enemy in hitEnemies)
+		{
+			value += Math.Min(hit, enemy.CurrentHp + enemy.Block) * fight.DamageWeight;
+			if (fight.Kills(enemy, hit, card))
+			{
+				value += 6 + fight.Intent[enemy];
+			}
+		}
+		return value;
+	}
+
+	/// <summary>Value of Block: what stops incoming damage, and a little for the rest.</summary>
+	internal static double BlockValue(FightView fight, double block)
+	{
+		return Math.Min(block, fight.Incoming) + Math.Max(0, block - fight.Incoming) * 0.1;
 	}
 
 	private static async Task UsePotionsIfWorthIt(Player me, ICombatState combat, CombatRoom? room, int turn, Rng random, CancellationToken ct)

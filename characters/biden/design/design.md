@@ -18,6 +18,9 @@ about age, decline or health are not. Nothing may copy another character's or an
 - Left to the design, to adjust after balance testing (C5): nodding off **ends the turn on the spot** (the cost that makes you
   order your turn), and Laser Eyes deal **1× Drowsy** (a steady bonus; Laser Focus, Double Vision, the Dark Brandon Mug and
   Heavy Sleeper scale it).
+- **C5 balance (2026-09-24):** both kept. The one change was the Aviator Shades' end-of-turn Doze, 2 → **3**: with 2, he
+  napped in 71% of fights and struggled against Act 1 elites. With 3, he naps in 82% (1.4 naps a fight) and ends level with Ironclad.
+  [C5 report](../docs/C5_balance_report.md).
 
 ---
 
@@ -37,7 +40,7 @@ in the Discard Pile; Tall Tales grows damage and Block. Sleepy cards glow red wh
 | **HP / Gold / Energy** | 70 / 99 / 3 |
 | **Card colour** | Royal navy (#4A55E6, frame deepened to navy) |
 | **Starting deck** (10) | 4 Strike, 4 Defend, 1 **Catnap**, 1 **Here's the Deal** |
-| **Starter relic** | **Aviator Shades**: at the end of your turn, Doze 2; when you nod off, gain 8 Block |
+| **Starter relic** | **Aviator Shades**: at the end of your turn, Doze 3; when you nod off, gain 8 Block |
 | **Signature** | **Drowsy**: he gets sleepier, nods off, and wakes as **Dark Brandon**. His cards are **Tangents** that change what they do while he rambles |
 
 ## 2. Tone guide
@@ -56,7 +59,7 @@ Enemies are always Spire monsters.
 ### Drowsy: sleepiness is on him
 - **Drowsy** is a counter on Joe, shown on his portrait with its **nod-off line** (10).
 - **Doze X**: gain X Drowsy.
-- **Sleepy Joe gets drowsier on his own: at the end of your turn, Doze 2** (not on Dark Brandon turns). The Aviator Shades carry this, the way the Necrobinder's Bound Phylactery carries Osty, so the relic's text says it.
+- **Sleepy Joe gets drowsier on his own: at the end of your turn, Doze 3** (not on Dark Brandon turns; 2 before the C5 balance pass). The Aviator Shades carry this, the way the Necrobinder's Bound Phylactery carries Osty, so the relic's text says it.
 - **Nodding off:** when your Drowsy reaches your nod-off line (10), you nod off. **Your turn ends right away**, after the card that did it finishes.
   - Some cards say **Nod off**: you nod off now, whatever your Drowsy.
   - Crossing the line at the end of your turn costs nothing. Crossing it mid-turn wastes whatever you had left: play sleepy cards last.
@@ -142,8 +145,8 @@ upgrade (Touch of Orobas), and 3 potions.
 
 | Relic | Rarity | Effect |
 |---|---|---|
-| **Aviator Shades** | Starter | At the end of your turn, Doze 2. When you nod off, gain 8 Block. |
-| **Dark Aviators** | Ancient upgrade | At the end of your turn, Doze 2. When you nod off, gain 14 Block. |
+| **Aviator Shades** | Starter | At the end of your turn, Doze 3. When you nod off, gain 8 Block. |
+| **Dark Aviators** | Ancient upgrade | At the end of your turn, Doze 3. When you nod off, gain 14 Block. |
 | **Travel Pillow** | Common | Whenever you Doze, Doze 1 additional. |
 | **Ice Cream Cone** | Uncommon | Whenever you wake up, heal 3 HP. |
 | **Index Cards** | Uncommon | Whenever you play a Tangent card on its last line, draw 1 card. |
@@ -163,7 +166,7 @@ The starter answers the one real cost of nodding off: the turn ends early, maybe
 ## 8. What gets implemented first (C3)
 
 - **Drowsy:** the counter and its nod-off line (with modifiers: Heavy Sleeper), Doze with modifiers (Travel Pillow),
-  the end-of-turn Doze 2, nodding off (end the turn after the current card; in co-op through the synced end-turn action),
+  the end-of-turn Doze 3, nodding off (end the turn after the current card; in co-op through the synced end-turn action),
   the "you nodded off" state that wakes you next turn.
 - **Dark Brandon:** waking up (next turn, or Wake Up cards), Laser Eyes, the awake state for one turn, "as Dark Brandon"
   checks, and a visual: the combat body swaps to a Dark Brandon pose set (red-glowing aviators) while awake.
@@ -177,8 +180,9 @@ The starter answers the one real cost of nodding off: the turn ends early, maybe
 
 ## 9. Balance reasoning and watch list
 
-A Sleepy Joe deck reaches the line about every 2–3 turns: 2 a turn on its own, plus 2–4 per sleepy card. The starter deck
-wakes up first around turn 3–4. A Laser Eyes of 10 is about one card's worth of area damage; the rest of Dark Brandon's
+A Sleepy Joe deck reaches the line about every 2–3 turns: 3 a turn on its own, plus 2–4 per sleepy card. The starter deck
+wakes up first around turn 3. The C5 bot napped 1.4 times a fight, in 82% of fights, and Laser Eyes dealt about 15 damage
+a fight. A Laser Eyes of 10 is about one card's worth of area damage; the rest of Dark Brandon's
 value is Tangents doing everything and the "As Dark Brandon" bonuses. Tangent lines are each priced as roughly one
 card (so a 3-line Tangent is ~2.5 cards on a Dark Brandon turn, ~1 card otherwise). Sleepy cards are priced at par plus
 their Doze: Doze is progress toward Dark Brandon, and its cost is the risk of nodding off at the wrong moment.
@@ -192,7 +196,7 @@ their Doze: Doze is progress toward Dark Brandon, and its cost is the risk of no
 | **Frustration** | Nodding off mid-turn by accident | The Drowsy counter shows the line; sleepy cards show a warning glow when they'd cross it |
 | **Repeat the Line** | Replaying Big Deal line 1, Laser Show, Out Cold | Exclude X-cost and "Nod off" cards if needed |
 | **Co-op** | A card that ends your own turn mid-action must go through the synced end-turn action | Test in C3 (Trump's Golf Weekend already ends the turn) |
-| **The balance bot** | It must learn when to cross the line and which Tangent line is lit | `CardValue` hooks in C5 |
+| **The balance bot** | It must learn when to cross the line and which Tangent line is lit | Done in C5: `CardValueOverride` (lit line, form) and `CardValue` (Doze, Wake Up, naps) |
 
 ## 10. Why this is his own (not a copy)
 

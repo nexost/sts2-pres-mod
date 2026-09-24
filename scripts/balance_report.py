@@ -74,6 +74,12 @@ def mod_character_details(runs):
     if combats and all("deports" in c for c in combats):
         print("  Deports per fight: {:.2f}, fights with a Deport: {:.0f}%".format(
             statistics.mean(c["deports"] for c in combats), 100 * sum(c["deports"] > 0 for c in combats) / len(combats)))
+    # Any other per-fight numbers the character's kit records (Biden: naps, lasers, laserDamage, maxDrowsy).
+    standard = {"encounter", "type", "act", "floor", "turns", "hpBefore", "hpAfter", "maxHp", "goldGained", "died", "maxWall", "deports"}
+    extra = sorted({k for c in combats for k, v in c.items() if k not in standard and isinstance(v, (int, float)) and not isinstance(v, bool)})
+    if extra:
+        print("  per fight: " + ", ".join(f"{k} avg {statistics.mean(c.get(k, 0) for c in combats):.2f}" for k in extra)
+              + "; fights with a nap: {:.0f}%".format(100 * sum(c.get("naps", 0) > 0 for c in combats) / len(combats)) * ("naps" in extra))
     print("  Gold gained per fight (rewards excluded): {:.1f}".format(statistics.mean(c["goldGained"] for c in combats)))
     print("  most played: " + ", ".join(f"{k} {v}" for k, v in plays.most_common(14)))
     rate = {k: picks[k] / offered[k] for k in offered if offered[k] >= 3}

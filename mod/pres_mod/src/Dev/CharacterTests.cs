@@ -80,6 +80,12 @@ public static partial class DevHarness
 
 		/// <summary>Value in "HP saved" of the character's own card effects, added to the generic value (Build, Tariff, Gold, ...).</summary>
 		public Func<CardModel, FightView, Func<string, double>, double>? CardValue;
+
+		/// <summary>
+		/// A card's whole value, replacing the generic one, for cards whose numbers don't all happen (Biden's Tangents: only
+		/// the lit line). Return null to use the generic value. Arguments: card, fight, target, turn.
+		/// </summary>
+		public Func<CardModel, FightView, Creature?, int, double?>? CardValueOverride;
 	}
 
 	private static Dictionary<string, CharacterTests>? _kits;

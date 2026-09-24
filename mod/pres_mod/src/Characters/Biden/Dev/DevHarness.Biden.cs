@@ -28,7 +28,12 @@ public static partial class DevHarness
 			// Base versions play as Sleepy Joe with 3 Drowsy, upgraded versions as Dark Brandon, on a clean slate of powers.
 			PrepareCardTurnFor = async (ctx, card, upgraded) => await BidenResetState(ctx, awake: upgraded, drowsy: 3),
 			Snapshot = BidenSnapshot,
-			CheckCardEffect = BidenCheckCardEffect
+			CheckCardEffect = BidenCheckCardEffect,
+			// The balance bot: his cards valued as they actually play, and naps, lasers and Drowsy per fight.
+			CardValueOverride = BidenCardValueOverride,
+			CardValue = (card, fight, _) => BidenExtraValue(card, fight),
+			BalanceCombatStart = () => _bidenCombatStart = (_bidenNaps, _bidenLasers, _bidenLaserTotal),
+			BalanceCombatStats = BidenBalanceStats
 		};
 	}
 
@@ -134,21 +139,21 @@ public static partial class DevHarness
 		Check(!DrowsyCmd.IsDarkBrandon(joe), "Back to Sleepy Joe after the Dark Brandon turn");
 		Check(DrowsyCmd.GetDrowsy(joe) == 0, $"No end-of-turn Doze after a Dark Brandon turn (Drowsy {DrowsyCmd.GetDrowsy(joe)})");
 
-		// A Sleepy Joe turn ends with the Aviator Shades' Doze 2.
+		// A Sleepy Joe turn ends with the Aviator Shades' Doze 3.
 		if (!await BidenPassTurn(combat))
 		{
 			return;
 		}
-		Check(DrowsyCmd.GetDrowsy(joe) == 2, $"Aviator Shades: Doze 2 at the end of a Sleepy Joe turn (Drowsy {DrowsyCmd.GetDrowsy(joe)})");
+		Check(DrowsyCmd.GetDrowsy(joe) == 3, $"Aviator Shades: Doze 3 at the end of a Sleepy Joe turn (Drowsy {DrowsyCmd.GetDrowsy(joe)})");
 
-		// Wake Up right away (the Wake Up cards come in C4): Laser Eyes for the 2 Drowsy he has.
+		// Wake Up right away: Laser Eyes for the 3 Drowsy he has.
 		lasers = 0;
 		Task wake = DrowsyCmd.WakeUp(ctx, joe);
 		await Task.Delay(550);
 		Screenshot("laser_eyes_beam");
 		await wake;
 		await Task.Delay(1200);
-		Check(DrowsyCmd.IsDarkBrandon(joe) && lasers == 1 && laserDamage == 2, $"Wake Up: Dark Brandon, Laser Eyes for {laserDamage} (expected 2)");
+		Check(DrowsyCmd.IsDarkBrandon(joe) && lasers == 1 && laserDamage == 3, $"Wake Up: Dark Brandon, Laser Eyes for {laserDamage} (expected 3)");
 		Screenshot("wake_up_laser");
 
 		// Touch of Orobas maps the starter to its Ancient version.

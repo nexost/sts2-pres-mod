@@ -187,6 +187,7 @@ Every hook is optional. With none, all modes already work with the shared checks
 | `Snapshot`, `CheckCardEffect` | cards | Extra counters in the before/after snapshots; key-effect checks per card |
 | `BalanceInit`, `BalanceCombatStart`, `BalanceCombatStats` | balance | Per-fight numbers in `balance.json` |
 | `RemovesEnemy`, `CardValue` | balance | Teach the bot the character's non-damage effects |
+| `CardValueOverride` | balance | Replace a card's whole value when its printed numbers don't all happen (Biden's Tangents: only the lit line). `DamageValue` and `BlockValue` score the parts the usual way |
 | `CoopTurn` | coop | The character's co-op plays in the first turn: (is host, combat). Trump: Coalition Wall on the host, Trickle Down and Slap a Tariff on the client |
 
 Command-line flags (all `--pres-*`):

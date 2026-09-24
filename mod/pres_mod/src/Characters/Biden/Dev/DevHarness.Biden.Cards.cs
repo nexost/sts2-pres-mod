@@ -31,6 +31,7 @@ public static partial class DevHarness
 		{
 			_bidenLasers += hits;
 			_bidenLastLaser = damage;
+			_bidenLaserTotal += damage * hits;
 		};
 	}
 
@@ -351,8 +352,13 @@ public static partial class DevHarness
 		var ctx = new BlockingPlayerChoiceContext();
 
 		// Waking: Laser Focus +4 and Double Vision (2 hits), Wide Awake (5 Block, 1 card), No Malarkey (1 Strength).
-		await BidenResetState(ctx, awake: false, drowsy: 5);
+		// The laser hits every enemy: keep it under the Ruby Raiders' 18 HP, at full HP, so the fight goes on.
+		await BidenResetState(ctx, awake: false, drowsy: 3);
 		await BidenTrimHand();
+		foreach (Creature enemy in combat.HittableEnemies)
+		{
+			enemy.SetCurrentHpInternal(enemy.MaxHp);
+		}
 		await PowerCmd.Apply<LaserFocusPower>(ctx, joe, 4m, joe, null);
 		await PowerCmd.Apply<DoubleVisionPower>(ctx, joe, 1m, joe, null);
 		await PowerCmd.Apply<WideAwakePower>(ctx, joe, 5m, joe, null);
@@ -362,7 +368,7 @@ public static partial class DevHarness
 		int hand = PileType.Hand.GetPile(me).Cards.Count;
 		await DrowsyCmd.WakeUp(ctx, joe);
 		await Task.Delay(1500);
-		Check(_bidenLasers - lasers == 2 && _bidenLastLaser == 9, $"Laser Focus + Double Vision: {_bidenLasers - lasers} hits of {_bidenLastLaser} (expected 2 of 9)");
+		Check(_bidenLasers - lasers == 2 && _bidenLastLaser == 7, $"Laser Focus + Double Vision: {_bidenLasers - lasers} hits of {_bidenLastLaser} (expected 2 of 7)");
 		Check(joe.Block == block + 5 && PileType.Hand.GetPile(me).Cards.Count == hand + 1,
 			$"Wide Awake: Block {block} -> {joe.Block}, hand {hand} -> {PileType.Hand.GetPile(me).Cards.Count}");
 		Check(joe.GetPowerAmount<StrengthPower>() == 1, $"No Malarkey: {joe.GetPowerAmount<StrengthPower>()} Strength (expected 1)");
