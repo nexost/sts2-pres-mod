@@ -26,6 +26,7 @@ This repo is a Slay the Spire 2 mod (id `pres_mod`) that adds playable, lighthea
   - before downloading anything (say the tool, the source and the size);
   - before test runs over 30 minutes;
   - before anything public (pushes to a public repo, releases, Workshop uploads).
+- **Releases are deliberate.** Never release on every push. The person decides when; follow the versioning rules in [docs/PUBLISHING.md](docs/PUBLISHING.md).
 - **Commit only when asked.** Before committing, check `git config user.name` and `git config user.email` are the identity the person wants public (see SETUP.md §6).
 - **Saves:** never touch the person's real saves.
   - `test.py` runs the game with its own save folders (`modded_prestest`, `modded_bal*`), and test runs never write the global `settings.save`.

@@ -14,6 +14,35 @@ Published so far: **GitHub**, public repo https://github.com/nexost/sts2-pres-mo
 
 Sources: [Nexus file submission guidelines](https://help.nexusmods.com/article/28-file-submission-guidelines); [Nexus ban news post](https://www.nexusmods.com/news/14373); [coverage of the 2025 Trump/Biden mod removals](https://www.pcgamesn.com/marvel-rivals/trump-biden-mod); [Mega Crit's uploader](https://github.com/megacrit/sts2-mod-uploader).
 
+## Versioning: when to release
+
+**Pushes to `master` are not releases.**
+- `master` holds the development history: docs, tools and work in progress.
+- Keep it building and passing its tests, but don't ship every commit.
+- A release is a tested snapshot players install: a tag (`vX.Y.Z`), a zip and release notes.
+
+**Release when players get something:** a bug fix, balance change, new content, or compatibility with a game update.
+- **A crash fix** goes out on its own, quickly.
+- **Smaller changes** are batched into one release.
+- **Commits that only change docs or developer tools** (scripts, the art review tool, tests) don't need a release. The installed mod is the same.
+
+**Version numbers** follow semantic versioning, MAJOR.MINOR.PATCH, as it applies to a mod:
+
+| Bump | When | Examples |
+|---|---|---|
+| PATCH `1.0.1` | Fixes and tuning; nothing new, nothing breaks | Bug and crash fixes, balance numbers, text fixes, compatibility with a game patch |
+| MINOR `1.1.0` | New content, old saves and runs still load | A new character (Joe Biden), new cards, relics or potions, new art |
+| MAJOR `2.0.0` | Something breaks for players | Runs or saves from the previous version no longer load; content removed or renamed (model IDs changed) |
+| Pre-release `1.1.0-beta.1` | A test build for friends before the real release | GitHub's "pre-release" flag (`gh release create ... --prerelease`) |
+
+**Rules for this mod:**
+- **Every release gets a new version in `mod.json`**, even for a one-line fix. Two different zips with the same version cause trouble:
+  - co-op needs every player on the same version;
+  - the game's mod list shows the version, so players can't tell the two apart.
+- **One version everywhere:** the git tag, the zip and any Steam Workshop upload all use the same version, built from the tagged commit.
+- **A version is never reused.** If a release was wrong, fix it and release the next number.
+- **Game updates:** a compatibility release also raises `min_game_version` in `mod.json` ([GAME_UPDATES.md](GAME_UPDATES.md)).
+
 ## Release checklist
 
 1. Set the version in `mod.json` and add an entry to [RELEASE_NOTES.md](RELEASE_NOTES.md).
