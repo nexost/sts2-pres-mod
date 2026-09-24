@@ -65,6 +65,24 @@ python scripts/art_post.py card|relic|portrait SRC DST             # game-ready 
 python scripts/art_train.py dataset|caption|train                  # optional Step 11: style LoRA on the game's art
 ```
 
+### Updating art later
+
+The art review tool writes straight into the mod, so changing art is two steps:
+
+1. In `python scripts/art_review.py`, regenerate the item and **Keep** the version you want. Keep copies the game-ready files into `mod/` at the paths the game and our scenes load; every item's detail view lists them under "Goes to".
+2. Run `python scripts/build.py --install`, then restart the game.
+
+Nothing else needs changing: scenes and code don't hard-code image sizes.
+- Figures (combat poses, shop, rest site) are placed by their feet at runtime, and Wall stages by their visible area.
+- Relic and potion hover outlines are rebuilt from the new icons during the build.
+- Before shipping, run `python scripts/test.py ui` and look at the screenshots in `build/test/ui_*/shots`.
+
+Things to know:
+- The character select painting only shows its **left 3/4 shifted right**: the game displays screen width out of the 2560-px background, and we shift the painting 640 px left. Keep the subject in the right half, as its prompt asks.
+- Figures should face **right** (toward the enemies) and must not include furniture that gets cut off at the image edge.
+- Quality: use Standard or High in the tool. The "Legacy" preset is the muddier first-batch setting.
+- The Wall paintings stretch up to 1.6× their height, then repeat a strip from their lower half as the Wall grows. Paintings with even texture top to bottom (bricks, panels) tile best.
+
 Test output lands in `build/test/<mode>_<time>/` (report.json, screenshots, godot.log).
 Test runs use save folder `modded_trumptest/`, never your real saves.
 

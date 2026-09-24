@@ -21,7 +21,7 @@ public sealed class GoingViral : CardModel
 	{
 		ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 		await DamageCmd.Attack(DynamicVars.CalculatedDamage).FromCard(this).Targeting(cardPlay.Target)
-			.WithHitFx("vfx/vfx_attack_slash")
+			.WithHitFx("vfx/vfx_attack_lightning")
 			.Execute(choiceContext);
 	}
 

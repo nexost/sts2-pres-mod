@@ -22,9 +22,11 @@ using MegaCrit.Sts2.Core.Logging;
 using MegaCrit.Sts2.Core.Models;
 using MegaCrit.Sts2.Core.Models.Relics;
 using MegaCrit.Sts2.Core.Nodes;
+using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Debug;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
+using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Screens;
 using MegaCrit.Sts2.Core.Nodes.Screens.CardLibrary;
 using MegaCrit.Sts2.Core.Nodes.Screens.CharacterSelect;
@@ -33,6 +35,8 @@ using MegaCrit.Sts2.Core.Runs;
 using MegaCrit.Sts2.Core.Saves;
 using MegaCrit.Sts2.Core.Saves.Runs;
 using TrumpMod.Mechanics;
+using TrumpMod.Patches;
+using TrumpMod.Nodes;
 using TrumpMod.Models;
 using TrumpMod.Models.Cards;
 using TrumpMod.Models.Powers;
@@ -219,6 +223,7 @@ public static partial class DevHarness
 		string weak = ModelDb.Acts.First().AllWeakEncounters.First().Id.Entry;
 		await Fight(weak);
 		Screenshot("combat_start");
+		await PoseChecks();
 		await MechanicsChecks();
 
 		// Permanent Structure kept a quarter of the 40 Wall, in a property the save file carries.
@@ -246,7 +251,44 @@ public static partial class DevHarness
 		var touch = (TouchOfOrobas)ModelDb.Relic<TouchOfOrobas>().ToMutable();
 		RelicModel upgraded = touch.GetUpgradedStarterRelic(ModelDb.Relic<GoldenShovel>());
 		Check(upgraded is DiamondShovel, $"Touch of Orobas: Golden Shovel -> {upgraded.Id.Entry}");
+
+		// Step 8 scenes: the shop and rest-site paintings.
+		RunConsole("win");
+		await WaitHelper.Until(() => !CombatManager.Instance.IsInProgress, _ct, TimeSpan.FromSeconds(20));
+		await Task.Delay(1500);
+		foreach ((string room, string scene, string label) in new[] { ("Shop", ArtPatches.MerchantScene, "shop"), ("RestSite", ArtPatches.RestSiteScene, "rest_site") })
+		{
+			RunConsole("room " + room);
+			await Task.Delay(4000);
+			Node? host = UiHelper.FindAll<Node>(((SceneTree)Engine.GetMainLoop()).Root).FirstOrDefault(n => n.SceneFilePath == scene);
+			Sprite2D? sprite = host?.GetNodeOrNull<Sprite2D>(ArtPatches.SpriteName);
+			Check(sprite?.Texture != null, $"{room}: The Donald's painting is shown ({sprite?.Texture?.ResourcePath ?? "none"})");
+			Screenshot(label);
+		}
 		Note("UI + mechanics test finished");
+	}
+
+	/// <summary>Step 8: the combat body is a sprite that swaps paintings on the game's animation triggers.</summary>
+	private static async Task PoseChecks()
+	{
+		NCreature? node = NCombatRoom.Instance?.GetCreatureNode(Me.Creature);
+		NTrumpPoses? poses = node?.Visuals?.GetNodeOrNull<NTrumpPoses>(NTrumpPoses.NodeName);
+		Check(poses != null, "Combat body has the pose controller");
+		if (node == null || poses == null)
+		{
+			return;
+		}
+		Sprite2D body = node.Visuals.GetNode<Sprite2D>("%Visuals");
+		Texture2D? idle = body.Texture;
+		foreach ((string trigger, string label) in new[] { ("Attack", "pose_attack"), ("Cast", "pose_cast"), ("Hit", "pose_hurt") })
+		{
+			node.SetAnimationTrigger(trigger);
+			await Task.Delay(220);
+			Check(body.Texture != null && body.Texture != idle, $"{trigger}: pose changed to {body.Texture?.ResourcePath}");
+			Screenshot(label);
+			await Task.Delay(900);
+		}
+		Check(body.Texture == idle, "Back to the idle pose");
 	}
 
 	private static async Task MechanicsChecks()

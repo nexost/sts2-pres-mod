@@ -9,7 +9,7 @@
     {"id": "combat_attack", "kind": "figure", "name": "Combat pose: attack", "art": "lunging forward and swinging the golden shovel in a wide arc, tie flying behind him"},
     {"id": "combat_cast", "kind": "figure", "name": "Combat pose: cast", "art": "pointing forward commandingly with one finger, the other hand holding up a signed document"},
     {"id": "combat_hurt", "kind": "figure", "name": "Combat pose: hurt", "art": "recoiling backwards with a shocked offended expression, hair blown out of place, arms flailing"},
-    {"id": "merchant_pose", "kind": "figure", "name": "Shop pose", "art": "standing at a shop counter seen from slightly behind, hands clasped behind his back, leaning in to inspect the goods with great interest"},
+    {"id": "merchant_pose", "kind": "figure", "name": "Shop pose", "art": "standing alone, seen from slightly behind, hands clasped behind his back, leaning forward to inspect something with great interest, no furniture or counter"},
     {"id": "rest_site_pose", "kind": "figure", "name": "Rest site pose", "art": "sitting relaxed in a folding camp chair with his feet up, eating a cheeseburger, a small campfire glow on his face"},
     {"id": "hand_rock", "kind": "hand", "name": "Co-op hand: rock", "art": "clenched into a firm fist"},
     {"id": "hand_paper", "kind": "hand", "name": "Co-op hand: paper", "art": "held flat and open, palm facing forward, fingers together"},

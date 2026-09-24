@@ -66,7 +66,7 @@ public sealed class Cornerstone : CardModel
 		ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 		bool shouldTriggerFatal = cardPlay.Target.Powers.All((PowerModel p) => p.ShouldOwnerDeathTriggerFatal());
 		AttackCommand attack = await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target)
-			.WithHitFx("vfx/vfx_attack_blunt", null, "blunt_attack.mp3")
+			.WithHitFx("vfx/vfx_heavy_blunt", null, "heavy_attack.mp3")
 			.Execute(choiceContext);
 		await WallCmd.Build(choiceContext, Owner.Creature, DynamicVars[CardVars.Build].BaseValue, this);
 		if (shouldTriggerFatal && attack.Results.SelectMany(r => r).Any(r => r.WasTargetKilled))

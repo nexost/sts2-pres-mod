@@ -21,7 +21,7 @@ public sealed class NetWorth : CardModel
 	{
 		ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 		await DamageCmd.Attack(DynamicVars.CalculatedDamage).FromCard(this).Targeting(cardPlay.Target)
-			.WithHitFx("vfx/vfx_attack_blunt", null, "blunt_attack.mp3")
+			.WithHitFx("vfx/vfx_heavy_blunt", null, "heavy_attack.mp3")
 			.Execute(choiceContext);
 	}
 

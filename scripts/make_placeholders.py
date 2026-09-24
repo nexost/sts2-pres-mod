@@ -181,20 +181,92 @@ def copy_scene(src_rel, dst_rel, renames=(), replace=()):
 
 
 def make_scenes():
-    copy_scene("scenes/creature_visuals/ironclad.tscn", "scenes/creature_visuals/trump.tscn", [("Ironclad", "Trump")])
+    # Step 8: the combat, shop, rest-site and character select scenes, the energy counter, the card trail and the
+    # transition material are our own now (sprites of the generated art, gold VFX); only these two stay copies.
     copy_scene("scenes/ui/character_icons/ironclad_icon.tscn", "scenes/ui/character_icons/trump_icon.tscn", [("IroncladIcon", "TrumpIcon")],
                [('uid="uid://x2neryjvbtwy" path="res://images/ui/top_panel/character_icon_ironclad.png"', 'path="res://images/ui/top_panel/character_icon_trump.png"')])
-    copy_scene("scenes/combat/energy_counters/ironclad_energy_counter.tscn", "scenes/combat/energy_counters/trump_energy_counter.tscn", [("IroncladEnergyCounter", "TrumpEnergyCounter")])
-    copy_scene("scenes/merchant/characters/ironclad_merchant.tscn", "scenes/merchant/characters/trump_merchant.tscn", [("IroncladMerchant", "TrumpMerchant")])
-    copy_scene("scenes/rest_site/characters/ironclad_rest_site.tscn", "scenes/rest_site/characters/trump_rest_site.tscn", [("IroncladRestSite", "TrumpRestSite")])
-    copy_scene("scenes/screens/char_select/char_select_bg_ironclad.tscn", "scenes/screens/char_select/char_select_bg_trump.tscn", [("IroncladBg", "TrumpBg")])
-    copy_scene("scenes/vfx/card_trail_ironclad.tscn", "scenes/vfx/card_trail_trump.tscn", [("CardTrailIronclad", "CardTrailTrump")])
-    copy_scene("materials/transitions/ironclad_transition_mat.tres", "materials/transitions/trump_transition_mat.tres")
     # Card frame: same HSV shader as every character, tinted gold (Regent's orange is h=0.12).
     copy_scene("materials/cards/frames/card_frame_orange_mat.tres", "materials/cards/frames/card_frame_trump_mat.tres",
                replace=[("shader_parameter/h = 0.12", "shader_parameter/h = 0.15"), ("shader_parameter/s = 1.5", "shader_parameter/s = 1.1"), ("shader_parameter/v = 1.2", "shader_parameter/v = 1.3")])
 
 
+def figure(size):
+    """A stand-in Donald: navy suit, red tie, blond swoop, on a transparent background."""
+    w, h = size
+    img = Image.new("RGBA", size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    d.rounded_rectangle([w * 0.25, h * 0.3, w * 0.75, h * 0.97], radius=int(w * 0.08), fill=NAVY + (255,))
+    d.polygon([(w * 0.47, h * 0.32), (w * 0.53, h * 0.32), (w * 0.55, h * 0.75), (w * 0.5, h * 0.8), (w * 0.45, h * 0.75)], fill=RED + (255,))
+    d.ellipse([w * 0.33, h * 0.08, w * 0.67, h * 0.33], fill=(235, 160, 110, 255))
+    d.ellipse([w * 0.28, h * 0.03, w * 0.74, h * 0.16], fill=(245, 205, 90, 255))
+    centered(d, (0, int(h * 0.82), w, h), "PLACEHOLDER", max(12, w // 14), CREAM + (230,))
+    return img
+
+
+def derive_outlines():
+    """Hover outlines for relics and potions, like the game's relic/potion_outline_atlas: a white silhouette a little
+    larger than the icon. Rebuilt whenever the icon is newer (the art review tool replaces icons on Keep)."""
+    from PIL import ImageFilter
+    for kind in ("relics", "potions"):
+        src_dir = os.path.join(MOD, "images", kind)
+        if not os.path.isdir(src_dir):
+            continue
+        for f in sorted(os.listdir(src_dir)):
+            if not f.endswith(".png"):
+                continue
+            src = os.path.join(src_dir, f)
+            rel = f"trump_character/atlas_fallback/{kind[:-1]}_outline_atlas/{f}"
+            dst = out(rel)
+            if os.path.exists(dst) and os.path.getmtime(dst) >= os.path.getmtime(src) and not FORCE:
+                continue
+            alpha = Image.open(src).convert("RGBA").getchannel("A").point(lambda v: 255 if v > 24 else 0)
+            alpha = alpha.filter(ImageFilter.MaxFilter(9)).filter(ImageFilter.GaussianBlur(1.2))
+            outline = Image.new("RGBA", alpha.size, (255, 255, 255, 0))
+            outline.putalpha(alpha)
+            outline.save(dst)
+            print("wrote", rel)
+
+
+def make_art_standins():
+    """Step 8 art paths the scenes and code expect. The art review tool (scripts/art_review.py) overwrites these
+    with the generated art on Keep; these only fill paths that have nothing yet, so the build always works."""
+    for pose in ("combat_idle", "combat_attack", "combat_cast", "combat_hurt", "merchant_pose", "rest_site_pose"):
+        save(figure((600, 900)), f"images/trump/{pose}.png")
+    bg = Image.new("RGBA", (2560, 1200))
+    d = ImageDraw.Draw(bg)
+    for y in range(1200):
+        t = y / 1200
+        d.line([(0, y), (2560, y)], fill=(int(90 - 50 * t), int(20 + 10 * t), int(24 + 10 * t), 255))
+    centered(d, (1300, 300, 2500, 900), "THE DONALD", 160, GOLD + (255,))
+    save(bg, "images/trump/char_select_bg.png")
+    stage_colors = [(150, 156, 160), (150, 60, 42), (150, 150, 146), (220, 170, 40)]
+    for n, color in enumerate(stage_colors, 1):
+        wall = Image.new("RGBA", (640, 400), (0, 0, 0, 0))
+        d = ImageDraw.Draw(wall)
+        d.rectangle([10, 60, 630, 399], fill=color + (255,), outline=(26, 20, 16, 255), width=6)
+        centered(d, (10, 60, 630, 399), f"STAGE {n}", 60, CREAM + (255,))
+        save(wall, f"images/trump/wall/wall_stage_{n}.png")
+    stamp = Image.new("RGBA", (512, 300), (0, 0, 0, 0))
+    d = ImageDraw.Draw(stamp)
+    d.rectangle([20, 60, 492, 240], outline=(224, 51, 42, 255), width=14)
+    centered(d, (20, 60, 492, 240), "DENIED", 110, (224, 51, 42, 255))
+    save(stamp, "images/trump/ui/deport_stamp.png")
+    save(badge((256, 256), "", bg=GOLD, fg=NAVY), "images/ui/combat/energy_counters/trump/trump_orb_layer_1.png")
+    for n in range(2, 6):
+        save(Image.new("RGBA", (256, 256), (0, 0, 0, 0)), f"images/ui/combat/energy_counters/trump/trump_orb_layer_{n}.png")
+    mask = Image.radial_gradient("L").resize((2560, 1200)).convert("RGBA")
+    save(mask, "images/ui/transitions/trump_transition.png")
+    for gesture in ("rock", "paper", "scissors", "point"):
+        hand = Image.new("RGBA", (422, 1200), (0, 0, 0, 0))
+        d = ImageDraw.Draw(hand)
+        d.rectangle([130, 500, 292, 1199], fill=NAVY + (255,))
+        d.ellipse([110, 300, 312, 540], fill=(235, 160, 110, 255))
+        centered(d, (0, 560, 422, 700), gesture.upper(), 40, CREAM + (255,))
+        save(hand, f"images/ui/hands/multiplayer_hand_trump_{gesture}.png")
+
+
 if __name__ == "__main__":
     make_images()
+    make_art_standins()
+    derive_outlines()
     make_scenes()

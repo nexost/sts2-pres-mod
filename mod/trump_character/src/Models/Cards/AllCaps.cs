@@ -17,7 +17,7 @@ public sealed class AllCaps : CardModel
 	{
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).WithHitCount(DynamicVars.Repeat.IntValue).FromCard(this)
 			.TargetingAllOpponents(CombatState!)
-			.WithHitFx("vfx/vfx_giant_horizontal_slash")
+			.WithHitFx("vfx/vfx_heavy_blunt", null, "heavy_attack.mp3")
 			.Execute(choiceContext);
 	}
 

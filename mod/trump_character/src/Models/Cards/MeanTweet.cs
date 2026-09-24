@@ -26,7 +26,7 @@ public sealed class MeanTweet : CardModel
 	{
 		ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target)
-			.WithHitFx("vfx/vfx_attack_slash")
+			.WithHitFx("vfx/vfx_attack_lightning")
 			.Execute(choiceContext);
 		await Tweet.CreateInHand(Owner, 1, CombatState!);
 	}

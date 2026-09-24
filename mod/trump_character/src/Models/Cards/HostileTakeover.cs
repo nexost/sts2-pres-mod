@@ -21,7 +21,7 @@ public sealed class HostileTakeover : CardModel
 		ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
 		bool shouldTriggerFatal = cardPlay.Target.Powers.All((PowerModel p) => p.ShouldOwnerDeathTriggerFatal());
 		AttackCommand attack = await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target)
-			.WithHitFx("vfx/vfx_attack_blunt", null, "blunt_attack.mp3")
+			.WithHitFx("vfx/vfx_coin_explosion_small", null, "blunt_attack.mp3")
 			.Execute(choiceContext);
 		if (shouldTriggerFatal && attack.Results.SelectMany(r => r).Any(r => r.WasTargetKilled))
 		{

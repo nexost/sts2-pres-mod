@@ -20,7 +20,7 @@ public sealed class WreckingBall : CardModel
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
 		await DamageCmd.Attack(DynamicVars.CalculatedDamage).FromCard(this).TargetingAllOpponents(CombatState!)
-			.WithHitFx("vfx/vfx_giant_horizontal_slash")
+			.WithHitFx("vfx/vfx_heavy_blunt", null, "heavy_attack.mp3")
 			.Execute(choiceContext);
 		await WallCmd.LoseHalf(choiceContext, Owner.Creature);
 	}

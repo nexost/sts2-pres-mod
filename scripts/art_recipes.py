@@ -32,6 +32,35 @@ FRAMING_ANCIENT = ("Tall full-card art: keep the main subject and faces in the u
 LIGHT_BG = "isolated on a plain flat light gray background, no shadow, no text"
 GREEN_BG = "isolated on a plain flat bright green background, no ground, no shadow, no text"
 
+# Quality presets for the review tool (tested in docs/07_step7_report.md §7). The style-reference LoRA at full strength
+# with three references is what made the first batch muddy; lower strength, two references and more steps give clean,
+# crisp images that still take the game's style. The optional second pass upscales 1.5-2x and re-samples for detail.
+# int8 and fp8 give the same quality here and int8 is twice as fast, so every preset uses int8.
+INT8 = "krea2_turbo_int8_convrot.safetensors"
+FP8 = "krea2_turbo_fp8_scaled.safetensors"
+QUALITY = {
+    "draft": {"label": "Draft", "desc": "~15 s. 8 steps, 2 style references at 0.8. For trying prompts.",
+              "unet": INT8, "steps": 8, "refs": 2, "style_strength": 0.8},
+    "standard": {"label": "Standard", "desc": "~25 s. 12 steps, 2 style references at 0.75. Clean and crisp; the default.",
+                 "unet": INT8, "steps": 12, "refs": 2, "style_strength": 0.75},
+    "high": {"label": "High", "desc": "~60 s. 16 steps, 2 references at 0.75, plus a 1.5x detail pass.",
+             "unet": INT8, "steps": 16, "refs": 2, "style_strength": 0.75, "hires": {"scale": 1.5, "denoise": 0.35, "steps": 10}},
+    "max": {"label": "Max", "desc": "~2 min. 16 steps, 3 references at 0.75, plus a 2x detail pass. For hero art.",
+            "unet": INT8, "steps": 16, "refs": 3, "style_strength": 0.75, "hires": {"scale": 2.0, "denoise": 0.35, "steps": 12}},
+    "legacy": {"label": "Legacy (first batch)", "desc": "The settings of the first batch: 8 steps, 3 references at full strength.",
+               "unet": INT8, "steps": 8, "refs": 3, "style_strength": 1.0},
+}
+DEFAULT_QUALITY = "standard"
+
+
+def quality_settings(key, item):
+    """The generation settings of a quality preset for one item, as art_gen job fields."""
+    q = QUALITY.get(key or DEFAULT_QUALITY, QUALITY[DEFAULT_QUALITY])
+    out = {k: v for k, v in q.items() if k not in ("label", "desc", "refs")}
+    out["style"] = item["refs"][:q["refs"]]
+    return out
+
+
 # Card references per archetype: three game cards whose subject matter is close.
 CARD_REFS = {
     "Wall": ["regent/heirloom_hammer", "ironclad/inflame", "ironclad/bludgeon"],

@@ -3,7 +3,7 @@
 **Start here.** This is the master plan for the Slay the Spire 2 character mod, kept up to date after every step.
 If a chat session is lost, this file + [`README.md`](../README.md) + [`03_design.md`](03_design.md) are enough to carry on.
 
-_Last updated: 2026-09-23. Steps 7 and 7.5 (art style, art review tool) are done and not committed yet. Step 8 waits for the go-ahead._
+_Last updated: 2026-09-23. Step 8 (all the art) is done and not committed yet; it waits for the user's review. Step 9 waits for the go-ahead._
 
 ---
 
@@ -34,10 +34,10 @@ Any tools may be used, downloaded or created. The work is done step by step, nev
 | 4 | Core mechanics and starter set (placeholder art) | ✅ Done (`0586dce`, shovel redesign `670e337`) | [`04_step4_report.md`](04_step4_report.md) |
 | 5 | All the content (placeholder art) | ✅ Done (`bed48ed`) | [`05_step5_report.md`](05_step5_report.md) |
 | 6 | Balance and playtesting | ✅ First pass (`6964d20`) | [`06_step6_report.md`](06_step6_report.md) |
-| 7 | Lock the art style | ✅ Done (not committed) | [`07_step7_report.md`](07_step7_report.md), boards in [`art/`](art/) |
-| 7.5 | Art review tool | ✅ Done (not committed) | `python scripts/art_review.py`, see [`07_step7_report.md`](07_step7_report.md) §6 |
-| 8 | Make all the art | ⏳ Next | Finished visual version |
-| 9 | Polish and packaging | ⬜ | Installable release |
+| 7 | Lock the art style | ✅ Done (`328beee`) | [`07_step7_report.md`](07_step7_report.md), boards in [`art/`](art/) |
+| 7.5 | Art review tool | ✅ Done (`328beee`) | `python scripts/art_review.py`, see [`07_step7_report.md`](07_step7_report.md) §6 |
+| 8 | Make all the art | ✅ Done (not committed) | [`art/step8_ingame.png`](art/step8_ingame.png); updating art: README "Updating art later" |
+| 9 | Polish and packaging | ⏳ Next | Installable release |
 | 10 | Extra balance testing (optional) | ⬜ | More measured tuning, if wanted |
 | 11 | Custom style LoRA art (optional) | ⬜ | Art regenerated with a LoRA trained on the game's art, if wanted |
 
@@ -127,7 +127,24 @@ Added by the user after Step 7: one page to review every piece of art, keep it o
 - **Per item:** Keep (copies the game-ready files into `mod/`), Regenerate (several at once, ×1–4 each), switch between versions, edit the prompt, cancel. Card art shows inside its real frame.
 - The recipes (references, prompts, sizes, post-processing, output paths) are in `scripts/art_recipes.py`. What to draw is in `cards.json` (cards) and `docs/design/art_assets.json` (everything else).
 
-### Step 8: Make all the art ⏳ next
+### Step 8: Make all the art ✅
+Result: the user generated and kept all 152 items in the review tool, and everything is wired into the game.
+- `test.py ui` passes with the real art: the combat poses, all 4 Wall stages, the stamp, the shop, the rest site and character select.
+- **Quality presets:** the tool gained presets (Standard/High fix the muddy first batch) and a delete option; see the [Step 7 report](07_step7_report.md) §7.
+- **Updating art later:** Keep in the tool, then `build.py --install` (README, "Updating art later").
+- **Second review pass:** the user redid the shop pose and all 4 Wall stages; in-game check passed (`build/test/ui_20260923_230300`). More re-rolls are optional.
+
+How it's wired:
+- **Combat:** `scenes/creature_visuals/trump.tscn` is a sprite. `NTrumpPoses` swaps the idle, attack, cast and hurt paintings on the game's animation triggers (`ArtPatches`), with lunge, hop, flinch, breathing and death tweens. This is the plain-sprite route; no Spine rig.
+- **Shop and rest site:** sprites placed by feet at runtime (`ArtPatches`). The shop's Spine calls are skipped, and the rest site flips for co-op seats.
+- **Character select:** a full-screen painting under the kept ember particles, recoloured gold.
+- **Energy orb and trail:** the orb uses our 5 layers plus gold copies of the energy VFX; the card trail and transition mask are ours.
+- **Wall:** drawn from the 4 stage paintings (a cap plus a repeated strip).
+- **Deport stamp:** the stamp image, plus a stamp slam on Deport.
+- **Game VFX reused:** dust on Build, rubble on stage-up and Demolition, themed hit effects on 14 attack cards.
+- **Outlines:** relic and potion hover outlines are derived at build time.
+- **Stand-ins:** `make_placeholders.py` writes stand-ins only for art paths nothing has filled yet.
+- **Tests:** `test.py ui` now also checks the poses and screenshots the shop and rest site.
 - Use the Step 7 recipe (see the [report](07_step7_report.md) §3 and §5): 3 seeds per piece, pick the best, and batch cards by archetype with fixed references.
 - All card art, the character select screen, relic, potion and power icons, the energy orb, and the map, shop and rest-site art.
 - **The four Wall stage visuals** and the Deport stamp.

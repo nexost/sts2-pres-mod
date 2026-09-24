@@ -20,7 +20,7 @@ public sealed class MakeItRain : PayGoldCard
 	{
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).WithHitCount(DynamicVars.Repeat.IntValue).FromCard(this)
 			.TargetingAllOpponents(CombatState!)
-			.WithHitFx("vfx/vfx_attack_blunt")
+			.WithHitFx("vfx/vfx_coin_explosion_small")
 			.Execute(choiceContext);
 	}
 

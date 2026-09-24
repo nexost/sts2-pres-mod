@@ -84,15 +84,28 @@ def build_graph(job):
     g["neg"] = {"class_type": "ConditioningZeroOut", "inputs": {"conditioning": positive}}
     g["guider"] = {"class_type": "CFGGuider",
                    "inputs": {"model": ["msf", 0], "positive": positive, "negative": ["neg", 0], "cfg": job.get("cfg", 1.0)}}
-    g["sampler"] = {"class_type": "KSamplerSelect", "inputs": {"sampler_name": "euler"}}
+    g["sampler"] = {"class_type": "KSamplerSelect", "inputs": {"sampler_name": job.get("sampler", "euler")}}
     g["sched"] = {"class_type": "BasicScheduler",
-                  "inputs": {"model": ["msf", 0], "scheduler": "simple", "steps": steps, "denoise": 1.0}}
+                  "inputs": {"model": ["msf", 0], "scheduler": job.get("scheduler", "simple"), "steps": steps, "denoise": 1.0}}
     g["noise"] = {"class_type": "RandomNoise", "inputs": {"noise_seed": seed}}
     g["latent"] = {"class_type": "EmptyLatentImage", "inputs": {"width": w, "height": h, "batch_size": 1}}
     g["sample"] = {"class_type": "SamplerCustomAdvanced",
                    "inputs": {"noise": ["noise", 0], "guider": ["guider", 0], "sampler": ["sampler", 0],
                               "sigmas": ["sched", 0], "latent_image": ["latent", 0]}}
-    g["decode"] = {"class_type": "VAEDecode", "inputs": {"samples": ["sample", 0], "vae": ["vae", 0]}}
+    final = ["sample", 0]
+    hires = job.get("hires")
+    if hires:
+        # Second pass: upscale the latent and re-sample it partially, which adds detail and cleans up smears.
+        g["up"] = {"class_type": "LatentUpscaleBy", "inputs": {"samples": final, "upscale_method": "bislerp", "scale_by": hires.get("scale", 1.5)}}
+        g["sched2"] = {"class_type": "BasicScheduler",
+                       "inputs": {"model": ["msf", 0], "scheduler": job.get("scheduler", "simple"),
+                                  "steps": hires.get("steps", steps), "denoise": hires.get("denoise", 0.45)}}
+        g["noise2"] = {"class_type": "RandomNoise", "inputs": {"noise_seed": seed + 1}}
+        g["sample2"] = {"class_type": "SamplerCustomAdvanced",
+                        "inputs": {"noise": ["noise2", 0], "guider": ["guider", 0], "sampler": ["sampler", 0],
+                                   "sigmas": ["sched2", 0], "latent_image": ["up", 0]}}
+        final = ["sample2", 0]
+    g["decode"] = {"class_type": "VAEDecode", "inputs": {"samples": final, "vae": ["vae", 0]}}
     g["save"] = {"class_type": "SaveImage", "inputs": {"images": ["decode", 0], "filename_prefix": "sts2trump/" + job["name"]}}
     return g
 

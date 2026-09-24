@@ -141,3 +141,29 @@ python scripts/art_review.py          # opens http://127.0.0.1:8190 ; --host 0.0
   - one image per recipe type (16 types), including keying off plain and green backgrounds, the gold-recoloured orb reference, and the 5-layer energy orb;
   - live updates, version switching, Keep, and a server restart mid-queue.
 - **Speed:** about 18–26 s per image, so all 152 items take about an hour per pass.
+
+## 7. Quality presets (added after the first full batch)
+
+The user found the first batch low quality: muddy, blotchy, smeared detail. A controlled test (same prompt and seed, one change at a time, on Wall Slam and Mean Tweet; images in `build/art/quality/`) showed:
+
+| Change | Effect |
+|---|---|
+| fp8 model instead of int8 | Practically identical, and twice as slow here. **Not the cause.** |
+| 16 steps instead of 8 | Cleaner, crisper lines and shapes. |
+| **Style-reference strength 0.6–0.8 instead of 1.0** | **The main fix.** Full strength with 3 references is what smears the image. |
+| 1–2 references instead of 3 | Cleaner, more coherent scenes. |
+| 1.5× second pass ("hires") | More detail, but doesn't cure the smearing by itself. |
+| No style reference at all | Cleanest, but a generic comic look, not Slay the Spire. |
+
+The review tool now has a **Quality** selector (next to "Per regenerate"). All presets use the int8 model:
+
+| Preset | Settings | Time |
+|---|---|---|
+| Draft | 8 steps, 2 references at 0.8 | ~15 s |
+| **Standard** (default) | 12 steps, 2 references at 0.75 | ~25 s |
+| High | 16 steps, 2 references at 0.75, 1.5× detail pass | ~60 s |
+| Max | 16 steps, 3 references at 0.75, 2× detail pass | ~2 min |
+| Legacy | The first batch's settings (8 steps, 3 references at 1.0) | ~25 s |
+
+- Every version records the preset it was made with; versions from before this change show as "Legacy (first batch)".
+- **Prompts still matter:** some cards leave out part of the scene (Wall Slam's wall and enemy). Edit the prompt in the item's detail view, then regenerate.

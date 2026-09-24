@@ -55,6 +55,10 @@ class Review:
             with open(STATE_FILE, encoding="utf-8") as f:
                 self.state = json.load(f)
         self.jobs = {j["id"]: j for j in self.state.pop("jobs", [])}  # local job id -> job (survive a restart)
+        self.recall_trashed_numbers()
+        for s in self.state["items"].values():
+            if "reviewed" not in s and s["versions"] and s["kept"]:
+                s["reviewed"] = max(v["v"] for v in s["versions"]) if s["current"] == s["kept"] else s["kept"]
         self.errors = {}        # item id -> last error
         self.listeners = []
         self.comfy_up = False
@@ -62,6 +66,21 @@ class Review:
         self.durations = []     # recent generation times, for the ETA
 
     # ---- state --------------------------------------------------------------------------------------------
+    def recall_trashed_numbers(self):
+        """Version numbers are never reused: count the ones already moved to the trash too."""
+        trash = os.path.join(REVIEW, "trash")
+        if not os.path.isdir(trash):
+            return
+        for d in os.listdir(trash):
+            meta = os.path.join(trash, d, "versions.json")
+            if not os.path.exists(meta):
+                continue
+            item_id = d.rsplit("_", 1)[0].replace("__", ":")
+            with open(meta, encoding="utf-8") as f:
+                numbers = [v["v"] for v in json.load(f)]
+            if item_id in self.by_id and numbers:
+                s = self.st(item_id)
+                s["last_v"] = max(s.get("last_v", 0), *numbers)
     def st(self, item_id):
         return self.state["items"].setdefault(item_id, {"versions": [], "current": None, "kept": None, "prompt": None})
 
@@ -78,14 +97,34 @@ class Review:
                 return "/files/" + rel
         return None
 
+    def vurl(self, path, v):
+        """A version's file URL. The creation time makes it unique: version numbers used to be reused after a
+        delete, and the browser (told these files never change) showed the old picture for the new one."""
+        u = self.url(path)
+        return f"{u}?t={int(v['created'] * 1000)}" if u else u
+
+    @staticmethod
+    def status(s):
+        """none: no images. review: nothing kept yet, or versions made since the last Keep. kept: otherwise.
+        Which version is on screen doesn't matter, so flipping between versions never changes the status."""
+        if not s["versions"]:
+            return "none"
+        if not s["kept"]:
+            return "review"
+        newest = max(v["v"] for v in s["versions"])
+        return "review" if newest > s.get("reviewed", s["kept"]) else "kept"
+
     def view(self, item_id):
         it = self.by_id[item_id]
         s = self.st(item_id)
         pend = [j for j in self.jobs.values() if j["item"] == item_id]
-        versions = [{"v": v["v"], "seed": v["seed"], "thumb": self.url(v["thumb"]), "full": self.url(v["preview"]),
-                     "created": v["created"], "custom": v.get("custom", False)} for v in s["versions"]]
+        big = (lambda v: v["raw"]) if it["kind"] == "char_button" else (lambda v: v["preview"])
+        versions = [{"v": v["v"], "seed": v["seed"], "thumb": self.vurl(v["thumb"], v), "full": self.vurl(big(v), v),
+                     "created": v["created"], "custom": v.get("custom", False),
+                     "quality": art_recipes.QUALITY.get(v.get("quality") or "", {}).get("label", "Legacy (first batch)")}
+                    for v in s["versions"]]
         cur = s["current"]
-        status = "none" if not cur else ("kept" if s["kept"] == cur else "review")
+        status = self.status(s)
         return {
             "id": item_id, "section": it["section"], "kind": it["kind"], "name": it["name"], "sub": it["sub"],
             "arch": it.get("arch"), "ctype": it.get("ctype"), "rarity": it.get("rarity"), "text": it.get("text", ""),
@@ -93,7 +132,8 @@ class Review:
             "prompt": s["prompt"] or it["prompt"], "promptCustom": bool(s["prompt"]), "defaultPrompt": it["prompt"],
             "refs": [self.url(r) or "" for r in it["refs"]], "outputs": list(it["outputs"].values()),
             "versions": versions, "current": cur, "kept": s["kept"], "status": status,
-            "pending": [{"state": j["state"], "pos": j.get("pos"), "since": j.get("started") or j["created"]} for j in pend],
+            "pending": [{"state": j["state"], "pos": j.get("pos"), "since": j.get("started") or j["created"],
+                         "quality": art_recipes.QUALITY.get(j.get("quality") or "", {}).get("label", "")} for j in pend],
             "error": self.errors.get(item_id),
         }
 
@@ -117,7 +157,8 @@ class Review:
         self.emit({"type": "summary", "summary": self.summary()})
 
     # ---- actions ------------------------------------------------------------------------------------------
-    def regenerate(self, ids, count=1):
+    def regenerate(self, ids, count=1, quality=None):
+        quality = quality if quality in art_recipes.QUALITY else art_recipes.DEFAULT_QUALITY
         with self.lock:
             for item_id in ids:
                 if item_id not in self.by_id:
@@ -126,7 +167,7 @@ class Review:
                 for _ in range(max(1, min(int(count), 8))):
                     jid = "j%d_%d" % (int(now() * 1000), random.randint(0, 1 << 30))
                     self.jobs[jid] = {"id": jid, "item": item_id, "state": "waiting", "created": now(),
-                                      "seed": random.randint(1, 2 ** 31 - 1), "prompt_id": None}
+                                      "seed": random.randint(1, 2 ** 31 - 1), "prompt_id": None, "quality": quality}
                 self.emit_item(item_id)
             self.save()
             self.emit_summary()
@@ -143,6 +184,7 @@ class Review:
                     os.makedirs(os.path.dirname(dst), exist_ok=True)
                     shutil.copyfile(v["files"][key], dst)
                 s["kept"] = s["current"]
+                s["reviewed"] = max(x["v"] for x in s["versions"])
                 self.emit_item(item_id)
             self.save()
 
@@ -152,6 +194,41 @@ class Review:
                 self.st(item_id)["kept"] = None
                 self.emit_item(item_id)
             self.save()
+
+    def delete_versions(self, item_id, numbers):
+        """Remove versions from an item. The kept version is never removed. Files go to build/art/review/trash/
+        (not erased), so a wrong click can be undone by hand."""
+        with self.lock:
+            s = self.st(item_id)
+            doomed_numbers = set(numbers) - {s["kept"]}
+            doomed = [v for v in s["versions"] if v["v"] in doomed_numbers]
+            if not doomed:
+                return 0
+            trash = os.path.join(REVIEW, "trash", "%s_%d" % (item_id.replace(":", "__"), int(now() * 1000)))
+            os.makedirs(trash, exist_ok=True)
+            for v in doomed:
+                for f in {v["raw"], v["preview"], v["thumb"], *v["files"].values()}:
+                    if os.path.exists(f):
+                        shutil.move(f, os.path.join(trash, os.path.basename(f)))
+            with open(os.path.join(trash, "versions.json"), "w", encoding="utf-8") as f:
+                json.dump(doomed, f, indent=1)
+            s["last_v"] = max([s.get("last_v", 0)] + [v["v"] for v in s["versions"]])
+            s["versions"] = [v for v in s["versions"] if v["v"] not in doomed_numbers]
+            if s["current"] in doomed_numbers:
+                s["current"] = s["kept"] or (s["versions"][-1]["v"] if s["versions"] else None)
+            self.save()
+            self.emit_item(item_id)
+            return len(doomed)
+
+    def prune(self, ids, legacy_only=False):
+        """Delete every version that is neither kept nor the one currently shown (legacy_only: only first-batch ones)."""
+        total = 0
+        for item_id in ids:
+            s = self.st(item_id)
+            keep = {s["kept"], s["current"]} if not legacy_only else {s["kept"]}
+            doomed = [v["v"] for v in s["versions"] if v["v"] not in keep and (not legacy_only or v.get("quality") in (None, "legacy"))]
+            total += self.delete_versions(item_id, doomed)
+        return total
 
     def set_version(self, item_id, v):
         with self.lock:
@@ -250,6 +327,7 @@ class Review:
             prompt = self.st(j["item"])["prompt"] or it["prompt"]
             job = {"name": j["item"].replace(":", "__") + "_%d" % j["seed"], "method": it["method"], "prompt": prompt,
                    "style": it["refs"], "size": it["size"], "seed": j["seed"]}
+            job.update(art_recipes.quality_settings(j.get("quality"), it))
             try:
                 res = art_gen._post("/prompt", {"prompt": art_gen.build_graph(job)})
             except urllib.error.HTTPError as e:
@@ -320,8 +398,10 @@ class Review:
         it = self.by_id[item_id]
         with self.lock:
             s = self.st(item_id)
-            n = max([v["v"] for v in s["versions"]] + [0]) + 1
-        self.add_version(item_id, src, j["seed"], j.get("prompt") or it["prompt"], n, custom=j.get("custom", False))
+            n = max([v["v"] for v in s["versions"]] + [s.get("last_v", 0)]) + 1
+            s["last_v"] = n
+        self.add_version(item_id, src, j["seed"], j.get("prompt") or it["prompt"], n, custom=j.get("custom", False),
+                         quality=j.get("quality"))
         os.remove(src)
         with self.lock:
             if j.get("started"):
@@ -331,7 +411,7 @@ class Review:
             self.emit_item(item_id)
             self.emit_summary()
 
-    def add_version(self, item_id, raw_src, seed, prompt, n, custom=False, make_current=True):
+    def add_version(self, item_id, raw_src, seed, prompt, n, custom=False, make_current=True, quality=None):
         it = self.by_id[item_id]
         d = os.path.join(REVIEW, "items", item_id.replace(":", "__"))
         os.makedirs(d, exist_ok=True)
@@ -345,7 +425,7 @@ class Review:
         t.save(thumb)
         with self.lock:
             s = self.st(item_id)
-            s["versions"].append({"v": n, "seed": seed, "prompt": prompt, "custom": custom, "created": now(),
+            s["versions"].append({"v": n, "seed": seed, "prompt": prompt, "custom": custom, "created": now(), "quality": quality,
                                   "raw": raw, "preview": preview, "thumb": thumb, "files": files})
             if make_current or not s["current"]:
                 s["current"] = n
@@ -403,7 +483,9 @@ def make_handler(r):
                 self.wfile.write(body)
             elif path == "/api/state":
                 with r.lock:
-                    self.send_json({"items": [r.view(it["id"]) for it in r.items], "summary": r.summary()})
+                    self.send_json({"items": [r.view(it["id"]) for it in r.items], "summary": r.summary(),
+                                    "qualities": [{"key": k, "label": q["label"], "desc": q["desc"]} for k, q in art_recipes.QUALITY.items()],
+                                    "defaultQuality": art_recipes.DEFAULT_QUALITY})
             elif path == "/api/events":
                 self.send_response(200)
                 self.send_header("Content-Type", "text/event-stream")
@@ -443,13 +525,13 @@ def make_handler(r):
             data = json.loads(self.rfile.read(int(self.headers.get("Content-Length") or 0)) or b"{}")
             ids = [i for i in data.get("ids", []) if i in r.by_id]
             if path == "/api/regenerate":
-                r.regenerate(ids, data.get("count", 1))
+                r.regenerate(ids, data.get("count", 1), data.get("quality"))
             elif path == "/api/generate_missing":
                 with r.lock:
                     busy = {j["item"] for j in r.jobs.values()}
                     todo = [it["id"] for it in r.items if not r.st(it["id"])["versions"] and it["id"] not in busy
                             and (not data.get("section") or it["section"] == data["section"])]
-                r.regenerate(todo, 1)
+                r.regenerate(todo, 1, data.get("quality"))
             elif path == "/api/keep":
                 r.keep(ids)
             elif path == "/api/unkeep":
@@ -460,6 +542,12 @@ def make_handler(r):
                 r.set_prompt(data["id"], data.get("prompt"))
             elif path == "/api/cancel":
                 r.cancel(ids)
+            elif path == "/api/delete":
+                self.send_json({"ok": True, "deleted": r.delete_versions(data["id"], [int(v) for v in data.get("versions", [])])})
+                return
+            elif path == "/api/prune":
+                self.send_json({"ok": True, "deleted": r.prune(ids, bool(data.get("legacyOnly")))})
+                return
             else:
                 self.send_error(404)
                 return

@@ -20,7 +20,7 @@ public sealed class TradeWar : CardModel
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).TargetingAllOpponents(CombatState!)
-			.WithHitFx("vfx/vfx_giant_horizontal_slash")
+			.WithHitFx("vfx/vfx_rock_shatter", null, "blunt_attack.mp3")
 			.Execute(choiceContext);
 		foreach (Creature enemy in CombatState!.HittableEnemies.ToList())
 		{

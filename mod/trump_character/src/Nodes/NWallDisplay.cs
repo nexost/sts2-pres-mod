@@ -6,13 +6,15 @@ using TrumpMod.Mechanics;
 namespace TrumpMod.Nodes;
 
 /// <summary>
-/// Step 4 placeholder of the Wall in front of The Donald: grows with height, changes material per stage
-/// (fence → brick → concrete → gold), shows height, Sections and progress to the next stage, and a banner on stage-up.
-/// Real art replaces the drawing in Step 8; the layout and data stay.
+/// The Wall in front of The Donald: grows with height, changes material per stage (fence → brick → concrete → gold),
+/// shows height, Sections and progress to the next stage, and a banner on stage-up.
+/// Step 8: each stage is drawn from its generated painting (images/trump/wall/wall_stage_N.png): the top of the
+/// painting caps the Wall and a strip from its lower half repeats below as the Wall grows. Before the art exists,
+/// or before the first stage, it falls back to the Step 4 drawing.
 /// </summary>
 public partial class NWallDisplay : Node2D
 {
-	private const float Width = 88f;
+	private const float Width = 150f;
 
 	private const float MaxPixelHeight = 230f;
 
@@ -36,11 +38,29 @@ public partial class NWallDisplay : Node2D
 
 	private Font? _font;
 
+	private static readonly Texture2D?[] StageArt = new Texture2D?[5];
+
+	private static readonly Rect2[] StageArtUsed = new Rect2[5];
+
+	private static bool _artLoaded;
+
 	public override void _Ready()
 	{
 		_font = ResourceLoader.Load<Font>("res://themes/kreon_bold_shared.tres") ?? ThemeDB.FallbackFont;
 		ZIndex = 5;
+		LoadStageArt();
 	}
+
+	/// <summary>On-screen height of the Wall art in pixels for a given (animated) Wall height.</summary>
+	private static float PixelHeight(float height) => height <= 0f ? 0f : Mathf.Min(14f + height * 2.2f, MaxPixelHeight);
+
+	/// <summary>Where the top of the Wall is on screen (the Build dust).</summary>
+	public Vector2 TopGlobalPosition => ToGlobal(new Vector2(Width * 0.5f, -PixelHeight(WallTarget)));
+
+	/// <summary>The middle of the Wall on screen (rubble when height is spent).</summary>
+	public Vector2 MiddleGlobalPosition => ToGlobal(new Vector2(Width * 0.5f, -PixelHeight(Mathf.Max(_shownHeight, WallTarget)) * 0.5f));
+
+	private float WallTarget => Creature == null ? _shownHeight : WallCmd.GetHeight(Creature);
 
 	public void ShowStageBanner(int stage)
 	{
@@ -70,7 +90,7 @@ public partial class NWallDisplay : Node2D
 		{
 			return;
 		}
-		float h = _shownHeight <= 0f ? 0f : Mathf.Min(14f + _shownHeight * 2.2f, MaxPixelHeight);
+		float h = PixelHeight(_shownHeight);
 		int visualStage = WallRules.StageFor(Mathf.RoundToInt(_shownHeight));
 
 		// Foundation line so the player can see where the wall will rise.
@@ -114,8 +134,71 @@ public partial class NWallDisplay : Node2D
 		}
 	}
 
+	private static void LoadStageArt()
+	{
+		if (_artLoaded)
+		{
+			return;
+		}
+		_artLoaded = true;
+		for (int stage = 1; stage <= 4; stage++)
+		{
+			Texture2D? tex = TrumpArt.Load($"{TrumpArt.Dir}wall/wall_stage_{stage}.png");
+			if (tex == null)
+			{
+				continue;
+			}
+			// The painting sits on a transparent canvas: use only its visible part.
+			Rect2I used = tex.GetImage()?.GetUsedRect() ?? new Rect2I(0, 0, tex.GetWidth(), tex.GetHeight());
+			if (used.Size.X < 8 || used.Size.Y < 8)
+			{
+				continue;
+			}
+			StageArt[stage] = tex;
+			StageArtUsed[stage] = new Rect2(used.Position, used.Size);
+		}
+	}
+
+	private bool DrawStageArt(float h, int stage)
+	{
+		Texture2D? tex = stage is >= 1 and <= 4 ? StageArt[stage] : null;
+		if (tex == null)
+		{
+			return false;
+		}
+		Rect2 used = StageArtUsed[stage];
+		float s = Width / used.Size.X;
+		float capHeight = used.Size.Y * s;
+		if (h <= capHeight)
+		{
+			// Still short: show the top of the painting, as if the rest is below ground.
+			DrawTextureRectRegion(tex, new Rect2(0f, -h, Width, h), new Rect2(used.Position, new Vector2(used.Size.X, h / s)));
+			return true;
+		}
+		if (h <= capHeight * 1.6f)
+		{
+			// A bit taller than the painting: stretch it, which reads better than a repeated band.
+			DrawTextureRectRegion(tex, new Rect2(0f, -h, Width, h), used);
+			return true;
+		}
+		// Much taller: the painting on top, then a strip from its lower half repeated down to the ground.
+		DrawTextureRectRegion(tex, new Rect2(0f, -h, Width, capHeight), used);
+		var strip = new Rect2(used.Position.X, used.Position.Y + used.Size.Y * 0.5f, used.Size.X, used.Size.Y * 0.45f);
+		float stripHeight = strip.Size.Y * s;
+		for (float y = -h + capHeight; y < 0f; y += stripHeight)
+		{
+			float part = Mathf.Min(stripHeight, -y);
+			DrawTextureRectRegion(tex, new Rect2(0f, y, Width, part), new Rect2(strip.Position, new Vector2(strip.Size.X, part / s)));
+		}
+		return true;
+	}
+
 	private void DrawWallBody(float h, int stage)
 	{
+		if (DrawStageArt(h, stage))
+		{
+			return;
+		}
 		switch (stage)
 		{
 			case 0:

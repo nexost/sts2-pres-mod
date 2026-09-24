@@ -14,6 +14,9 @@ public static class WallCmd
 	/// <summary>Raised after a new stage is reached: (owner, stage). Used by the on-screen Wall display.</summary>
 	public static event Action<Creature, int>? StageReached;
 
+	/// <summary>Raised after height changes: (owner, change). Positive for Build and carried-over height, negative when spent. Used by the Wall VFX.</summary>
+	public static event Action<Creature, int>? HeightChanged;
+
 	public static int GetHeight(Creature creature) => creature.GetPowerAmount<WallPower>();
 
 	public static int GetSections(Creature creature) => WallRules.SectionsFor(GetHeight(creature));
@@ -42,7 +45,9 @@ public static class WallCmd
 		{
 			return;
 		}
+		int before = GetHeight(builder);
 		await PowerCmd.Apply<WallPower>(choiceContext, builder, amount, builder, cardSource);
+		HeightChanged?.Invoke(builder, GetHeight(builder) - before);
 		await RefreshStage(choiceContext, builder);
 	}
 
@@ -54,7 +59,9 @@ public static class WallCmd
 		{
 			return;
 		}
-		await PowerCmd.ModifyAmount(choiceContext, wall, -Math.Min(amount, wall.Amount), builder, null);
+		int lost = Math.Min(amount, wall.Amount);
+		await PowerCmd.ModifyAmount(choiceContext, wall, -lost, builder, null);
+		HeightChanged?.Invoke(builder, -lost);
 	}
 
 	/// <summary>Demolition and Wrecking Ball: lose half the Wall, rounded down.</summary>

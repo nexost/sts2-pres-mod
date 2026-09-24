@@ -1,16 +1,16 @@
 [gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" uid="uid://dh4d0sqk21k6" path="res://src/Core/Nodes/Combat/NEnergyCounter.cs" id="1_gfilq"]
-[ext_resource type="Texture2D" uid="uid://btlw4vc3brx7t" path="res://images/ui/combat/energy_counters/ironclad/ironclad_orb_layer_1.png" id="2_f7ovj"]
+[ext_resource type="Texture2D" path="res://images/ui/combat/energy_counters/trump/trump_orb_layer_1.png" id="2_f7ovj"]
 [ext_resource type="Material" uid="uid://ft58cpw2uxdl" path="res://materials/ui/energy_orb_dark.tres" id="2_sm2k3"]
-[ext_resource type="PackedScene" uid="uid://7y75kcsi1xdw" path="res://scenes/vfx/energy/ironclad/ironclad_energy_vfx_back.tscn" id="2_w0ewp"]
-[ext_resource type="Texture2D" uid="uid://cgne87p4x0y8o" path="res://images/ui/combat/energy_counters/ironclad/ironclad_orb_layer_2.png" id="3_4uw4e"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/energy/trump/trump_energy_vfx_back.tscn" id="2_w0ewp"]
+[ext_resource type="Texture2D" path="res://images/ui/combat/energy_counters/trump/trump_orb_layer_2.png" id="3_4uw4e"]
 [ext_resource type="FontVariation" uid="uid://bg85h22rkxs6g" path="res://themes/kreon_bold_shared.tres" id="3_jei5p"]
 [ext_resource type="Script" uid="uid://dtfio45agppyj" path="res://addons/mega_text/MegaLabel.cs" id="3_qdbwl"]
-[ext_resource type="Texture2D" uid="uid://b5l37kuwvsfxw" path="res://images/ui/combat/energy_counters/ironclad/ironclad_orb_layer_3.png" id="4_m70xo"]
-[ext_resource type="Texture2D" uid="uid://7s0q7vjpfrjx" path="res://images/ui/combat/energy_counters/ironclad/ironclad_orb_layer_4.png" id="5_8dn3e"]
-[ext_resource type="Texture2D" uid="uid://d1wchqkyxmmc8" path="res://images/ui/combat/energy_counters/ironclad/ironclad_orb_layer_5.png" id="6_nmf6f"]
-[ext_resource type="PackedScene" uid="uid://dvsi8v1mbnt3q" path="res://scenes/vfx/energy/ironclad/ironclad_energy_vfx_front.tscn" id="9_l0r52"]
+[ext_resource type="Texture2D" path="res://images/ui/combat/energy_counters/trump/trump_orb_layer_3.png" id="4_m70xo"]
+[ext_resource type="Texture2D" path="res://images/ui/combat/energy_counters/trump/trump_orb_layer_4.png" id="5_8dn3e"]
+[ext_resource type="Texture2D" path="res://images/ui/combat/energy_counters/trump/trump_orb_layer_5.png" id="6_nmf6f"]
+[ext_resource type="PackedScene" path="res://scenes/vfx/energy/trump/trump_energy_vfx_front.tscn" id="9_l0r52"]
 
 [sub_resource type="FontVariation" id="FontVariation_x0k5t"]
 base_font = ExtResource("3_jei5p")
@@ -134,7 +134,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_colors/font_color = Color(1, 0.964706, 0.886275, 1)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.188235)
-theme_override_colors/font_outline_color = Color(0.3, 0.0759, 0.051, 1)
+theme_override_colors/font_outline_color = Color(0.3, 0.19, 0.02, 1)
 theme_override_constants/shadow_offset_x = 3
 theme_override_constants/shadow_offset_y = 2
 theme_override_constants/outline_size = 16
