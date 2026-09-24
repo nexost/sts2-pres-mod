@@ -1,5 +1,8 @@
 {
   "AVIATOR_SHADES.title": "Aviator Shades",
-  "AVIATOR_SHADES.description": "Start each combat with [blue]{Block}[/blue] [gold]Block[/gold].",
-  "AVIATOR_SHADES.flavor": "TODO"
+  "AVIATOR_SHADES.description": "At the end of your turn, [gold]Doze[/gold] [blue]{Doze}[/blue].\nWhen you nod off, gain [blue]{Block}[/blue] [gold]Block[/gold].",
+  "AVIATOR_SHADES.flavor": "Nobody can tell whether his eyes are open. That's the point.",
+  "DARK_AVIATORS.title": "Dark Aviators",
+  "DARK_AVIATORS.description": "At the end of your turn, [gold]Doze[/gold] [blue]{Doze}[/blue].\nWhen you nod off, gain [blue]{Block}[/blue] [gold]Block[/gold].",
+  "DARK_AVIATORS.flavor": "They glow a little. Nobody asks."
 }

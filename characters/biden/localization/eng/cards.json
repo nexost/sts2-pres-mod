@@ -12,5 +12,9 @@
   "REGROUP_BIDEN.title": "Regroup",
   "REGROUP_BIDEN.description": "Gain {Block:diff()} [gold]Block[/gold].\nDraw {Cards:diff()} {Cards:plural:card|cards}.",
   "RESOLVE_BIDEN.title": "Resolve",
-  "RESOLVE_BIDEN.description": "Gain {StrengthPower:diff()} [gold]Strength[/gold]."
+  "RESOLVE_BIDEN.description": "Gain {StrengthPower:diff()} [gold]Strength[/gold].",
+  "CATNAP.title": "Catnap",
+  "CATNAP.description": "Gain {Block:diff()} [gold]Block[/gold].\n[gold]Doze[/gold] {Doze:diff()}.",
+  "HERES_THE_DEAL.title": "Here's the Deal",
+  "HERES_THE_DEAL.description": "[gold]Tangent[/gold].\n{D1}{L1} Deal {Damage:diff()} damage.{E1}\n{D2}{L2} Gain {Block:diff()} [gold]Block[/gold].{E2}\n{D3}{L3} Draw {Cards:diff()} {Cards:plural:card|cards}.{E3}"
 }

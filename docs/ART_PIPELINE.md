@@ -72,7 +72,7 @@ Recipes live in `scripts/art_recipes.py` (references, prompt template, size, pos
 | `fullscreen` | 1792×832 → 2560×1200 | `images/{id}/char_select_bg.png` | Only the **right 3/4** shows (the painting is shifted 640 px left): keep the subject in the right half |
 | `top_icon` | 1024² → 88² | `images/ui/top_panel/character_icon_{id}.png` + `_outline` | |
 | `map_marker` | 832×1088 → 49×64 | `images/packed/map/icons/map_marker_{id}.png` | |
-| `figure` | 832×1216 → trimmed | `images/{id}/{item}.png` | Combat poses (`combat_idle`, `_attack`, `_cast`, `_hurt`), `merchant_pose`, `rest_site_pose`. Green screen keyed out. **Face right**, whole body, no furniture cut by the edge. Placed by the feet |
+| `figure` | 832×1216 → trimmed | `images/{id}/{item}.png` | Combat poses (`combat_idle`, `_attack`, `_cast`, `_hurt`), `merchant_pose`, `rest_site_pose`. Green screen keyed out. **Face right**, whole body, no furniture cut by the edge. Placed by the feet. A second pose set for a form the character takes mid-fight uses a prefix (Biden's `dark_combat_idle`, ...; `NCharacterPoses.SetVariant`); its stand-in can ask for coloured eyes with `"placeholder_eyes": "FF3B30"` |
 | `hand` | 640×1792 → 422×1200 | `images/ui/hands/multiplayer_hand_{id}_{gesture}.png` | Co-op rock/paper/scissors/point, arm from the bottom edge |
 | `transition` | 1792×832 → 2560×1200 grey | `images/ui/transitions/{id}_transition.png` | Greyscale dissolve mask |
 | `orb` | 1024² → 256² per layer | `images/ui/combat/energy_counters/{id}/{id}_orb_layer_{n}.png` | Items list their `layers` (1 base, 2–3 swirl, 4–5 rim) |

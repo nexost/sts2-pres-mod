@@ -13,7 +13,7 @@ namespace PresMod.Characters.Biden;
 /// <summary>
 /// The playable character. Id entry is BIDEN, so the game looks for assets named "biden"
 /// (scenes/creature_visuals/biden.tscn, images/ui/top_panel/character_icon_biden.png, ...).
-/// Stats and deck from the design (characters/biden/design/design.md §1).
+/// Stats and deck from the design (characters/biden/design/design.md §1): 70 HP, 99 Gold, Aviator Shades.
 /// </summary>
 public sealed class Biden : CharacterModel, IModCharacter
 {
@@ -44,12 +44,12 @@ public sealed class Biden : CharacterModel, IModCharacter
 		ModelDb.Card<StrikeBiden>(),
 		ModelDb.Card<StrikeBiden>(),
 		ModelDb.Card<StrikeBiden>(),
-		ModelDb.Card<StrikeBiden>(),
 		ModelDb.Card<DefendBiden>(),
 		ModelDb.Card<DefendBiden>(),
 		ModelDb.Card<DefendBiden>(),
 		ModelDb.Card<DefendBiden>(),
-		ModelDb.Card<DefendBiden>()
+		ModelDb.Card<Catnap>(),
+		ModelDb.Card<HeresTheDeal>()
 	};
 
 	public override IReadOnlyList<RelicModel> StartingRelics => new RelicModel[] { ModelDb.Relic<AviatorShades>() };

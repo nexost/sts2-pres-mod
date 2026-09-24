@@ -114,7 +114,7 @@ The game loads these by name for every character (`presmod.CHARACTER_SCENES`). `
 
 | Resource | Notes |
 |---|---|
-| `scenes/creature_visuals/<id>.tscn` | Combat body: a `Sprite2D` "Visuals" gets `NCharacterPoses` (idle/attack/cast/hurt paintings); `Bounds`, `CenterPos`, `IntentPos` markers |
+| `scenes/creature_visuals/<id>.tscn` | Combat body: a `Sprite2D` "Visuals" gets `NCharacterPoses` (idle/attack/cast/hurt paintings); `Bounds`, `CenterPos`, `IntentPos` markers. `NCharacterPoses.SetVariant("dark_", tint)` switches to a second pose set (`dark_combat_idle.png`, ...) for a form taken mid-fight, like Biden's Dark Brandon |
 | `scenes/merchant/characters/<id>_merchant.tscn` | Shop figure: a `Sprite2D` "CharacterSprite", painting `images/<id>/merchant_pose.png` |
 | `scenes/rest_site/characters/<id>_rest_site.tscn` | Rest-site figure, same idea (`rest_site_pose.png`); flipped for co-op seats |
 | `scenes/screens/char_select/char_select_bg_<id>.tscn` | The select screen: the painting `images/<id>/char_select_bg.png`, shifted 640 px left, under ember particles |

@@ -30,7 +30,7 @@ about age, decline or health are not. Nothing may copy another character's or an
 | **HP / Gold / Energy** | 70 / 99 / 3 |
 | **Card colour** | Royal navy (#4A55E6, frame deepened to navy) |
 | **Starting deck** (10) | 4 Strike, 4 Defend, 1 **Catnap**, 1 **Here's the Deal** |
-| **Starter relic** | **Aviator Shades**: when you nod off, gain 8 Block |
+| **Starter relic** | **Aviator Shades**: at the end of your turn, Doze 2; when you nod off, gain 8 Block |
 | **Signature** | **Drowsy**: he gets sleepier, nods off, and wakes as **Dark Brandon**. His cards are **Tangents** that change what they do while he rambles |
 
 ## 2. Tone guide
@@ -49,7 +49,7 @@ Enemies are always Spire monsters.
 ### Drowsy: sleepiness is on him
 - **Drowsy** is a counter on Joe, shown on his portrait with its **nod-off line** (10).
 - **Doze X**: gain X Drowsy.
-- **Sleepy Joe gets drowsier on his own: at the end of your turn, Doze 2** (not on Dark Brandon turns).
+- **Sleepy Joe gets drowsier on his own: at the end of your turn, Doze 2** (not on Dark Brandon turns). The Aviator Shades carry this, the way the Necrobinder's Bound Phylactery carries Osty, so the relic's text says it.
 - **Nodding off:** when your Drowsy reaches your nod-off line (10), you nod off. **Your turn ends right away**, after the card that did it finishes.
   - Some cards say **Nod off**: you nod off now, whatever your Drowsy.
   - Crossing the line at the end of your turn costs nothing. Crossing it mid-turn wastes whatever you had left: play sleepy cards last.
@@ -135,8 +135,8 @@ upgrade (Touch of Orobas), and 3 potions.
 
 | Relic | Rarity | Effect |
 |---|---|---|
-| **Aviator Shades** | Starter | When you nod off, gain 8 Block. |
-| **Dark Aviators** | Ancient upgrade | When you nod off, gain 14 Block. |
+| **Aviator Shades** | Starter | At the end of your turn, Doze 2. When you nod off, gain 8 Block. |
+| **Dark Aviators** | Ancient upgrade | At the end of your turn, Doze 2. When you nod off, gain 14 Block. |
 | **Travel Pillow** | Common | Whenever you Doze, Doze 1 additional. |
 | **Ice Cream Cone** | Uncommon | Whenever you wake up, heal 3 HP. |
 | **Index Cards** | Uncommon | Whenever you play a Tangent card on its last line, draw 1 card. |

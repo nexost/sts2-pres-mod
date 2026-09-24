@@ -102,8 +102,9 @@ def card_portrait(title, kind, pal, size=(1000, 760)):
     return img
 
 
-def figure(size, pal):
-    """A stand-in figure: body in the secondary colour, a tie in the accent colour, on transparent."""
+def figure(size, pal, eyes=None):
+    """A stand-in figure: body in the secondary colour, a tie in the accent colour, on transparent.
+    eyes: optional hex colour for a band across the eyes (an item's "placeholder_eyes", e.g. Biden's red Dark Brandon poses)."""
     w, h = size
     img = Image.new("RGBA", size, (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
@@ -111,6 +112,10 @@ def figure(size, pal):
     d.polygon([(w * 0.47, h * 0.32), (w * 0.53, h * 0.32), (w * 0.55, h * 0.75), (w * 0.5, h * 0.8), (w * 0.45, h * 0.75)], fill=pal.accent + (255,))
     d.ellipse([w * 0.33, h * 0.08, w * 0.67, h * 0.33], fill=(235, 160, 110, 255))
     d.ellipse([w * 0.28, h * 0.03, w * 0.74, h * 0.16], fill=pal.primary + (255,))
+    if eyes:
+        rgb = tuple(int(eyes.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+        d.rounded_rectangle([w * 0.35, h * 0.17, w * 0.65, h * 0.22], radius=int(w * 0.02), fill=rgb + (255,))
+        d.polygon([(w * 0.65, h * 0.18), (w * 0.98, h * 0.12), (w * 0.98, h * 0.16), (w * 0.65, h * 0.21)], fill=rgb + (200,))
     centered(d, (0, int(h * 0.82), w, h), "PLACEHOLDER", max(12, w // 14), pal.text + (230,))
     return img
 
@@ -210,7 +215,7 @@ def make_art_standins(ch):
         outputs = presmod.art_outputs(ch, spec["id"], kind, spec)
         for key, rel in outputs.items():
             if kind == "figure":
-                img = figure((600, 900), pal)
+                img = figure((600, 900), pal, spec.get("placeholder_eyes"))
             elif kind == "fullscreen":
                 img = Image.new("RGBA", (2560, 1200))
                 d = ImageDraw.Draw(img)

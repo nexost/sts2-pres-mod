@@ -1,2 +1,11 @@
 {
+  "DROWSY_POWER.title": "Drowsy",
+  "DROWSY_POWER.description": "At [blue]10[/blue] Drowsy you nod off: your turn ends, and at the start of your next turn you wake up as [gold]Dark Brandon[/gold].",
+  "DROWSY_POWER.smartDescription": "[blue]{Amount}[/blue] of [blue]{Line}[/blue]. At [blue]{Line}[/blue] Drowsy you nod off: your turn ends, and at the start of your next turn you wake up as [gold]Dark Brandon[/gold] with [gold]Laser Eyes[/gold].",
+  "DARK_BRANDON_POWER.title": "Dark Brandon",
+  "DARK_BRANDON_POWER.description": "Wide awake this turn: [gold]Tangent[/gold] cards do all their lines, and [gold]Drowsy[/gold] can't build. At the end of the turn you're Sleepy Joe again.",
+  "DARK_BRANDON_POWER.smartDescription": "Wide awake this turn: [gold]Tangent[/gold] cards do all their lines, and [gold]Drowsy[/gold] can't build. At the end of the turn you're Sleepy Joe again.",
+  "NODDED_OFF_POWER.title": "Nodded Off",
+  "NODDED_OFF_POWER.description": "Zzz. At the start of your next turn you wake up as [gold]Dark Brandon[/gold], and [gold]Laser Eyes[/gold] fire.",
+  "NODDED_OFF_POWER.smartDescription": "Zzz. At the start of your next turn you wake up as [gold]Dark Brandon[/gold], and [gold]Laser Eyes[/gold] fire."
 }

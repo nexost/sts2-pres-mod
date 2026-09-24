@@ -1,2 +1,12 @@
 {
+  "BIDEN_DOZE.title": "Doze",
+  "BIDEN_DOZE.description": "Gain this much [gold]Drowsy[/gold]. At [blue]10[/blue] you nod off. Nothing happens while you're [gold]Dark Brandon[/gold].",
+  "BIDEN_NOD_OFF.title": "Nod Off",
+  "BIDEN_NOD_OFF.description": "Your turn ends right away. At the start of your next turn you wake up as [gold]Dark Brandon[/gold].",
+  "BIDEN_WAKE_UP.title": "Wake Up",
+  "BIDEN_WAKE_UP.description": "Become [gold]Dark Brandon[/gold] now: [gold]Laser Eyes[/gold] fire for your [gold]Drowsy[/gold], then it resets.",
+  "BIDEN_LASER_EYES.title": "Laser Eyes",
+  "BIDEN_LASER_EYES.description": "When you wake up, deal damage equal to your [gold]Drowsy[/gold] to ALL enemies.",
+  "BIDEN_TANGENT.title": "Tangent",
+  "BIDEN_TANGENT.description": "Only the lit line happens. After you play any other card, it moves to its next line. As [gold]Dark Brandon[/gold], every line happens."
 }

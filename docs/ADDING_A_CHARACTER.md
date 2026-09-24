@@ -118,7 +118,9 @@ Things the Framework already does:
 - **The starter's Ancient version:** the starter relic implements `IUpgradableStarterRelic`. Trump: Golden Shovel → Diamond Shovel. Without it, Touch of Orobas gives Circlet.
 - **Cards that can't target some enemies:** `ITargetFilter` (Trump's You're Fired! skips immune bosses).
 - **Values that must survive save and quit:** `[SavedProperty]` on the model.
-- **Game VFX** can be reused by path (`vfx/vfx_attack_blunt`, dust, rubble).
+- **Game VFX** can be reused by path (`vfx/vfx_attack_blunt`, dust, rubble), or through their node classes (Biden's Laser Eyes are the Defect's `NHyperbeamVfx`, tinted).
+- **A form taken mid-fight:** `NCharacterPoses.SetVariant(prefix, tint)` swaps in a second pose set (Biden's Dark Brandon).
+- **Card text that changes in hand:** override `AddExtraArgsToDescription` to pass values into the card's text; hand cards redraw after every action (Biden's `TangentCard`).
 
 **Tests:** put the mechanic's checks in `Dev/DevHarness.<Class>.cs` → `UiChecks`. Trump's `TrumpMechanicsChecks` is the model: set up a state with console commands, play a card, assert, screenshot. Then run `test.py ui -c <id>`.
 

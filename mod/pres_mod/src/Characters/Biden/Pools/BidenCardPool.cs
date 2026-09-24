@@ -27,6 +27,8 @@ public sealed class BidenCardPool : CardPoolModel
 		{
 			ModelDb.Card<StrikeBiden>(),
 			ModelDb.Card<DefendBiden>(),
+			ModelDb.Card<Catnap>(),
+			ModelDb.Card<HeresTheDeal>(),
 			// Stubs so card rewards (3 different cards) and the shop (Attacks, Skills, a Power) work from day one.
 			// Remove them once the real cards are in.
 			ModelDb.Card<JabBiden>(),

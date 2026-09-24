@@ -16,7 +16,8 @@ public sealed class BidenRelicPool : RelicPoolModel
 		// The starter and its upgrade sit here like Burning Blood does: Starter rarity, never rolled as a reward.
 		return new RelicModel[]
 		{
-			ModelDb.Relic<AviatorShades>()
+			ModelDb.Relic<AviatorShades>(),
+			ModelDb.Relic<DarkAviators>()
 		};
 	}
 }

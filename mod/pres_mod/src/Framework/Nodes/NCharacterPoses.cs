@@ -30,6 +30,12 @@ public partial class NCharacterPoses : Node
 
 	private readonly Dictionary<string, (Texture2D Tex, float Height)> _poses = new Dictionary<string, (Texture2D, float)>();
 
+	/// <summary>Paintings of the alternate pose set, when one is on (<see cref="SetVariant"/>).</summary>
+	private readonly Dictionary<string, (Texture2D Tex, float Height)> _variantPoses = new Dictionary<string, (Texture2D, float)>();
+
+	/// <summary>Colour on the figure while an alternate pose set without its own paintings is on.</summary>
+	private Color _tint = Colors.White;
+
 	private Sprite2D? _sprite;
 
 	private Vector2 _home;
@@ -109,8 +115,37 @@ public partial class NCharacterPoses : Node
 		SetPose(action == "dead" ? "hurt" : action);
 	}
 
+	/// <summary>
+	/// Switch to an alternate pose set for a form the character takes mid-fight (Biden's Dark Brandon): "dark_" loads
+	/// dark_combat_idle.png and so on. A pose without its own painting keeps the normal one, shown with <paramref name="tint"/>.
+	/// Null switches back.
+	/// </summary>
+	public void SetVariant(string? prefix, Color tint)
+	{
+		_variantPoses.Clear();
+		if (!string.IsNullOrEmpty(prefix))
+		{
+			foreach ((string pose, string file, float scale) in Poses)
+			{
+				Texture2D? tex = CharacterArt.Load(ArtDir + prefix + file + ".png");
+				if (tex != null)
+				{
+					_variantPoses[pose] = (tex, FigureHeight * scale);
+				}
+			}
+		}
+		_tint = string.IsNullOrEmpty(prefix) || _variantPoses.Count > 0 ? Colors.White : tint;
+		SetPose(_action == "dead" ? "hurt" : _action);
+	}
+
 	private void SetPose(string pose)
 	{
+		if (_variantPoses.Count > 0 && (_variantPoses.TryGetValue(pose, out var v) || _variantPoses.TryGetValue("idle", out v)) && _sprite != null)
+		{
+			CharacterArt.FitByFeet(_sprite, v.Tex, v.Height);
+			_baseScale = _sprite.Scale;
+			return;
+		}
 		if (_sprite == null || (!_poses.TryGetValue(pose, out var p) && !_poses.TryGetValue("idle", out p)))
 		{
 			return;
@@ -158,6 +193,6 @@ public partial class NCharacterPoses : Node
 		float breath = _dead ? 0f : 0.012f * Mathf.Sin((float)_clock * 2.4f);
 		_sprite.Scale = new Vector2(_baseScale.X * (1f - breath * 0.5f), _baseScale.Y * (1f + breath));
 		_sprite.Position = _home + offset;
-		_sprite.SelfModulate = new Color(1f, 1f, 1f, alpha);
+		_sprite.SelfModulate = new Color(_tint.R, _tint.G, _tint.B, alpha);
 	}
 }
