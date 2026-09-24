@@ -4,7 +4,8 @@
 If a chat session is lost, this file + [`README.md`](../README.md) + [`FRAMEWORK.md`](FRAMEWORK.md) are enough to carry on.
 For a new character, follow [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md).
 
-_Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done. The repo is public at https://github.com/nexost/sts2-pres-mod with release v1.0.0. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md))._
+_Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done. The repo is public at https://github.com/nexost/sts2-pres-mod with release v1.0.0. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md)).
+Joe Biden is in progress on branch `feature/biden`: phase C1 (scaffold) is done; C2 (design) is next._
 
 ---
 
@@ -59,7 +60,15 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | Character | Status |
 |---|---|
 | The Donald (`trump`) | Complete (Steps 3–8) |
-| Joe Biden (`biden`) | Planned: after Step 9 or whenever the user asks, starting with phase C1 |
+| Joe Biden (`biden`) | In progress on branch `feature/biden` (phases in [ADDING_A_CHARACTER.md](ADDING_A_CHARACTER.md)) |
+
+**Joe Biden's phases:**
+
+| Phase | Status | Notes |
+|---|---|---|
+| C1 Scaffold | ✅ Done | "Uncle Joe", class `Biden`, 75 HP / 99 Gold (placeholders until C2), stub starter Aviator Shades (6 Block), Ironclad's sounds. `test.py ui -c biden` passes |
+| C2 Design | ⏳ Next | `characters/biden/design/`: mechanics, play styles, cards, relics, potions; the compendium page for review |
+| C3–C7 | ⬜ | Mechanics and starter set, all content, balance, art, final checks |
 
 ### Step 1: Research and feasibility ✅
 Set up the workspace and tools (ilspycmd, GDRE Tools, Godot 4.5.1 .NET, Pillow). Decompile the current build and unpack the resource pack.
@@ -243,6 +252,7 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-24 | GitHub: the repo is https://github.com/nexost/sts2-pres-mod, branch `master`, release `v1.0.0`, made public. Before going public all commits were rewritten from the global git identity (real name, work email) to `nexost` + GitHub noreply email, and the history went to a fresh repo. The old private repo was renamed `sts2-pres-mod-old`, for the user to delete. Mod author and Harmony ID are `nexost`. |
 | 2026-09-24 | Docs for other people and their AI agents: `AGENTS.md`, `SETUP.md` (tools, models, paths) and `GAME_UPDATES.md`. Per-PC paths moved to `local_settings.json` / environment variables. Step 1 is repeatable with `extract_game.py`, and `game_update_check.py` checks what the mod relies on. |
 | 2026-09-24 | A new character's id must be its class name in snake_case (the game derives every asset path from the class). The scaffold adds 5 stub cards so rewards and shops work before the real cards exist. Touch of Orobas became generic (`IUpgradableStarterRelic`). |
+| 2026-09-24 | **Joe Biden, C1**, on branch `feature/biden`. Display name "Uncle Joe", starter relic Aviator Shades (a stub until C2), 75 HP / 99 Gold until the design sets them. **Colour:** primary `4A55E6` (royal indigo, readable for the name and targeting line), with the card frame deepened to navy (`frame_hsv` h 0.68, s 1.0, v 1.0). It was checked with the game's own frame shader against the Defect's teal (h 0.55): clearly different. The colour word is "navy", because the Defect already has "Blue" in the Colorful Philosophers event. **Test harness:** the game's "Ascensions Unlocked!" popup ignores the tutorials-off setting and covered every ui screenshot once a test run had met the Architect. The harness now marks it as seen in the test profile (`DisableTutorials`). |
 
 ## Open items
 

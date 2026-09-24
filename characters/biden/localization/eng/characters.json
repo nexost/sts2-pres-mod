@@ -1,0 +1,17 @@
+{
+  "BIDEN.title": "Uncle Joe",
+  "BIDEN.titleObject": "Uncle Joe",
+  "BIDEN.description": "TODO one or two lines for the character select screen.",
+  "BIDEN.pronounSubject": "he",
+  "BIDEN.pronounObject": "him",
+  "BIDEN.pronounPossessive": "his",
+  "BIDEN.possessiveAdjective": "his",
+  "BIDEN.cardsModifierTitle": "Uncle Joe Cards",
+  "BIDEN.cardsModifierDescription": "Uncle Joe cards will now appear in rewards and shops.",
+  "BIDEN.eventDeathPrevention": "TODO a defiant line when an event would kill him.",
+  "BIDEN.goldMonologue": "[sine]TODO a line about gold...[/sine]",
+  "BIDEN.aromaPrinciple": "[sine][gold]TODO a rousing line.[/gold][/sine]",
+  "BIDEN.banter.alive.endTurnPing": "TODO a line nudging a co-op partner to end the turn.",
+  "BIDEN.banter.dead.endTurnPing": "TODO...",
+  "BIDEN.unlockText": "Play a run as {Prerequisite} to unlock."
+}

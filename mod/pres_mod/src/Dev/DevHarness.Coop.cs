@@ -31,7 +31,7 @@ public static partial class DevHarness
 	{
 		bool host = IsCoopHost;
 		Node root = ((SceneTree)Engine.GetMainLoop()).Root;
-		SaveManager.Instance.SetFtuesEnabled(enabled: false);
+		DisableTutorials();
 		Note($"co-op {(host ? "host" : "client")}, character {TestCharacterId}");
 
 		// fastmp opens the lobby by itself: the host's, or the client's once it has connected.

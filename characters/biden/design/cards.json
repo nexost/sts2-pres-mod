@@ -1,0 +1,16 @@
+{
+  "_format": "Numbers written {base|upgraded}. cost_up = cost after upgrade. up = other upgrade changes. arch: one of character.json archetypes. mp = co-op only (MultiplayerConstraint). kw = keywords (Exhaust, Ethereal, Innate, Retain). art = what the card portrait shows (the art tools add the persona and style). Starter set made by scripts/new_character.py; the design step fills in the rest (docs/ADDING_A_CHARACTER.md).",
+  "cards": [
+    {"id": "StrikeBiden", "name": "Strike", "rarity": "Basic", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "General", "text": "Deal {6|9} damage.", "art": "TODO Joe throws a punch."},
+    {"id": "DefendBiden", "name": "Defend", "rarity": "Basic", "type": "Skill", "cost": 1, "target": "Self", "arch": "General", "text": "Gain {5|8} Block.", "art": "TODO Joe braces behind something."},
+    {"id": "JabBiden", "name": "Jab", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "General", "text": "Deal {9|12} damage. Draw 1 card.", "art": "TODO", "note": "stub from new_character.py, remove when the real cards exist"},
+    {"id": "OneTwoBiden", "name": "One-Two", "rarity": "Common", "type": "Attack", "cost": 1, "target": "Enemy", "arch": "General", "text": "Deal {5|7} damage twice.", "art": "TODO", "note": "stub"},
+    {"id": "BraceBiden", "name": "Brace", "rarity": "Common", "type": "Skill", "cost": 1, "target": "Self", "arch": "General", "text": "Gain {8|11} Block. Draw 1 card.", "art": "TODO", "note": "stub"},
+    {"id": "RegroupBiden", "name": "Regroup", "rarity": "Uncommon", "type": "Skill", "cost": 1, "target": "Self", "arch": "General", "text": "Gain {5|8} Block. Draw 2 cards.", "art": "TODO", "note": "stub"},
+    {"id": "ResolveBiden", "name": "Resolve", "rarity": "Uncommon", "type": "Power", "cost": 1, "target": "Self", "arch": "General", "text": "Gain {2|3} Strength.", "art": "TODO", "note": "stub"}
+  ],
+  "relics": [
+    {"id": "AviatorShades", "name": "Aviator Shades", "rarity": "Starter", "text": "Start each combat with 6 Block.", "flavor": "TODO"}
+  ],
+  "potions": []
+}

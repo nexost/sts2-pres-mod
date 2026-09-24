@@ -1,0 +1,31 @@
+{
+  "_format": "Every piece of art this character needs besides the card portraits (those come from design/cards.json). kind picks the recipe in scripts/art_recipes.py (style references, prompt template, size, post-processing); where the files go comes from the kind (scripts/presmod.py KIND_OUTPUTS) unless the item lists its own \"outputs\" (paths relative to mod/, {id} = the character id). art = what to draw; {persona} = character.json art.persona. The prompts below are generic starting points made by scripts/new_character.py: give them the character's props and jokes before generating (docs/ART_PIPELINE.md). Add a relic, power or potion here when its class is added.",
+  "character": [
+    {"id": "char_button", "kind": "char_button", "name": "Character select button", "art": "a character select portrait bust of {persona}, three-quarter view, chin raised with a confident expression, on a solid flat saturated navy background"},
+    {"id": "char_select_bg", "kind": "fullscreen", "name": "Character select screen", "art": "{persona} standing heroically on the right half of the frame, seen from a low angle, under a dramatic navy sky with drifting embers. The left 40 percent of the image is calm dark background with no subject, leaving room for menu text"},
+    {"id": "top_panel_icon", "kind": "top_icon", "name": "Top bar icon", "art": "the head of {persona} in three-quarter view, a confident smile"},
+    {"id": "map_marker", "kind": "map_marker", "name": "Map marker", "art": "a small navy pennant flag on a short pole, pointing straight down"},
+    {"id": "combat_idle", "kind": "figure", "name": "Combat pose: idle", "art": "standing confidently, one hand raised in a friendly wave"},
+    {"id": "combat_attack", "kind": "figure", "name": "Combat pose: attack", "art": "lunging forward with a big swinging punch"},
+    {"id": "combat_cast", "kind": "figure", "name": "Combat pose: cast", "art": "pointing forward commandingly with one finger, the other hand holding up a signed document"},
+    {"id": "combat_hurt", "kind": "figure", "name": "Combat pose: hurt", "art": "recoiling backwards with a shocked offended expression, arms flailing"},
+    {"id": "merchant_pose", "kind": "figure", "name": "Shop pose", "art": "standing alone, seen from slightly behind, hands clasped behind the back, leaning forward to inspect something with great interest, no furniture or counter"},
+    {"id": "rest_site_pose", "kind": "figure", "name": "Rest site pose", "art": "sitting relaxed in a folding camp chair with feet up, a small campfire glow on the face"},
+    {"id": "hand_rock", "kind": "hand", "name": "Co-op hand: rock", "art": "clenched into a firm fist"},
+    {"id": "hand_paper", "kind": "hand", "name": "Co-op hand: paper", "art": "held flat and open, palm facing forward, fingers together"},
+    {"id": "hand_scissors", "kind": "hand", "name": "Co-op hand: scissors", "art": "making a scissors sign with the index and middle fingers spread in a V"},
+    {"id": "hand_point", "kind": "hand", "name": "Co-op hand: point", "art": "pointing straight up with the index finger"},
+    {"id": "transition", "kind": "transition", "name": "Screen transition mask", "art": "a swirling vortex of tumbling confetti and stars, spiraling into the center"}
+  ],
+  "relics": [
+    {"id": "aviator_shades", "name": "Aviator Shades", "art": "TODO what the starter relic looks like"}
+  ],
+  "potions": [],
+  "powers": [],
+  "ui": [
+    {"id": "energy_orb_base", "kind": "orb", "name": "Energy orb: base", "art": "a round shiny navy medallion seal with an octagonal rim and a star in the middle, all navy colors, flat front view", "layers": [1]},
+    {"id": "energy_orb_swirl", "kind": "orb", "name": "Energy orb: swirl", "art": "a round swirl of bright navy flame energy spiraling around an empty center, all navy colors, flat front view", "layers": [2, 3]},
+    {"id": "energy_orb_ring", "kind": "orb", "name": "Energy orb: rim", "art": "a thick ornate polished navy octagonal ring frame with a hollow empty center, all navy colors, flat front view", "layers": [4, 5]},
+    {"id": "energy_icon", "kind": "energy_icon", "name": "Energy icon (card text and cost gem)", "art": "a small shiny navy gem with a star engraved on it"}
+  ]
+}

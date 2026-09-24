@@ -1,0 +1,16 @@
+{
+  "STRIKE_BIDEN.title": "Strike",
+  "STRIKE_BIDEN.description": "Deal {Damage:diff()} damage.",
+  "DEFEND_BIDEN.title": "Defend",
+  "DEFEND_BIDEN.description": "Gain {Block:diff()} [gold]Block[/gold].",
+  "JAB_BIDEN.title": "Jab",
+  "JAB_BIDEN.description": "Deal {Damage:diff()} damage.\nDraw {Cards:diff()} {Cards:plural:card|cards}.",
+  "ONE_TWO_BIDEN.title": "One-Two",
+  "ONE_TWO_BIDEN.description": "Deal {Damage:diff()} damage twice.",
+  "BRACE_BIDEN.title": "Brace",
+  "BRACE_BIDEN.description": "Gain {Block:diff()} [gold]Block[/gold].\nDraw {Cards:diff()} {Cards:plural:card|cards}.",
+  "REGROUP_BIDEN.title": "Regroup",
+  "REGROUP_BIDEN.description": "Gain {Block:diff()} [gold]Block[/gold].\nDraw {Cards:diff()} {Cards:plural:card|cards}.",
+  "RESOLVE_BIDEN.title": "Resolve",
+  "RESOLVE_BIDEN.description": "Gain {StrengthPower:diff()} [gold]Strength[/gold]."
+}

@@ -1,0 +1,48 @@
+{
+  "_about": "Everything the tools need to know about this character (scripts/presmod.py). Code: mod/pres_mod/src/Characters/<folder>/. Made by scripts/new_character.py; every TODO is filled during the character's design and art steps (docs/ADDING_A_CHARACTER.md).",
+  "id": "BIDEN",
+  "class": "Biden",
+  "folder": "Biden",
+  "name": "Uncle Joe",
+  "colors": {
+    "primary": "4A55E6",
+    "secondary": "191C40",
+    "accent": "B22234",
+    "text": "FAF0D7"
+  },
+  "archetypes": [
+    "General"
+  ],
+  "art": {
+    "persona": "TODO Joe Biden as a comic caricature, with <hair>, <face>, <outfit> and <one signature prop>",
+    "persona_sentence": "TODO Joe Biden is drawn as a comic caricature with <the same description as persona>.",
+    "name_in_card_art": "Joe",
+    "full_name": "Joe Biden",
+    "placeholder_initial": "B",
+    "enemy_rule": "Every enemy, monster or foe is a Slay the Spire fantasy creature (cultists, slimes, goblins, beetles, jaw worms), never a human.",
+    "enemy_rule_archetypes": [],
+    "card_refs": {
+      "General": [
+        "ironclad/inflame",
+        "defect/momentum_strike",
+        "necrobinder/dirge"
+      ]
+    },
+    "card_backgrounds": {
+      "General": "TODO a background in the character's colours, e.g. warm crimson and navy background"
+    },
+    "default_archetype": "General",
+    "energy_tint": [
+      "0E102C",
+      "3F48C3",
+      "C1C5FD"
+    ],
+    "sleeve": "TODO the character's sleeve for the co-op hands, e.g. a navy suit sleeve with a white shirt cuff"
+  },
+  "frame_hsv": {
+    "h": 0.68,
+    "s": 1.0,
+    "v": 1.0
+  },
+  "sfx_proxy": "ironclad"
+}

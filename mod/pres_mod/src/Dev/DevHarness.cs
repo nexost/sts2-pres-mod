@@ -26,6 +26,7 @@ using MegaCrit.Sts2.Core.Nodes;
 using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.CommonUi;
 using MegaCrit.Sts2.Core.Nodes.Debug;
+using MegaCrit.Sts2.Core.Nodes.Ftue;
 using MegaCrit.Sts2.Core.Nodes.GodotExtensions;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Screens;
@@ -306,7 +307,7 @@ public static partial class DevHarness
 	{
 		Node root = ((SceneTree)Engine.GetMainLoop()).Root;
 		Control mainMenu = await WaitHelper.ForNode<Control>(root, "/root/Game/RootSceneContainer/MainMenu", _ct, TimeSpan.FromSeconds(90));
-		SaveManager.Instance.SetFtuesEnabled(enabled: false);
+		DisableTutorials();
 		await Task.Delay(2500);
 		if (screenshots)
 		{
@@ -344,6 +345,16 @@ public static partial class DevHarness
 		{
 			Screenshot("run_start");
 		}
+	}
+
+	/// <summary>
+	/// No tutorials or first-time popups in the test profile. The Ascension popup isn't a tutorial to the game, so turning
+	/// tutorials off doesn't stop it: once a test run has met the Architect it would cover every later screenshot.
+	/// </summary>
+	private static void DisableTutorials()
+	{
+		SaveManager.Instance.SetFtuesEnabled(enabled: false);
+		SaveManager.Instance.MarkFtueAsComplete(NAscensionSingleplayerFtue.id);
 	}
 
 	private static async Task Fight(string encounter, TimeSpan? timeout = null)
