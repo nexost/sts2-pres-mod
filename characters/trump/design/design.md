@@ -198,3 +198,24 @@ are set so a dedicated Wall deck reaches Brick by turn 2–3 and Concrete by tur
 | **Deport vs scripted enemies** | Some encounters may need an enemy to *die* | Step 4 Deports every enemy in every encounter to find exceptions |
 | **Tweet spam** | 3 AM Posting + Verified Account + Late-Night Phone | Tweet damage; Verified Account amount |
 | **Bosses** | Deport doesn't work on bosses | The other styles all work on bosses; track win rate by boss |
+
+## 10. Visual effects
+
+Only visuals: none of them changes the game, so co-op stays in sync. Built from the game's own effects and
+`Framework/VfxKit`. Code: `Characters/Trump/Mechanics/TrumpVfx.cs`, plus `Nodes/NTrumpCombatUi.cs` for the Wall and
+Deport. `python scripts/test.py vfx -c trump` plays them with screenshots.
+
+| Moment | Effect |
+|---|---|
+| **Gold** | Paying throws coins out of him (the game's coin explosions); a fortune going out (Chapter 11, You're Fired!) sprays his own coins everywhere. Gaining rains coins onto him. Watched from his Gold, so every card, relic and power gets it |
+| **Tariff** | A gold coin pops over the enemy and spins away (watched from the enemy's Tariff) |
+| **Tweets** | Now and then, a blue speech bubble with one of his words ("SAD!", "HUGE!", "WINNING!", "FAKE NEWS!", ...) and blue sparks |
+| **Wall** | Dust as it rises, rubble as it's spent (Step 8). Each new stage lands with a harder shake; the golden Big Beautiful Wall and huge jumps (Great Wall, Golden Escalator) burst gold |
+| **Deport** | The DENIED stamp slam and "DEPORTED!" (Step 8), now with a white swoosh off to the right and a shake |
+| **You're Fired!** | "YOU'RE FIRED!" slams across the screen, a red flash and a hard shake, then the Deport |
+| **Fire and Fury** | Fire bursts on every enemy, an orange flash, a big shake |
+| **Make It Rain** | Gold coins pour down from the top of the screen onto every enemy |
+| **Wrecking Ball** | A ball on a chain swings down into the enemies: rubble, and the biggest shake |
+| **Hole in One, Golf Weekend** | A golf ball arcs onto the target with a gold burst; or off the screen with "FORE!" |
+| **Potions and relics** | Covfefe: a coffee splash and a bubble. Quick-Dry Concrete: a puff of concrete dust. Golden and Diamond Shovel: gold sparkles as they dig |
+

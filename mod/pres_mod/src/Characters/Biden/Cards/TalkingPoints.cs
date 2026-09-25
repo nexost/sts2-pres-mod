@@ -11,6 +11,8 @@ public sealed class TalkingPoints : TangentCard
 
 	public override int LineCount => 3;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.AnyEnemy, TargetType.AnyEnemy, TargetType.Self };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{
 		new PowerVar<WeakPower>(2m),
@@ -31,12 +33,18 @@ public sealed class TalkingPoints : TangentCard
 		switch (line)
 		{
 			case 1:
-				ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-				await PowerCmd.Apply<WeakPower>(choiceContext, cardPlay.Target, DynamicVars[nameof(WeakPower)].BaseValue, Owner.Creature, this);
+				if (EnemyFor(cardPlay) is not Creature enemy)
+				{
+					break;
+				}
+				await PowerCmd.Apply<WeakPower>(choiceContext, enemy, DynamicVars[nameof(WeakPower)].BaseValue, Owner.Creature, this);
 				break;
 			case 2:
-				ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-				await PowerCmd.Apply<VulnerablePower>(choiceContext, cardPlay.Target, DynamicVars[nameof(VulnerablePower)].BaseValue, Owner.Creature, this);
+				if (EnemyFor(cardPlay) is not Creature enemy2)
+				{
+					break;
+				}
+				await PowerCmd.Apply<VulnerablePower>(choiceContext, enemy2, DynamicVars[nameof(VulnerablePower)].BaseValue, Owner.Creature, this);
 				break;
 			case 3:
 				await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block, cardPlay);

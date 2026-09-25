@@ -69,6 +69,9 @@ mod/pres_mod/src/
     CharacterArt.cs      res://images/<id>/ paths, "art exists?" lookups, placing a figure by its feet
     Nodes/NCharacterPoses.cs   the combat body for characters without a Spine rig
     VfxRecolor.cs              recolours an instance of a game VFX scene (the Defect's hyperbeam into red Laser Eyes)
+    VfxKit.cs                  small effects any character can use: screen flash, overlays, particle bursts (confetti,
+                               coins, sparks), puffs (steam, dust), a sprite driving across the fight, a plane's shadow,
+                               a glowing line between two points, and where a creature's painting is on screen
     Patches/             the compatibility patches (below)
   Dev/                   test harness and save cleanup, for every character
   Characters/<Class>/    one folder per character; namespace PresMod.Characters.<Class>
@@ -162,6 +165,7 @@ Every **image** has a fixed path per art kind: `presmod.KIND_OUTPUTS`, listed in
 | `cards [SEED] [relics\|A,B]` | Every card base and upgraded in real fights with key-effect checks; relics, potions, turn powers; all texts rendered | ~15 min (relics only ~1 min) |
 | `balance CHARS RUNS [PREFIX] [PARALLEL] [fullheal] [favor=STYLE]` | Heuristic bot runs, e.g. `BIDEN,IRONCLAD,SILENT 9 PFX 9 fullheal`: 9 at once, tiled 3×3 on the main monitor, muted | ~25 min per 54 runs |
 | `autoslay [SEED]` | The game's AutoSlay bot plays a full run (god mode) | ~5 min |
+| `vfx` | A character's visual effects played one after another in a fight, with a screenshot at each key moment (the character's `ExtraModes["vfx"]`: Biden, Trump) | ~2 min |
 | `coop [CLIENT_CHARACTER]` | Two instances side by side play a co-op fight over localhost (the game's own `--fastmp` option, no Steam lobby): the host starts it, each plays its own cards (`CoopTurn` hook; the scripted plays stop once that player's turn has ended, as the game's hand does), both record every player and enemy at the start of each turn and the records must match (desync check), then the rest site and shop | ~4 min |
 | a character's own mode | e.g. `deportsweep` (Trump) | varies |
 | `cleansaves [ID,...]` | Removes test runs that use the mod or a removed character (through the game, so Steam Cloud doesn't restore them) | ~30 s |

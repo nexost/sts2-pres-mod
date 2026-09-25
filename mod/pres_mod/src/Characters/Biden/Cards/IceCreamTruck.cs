@@ -18,6 +18,8 @@ public sealed class IceCreamTruck : CardModel
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		await BidenVfx.Vehicle(Owner.Creature, "ice_cream_truck", size: 0.7f, seconds: 1.2f, behind: true);
+		BidenVfx.Sprinkles(Owner.Creature);
 		await CreatureCmd.Heal(Owner.Creature, DynamicVars.Heal.BaseValue);
 	}
 

@@ -18,6 +18,7 @@ public sealed class AllAboard : CardModel
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		_ = BidenVfx.Vehicle(Owner.Creature, "train", size: 0.8f, seconds: 1.3f, behind: true);
 		await CreatureCmd.GainBlock(Owner.Creature, DynamicVars.Block, cardPlay);
 		await CardPileCmd.Draw(choiceContext, DynamicVars.Cards.BaseValue, Owner);
 	}

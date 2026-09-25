@@ -16,6 +16,7 @@ public sealed class FireAndFury : CardModel
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		await TrumpVfx.FireAndFury(CombatState!.HittableEnemies.ToList());
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).WithHitCount(ResolveEnergyXValue()).FromCard(this)
 			.TargetingAllOpponents(CombatState!)
 			.WithHitFx("vfx/vfx_giant_horizontal_slash")

@@ -19,6 +19,7 @@ public sealed class WarmMilk : PotionModel
 
 	protected override async Task OnUse(PlayerChoiceContext choiceContext, Creature? target)
 	{
+		BidenVfx.Steam(Owner.Creature);
 		await DrowsyCmd.Doze(choiceContext, Owner.Creature, DynamicVars[CardVars.Doze].BaseValue);
 	}
 }
@@ -38,6 +39,7 @@ public sealed class EspressoShot : PotionModel
 
 	protected override async Task OnUse(PlayerChoiceContext choiceContext, Creature? target)
 	{
+		await BidenVfx.Jitter(Owner.Creature);
 		await DrowsyCmd.WakeUp(choiceContext, Owner.Creature);
 		await CardPileCmd.Draw(choiceContext, DynamicVars.Cards.BaseValue, Owner);
 	}
@@ -56,6 +58,7 @@ public sealed class DarkRoast : PotionModel
 
 	protected override async Task OnUse(PlayerChoiceContext choiceContext, Creature? target)
 	{
+		BidenVfx.RedFlash();
 		await DrowsyCmd.WakeUp(choiceContext, Owner.Creature);
 		await PowerCmd.Apply<DoubleDamagePower>(choiceContext, Owner.Creature, 1m, Owner.Creature, null);
 	}

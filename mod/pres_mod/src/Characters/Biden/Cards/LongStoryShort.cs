@@ -8,6 +8,8 @@ public sealed class LongStoryShort : TangentCard
 {
 	public override int LineCount => 2;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.AnyEnemy, TargetType.AllEnemies };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{
 		new DamageVar(9m, ValueProp.Move),
@@ -23,8 +25,11 @@ public sealed class LongStoryShort : TangentCard
 	{
 		if (line == 1)
 		{
-			ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-			await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target)
+			if (EnemyFor(cardPlay) is not Creature enemy)
+			{
+				return;
+			}
+			await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(enemy)
 				.WithHitFx("vfx/vfx_attack_slash")
 				.Execute(choiceContext);
 			return;

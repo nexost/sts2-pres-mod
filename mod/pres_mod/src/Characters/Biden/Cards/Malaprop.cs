@@ -11,6 +11,8 @@ public sealed class Malaprop : TangentCard
 
 	public override int LineCount => 2;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.AllEnemies, TargetType.Self };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new DamageVar(10m, ValueProp.Move), new BlockVar(14m, ValueProp.Move) };
 
 	protected override IEnumerable<IHoverTip> ExtraHoverTips => base.ExtraHoverTips.Append(HoverTipFactory.Static(StaticHoverTip.Block));

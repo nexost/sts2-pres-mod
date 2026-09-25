@@ -17,6 +17,7 @@ public sealed class Snore : SleepyCard
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		await BidenVfx.Snore(Owner.Creature);
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).TargetingAllOpponents(CombatState!)
 			.WithHitFx("vfx/vfx_attack_blunt")
 			.Execute(choiceContext);

@@ -31,6 +31,7 @@ public sealed class IceCreamCone : RelicModel, IAfterWakeUp
 			return;
 		}
 		Flash();
+		BidenVfx.Sprinkles(owner);
 		await CreatureCmd.Heal(owner, DynamicVars.Heal.BaseValue);
 	}
 }

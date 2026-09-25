@@ -18,6 +18,7 @@ public sealed class CorvetteCruise : CardModel
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		_ = BidenVfx.Vehicle(Owner.Creature, "corvette", size: 0.5f, seconds: 1.0f, behind: true);
 		await CardPileCmd.Draw(choiceContext, DynamicVars.Cards.BaseValue, Owner);
 		await PowerCmd.Apply<FreeAttackPower>(choiceContext, Owner.Creature, 1m, Owner.Creature, this);
 	}

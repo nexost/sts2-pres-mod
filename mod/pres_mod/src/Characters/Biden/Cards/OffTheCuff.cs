@@ -9,6 +9,8 @@ public sealed class OffTheCuff : TangentCard
 {
 	public override int LineCount => 3;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.AnyEnemy, TargetType.AnyEnemy, TargetType.AllEnemies };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{
 		new DamageVar(10m, ValueProp.Move),
@@ -26,14 +28,20 @@ public sealed class OffTheCuff : TangentCard
 		switch (line)
 		{
 			case 1:
-				ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-				await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target)
+				if (EnemyFor(cardPlay) is not Creature enemy)
+				{
+					break;
+				}
+				await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(enemy)
 					.WithHitFx("vfx/vfx_attack_blunt")
 					.Execute(choiceContext);
 				break;
 			case 2:
-				ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-				await DamageCmd.Attack(DynamicVars["TwiceDamage"].BaseValue).WithHitCount(2).FromCard(this).Targeting(cardPlay.Target)
+				if (EnemyFor(cardPlay) is not Creature enemy2)
+				{
+					break;
+				}
+				await DamageCmd.Attack(DynamicVars["TwiceDamage"].BaseValue).WithHitCount(2).FromCard(this).Targeting(enemy2)
 					.WithHitFx("vfx/vfx_attack_slash")
 					.Execute(choiceContext);
 				break;

@@ -22,6 +22,7 @@ public sealed class QuickDryConcrete : PotionModel
 	protected override async Task OnUse(PlayerChoiceContext choiceContext, Creature? target)
 	{
 		PotionModel.AssertValidForTargetedPotion(target);
+		TrumpVfx.Concrete(target!);
 		await WallCmd.Build(choiceContext, target!, DynamicVars[CardVars.Build].BaseValue);
 	}
 }
@@ -44,6 +45,7 @@ public sealed class CovfefePotion : PotionModel
 		ICombatState? combat = Owner.Creature.CombatState;
 		if (combat != null)
 		{
+			TrumpVfx.Covfefe(Owner.Creature);
 			await Tweet.CreateInHand(Owner, DynamicVars.Cards.IntValue, combat, upgraded: true);
 		}
 	}

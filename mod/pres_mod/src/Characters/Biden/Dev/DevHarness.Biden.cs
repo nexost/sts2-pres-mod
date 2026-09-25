@@ -32,6 +32,8 @@ public static partial class DevHarness
 			// Co-op: nodding off ends only this player's turn; Reach Across the Aisle; everyone who napped wakes as Dark Brandon.
 			CoopTurn = BidenCoopTurn,
 			CoopTurnStart = BidenCoopTurnStart,
+			// test.py vfx -c biden: every visual effect, with screenshots.
+			ExtraModes = { ["vfx"] = BidenVfxShowcase },
 			// The balance bot: his cards valued as they actually play, and naps, lasers and Drowsy per fight.
 			CardValueOverride = BidenCardValueOverride,
 			CardValue = (card, fight, _) => BidenExtraValue(card, fight),
@@ -72,6 +74,8 @@ public static partial class DevHarness
 		// Tangent: Here's the Deal starts on line 1, moves on after another card, and only the lit line happens.
 		var deal = (TangentCard)await AddToHand("HERES_THE_DEAL");
 		Check(deal.Line == 1, $"Here's the Deal enters the hand on line {deal.Line} (expected 1)");
+		Check(deal.Type == CardType.Attack && deal.TargetType == TargetType.AnyEnemy,
+			$"On line 1 (damage) it's an Attack that needs a target ({deal.Type}, {deal.TargetType})");
 		Screenshot("tangent_line1");
 		CardModel strike = await AddToHand("STRIKE_BIDEN");
 		await CardCmd.AutoPlay(ctx, strike, enemy);
@@ -80,11 +84,15 @@ public static partial class DevHarness
 		string text = deal.GetDescriptionForPile(PileType.Hand);
 		Check(text.Contains("[gold](2)[/gold]") && text.Contains("[color=#8b8778](1)") && text.Contains("[color=#8b8778](3)"),
 			"Line 2 is lit in the card text, lines 1 and 3 are dimmed");
+		Check(deal.Type == CardType.Skill && deal.TargetType == TargetType.Self,
+			$"On line 2 (Block) it needs no target and plays as a Skill ({deal.Type}, {deal.TargetType})");
 		Screenshot("tangent_line2");
 		await BidenInspect(deal, "tangent_line2_card");
 		int block = joe.Block;
 		int enemyHp = enemy.CurrentHp;
-		await CardCmd.AutoPlay(ctx, deal, enemy);
+		// Played as a player would: dragged up with no target (the real input path: the synced play-card action).
+		Check(deal.TryManualPlay(null), "Here's the Deal on line 2 plays with no target");
+		await WaitForCardToSettle(combat);
 		await Task.Delay(800);
 		Check(joe.Block == block + 7 && enemy.CurrentHp == enemyHp, $"Line 2 only: Block {block} -> {joe.Block} (expected +7), enemy HP {enemyHp} -> {enemy.CurrentHp} (expected unchanged)");
 
@@ -123,8 +131,11 @@ public static partial class DevHarness
 			int hand = PileType.Hand.GetPile(me).Cards.Count;
 			int hp = enemy.CurrentHp + enemy.Block;
 			block = joe.Block;
-			await CardCmd.AutoPlay(ctx, deal2, enemy);
-			await Task.Delay(1200);
+			Task allLines = CardCmd.AutoPlay(ctx, deal2, enemy);
+			await Task.Delay(750);
+			Screenshot("vfx_all_lines_bubbles");
+			await allLines;
+			await Task.Delay(600);
 			Check(enemy.CurrentHp + enemy.Block <= hp - 8, $"All lines: dealt 8 ({hp} -> {enemy.CurrentHp + enemy.Block} HP + Block)");
 			Check(joe.Block == block + 7, $"All lines: gained 7 Block ({block} -> {joe.Block})");
 			Check(PileType.Hand.GetPile(me).Cards.Count == hand - 1 + 2, $"All lines: drew 2 ({hand} -> {PileType.Hand.GetPile(me).Cards.Count}, the card itself left)");
@@ -132,6 +143,23 @@ public static partial class DevHarness
 			// Drowsy can't build while he's awake.
 			await DrowsyCmd.Doze(ctx, joe, 5m);
 			Check(DrowsyCmd.GetDrowsy(joe) == 0, $"Doze does nothing as Dark Brandon (Drowsy {DrowsyCmd.GetDrowsy(joe)})");
+
+			// Card effects, for the screenshots only (visuals, no game state): Snore's wave, Laser Show's sweeping beam.
+			Task snore = BidenVfx.Snore(joe);
+			await Task.Delay(350);
+			Screenshot("vfx_snore");
+			await snore;
+			await Task.Delay(900);
+			Task show = BidenVfx.LaserShow(joe, combat.HittableEnemies.ToList());
+			// The Defect's sweep lasts 0.35 s, with the impacts halfway.
+			await Task.Delay(120);
+			Screenshot("vfx_laser_show_1");
+			await Task.Delay(130);
+			Screenshot("vfx_laser_show_2");
+			await Task.Delay(200);
+			Screenshot("vfx_laser_show_3");
+			await show;
+			await Task.Delay(1200);
 		}
 
 		// End of the Dark Brandon turn: back to Sleepy Joe, with no end-of-turn Doze on an awake turn.

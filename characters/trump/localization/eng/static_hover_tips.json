@@ -8,5 +8,16 @@
   "TRUMP_DEPORT.stamp": "DENIED",
   "TRUMP_DEPORT.popup": "DEPORTED!",
   "TRUMP_PAY_GOLD.title": "Pay Gold",
-  "TRUMP_PAY_GOLD.description": "Can only be played if you have enough [gold]Gold[/gold]. Pay it when played."
+  "TRUMP_PAY_GOLD.description": "Can only be played if you have enough [gold]Gold[/gold]. Pay it when played.",
+  "TRUMP_VFX.tweet1": "SAD!",
+  "TRUMP_VFX.tweet2": "HUGE!",
+  "TRUMP_VFX.tweet3": "WINNING!",
+  "TRUMP_VFX.tweet4": "TREMENDOUS!",
+  "TRUMP_VFX.tweet5": "BIGLY!",
+  "TRUMP_VFX.tweet6": "FAKE NEWS!",
+  "TRUMP_VFX.tweet7": "Covfefe",
+  "TRUMP_VFX.tweet8": "Many people are saying!",
+  "TRUMP_VFX.fired": "YOU'RE FIRED!",
+  "TRUMP_VFX.fore": "FORE!",
+  "TRUMP_VFX.covfefe": "Covfefe!"
 }

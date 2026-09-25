@@ -31,7 +31,7 @@ public static partial class DevHarness
 			await TrumpMechanicsChecks();
 			await TrumpAfterMechanics();
 		},
-		ExtraModes = { ["deportsweep"] = TrumpDeportSweep },
+		ExtraModes = { ["deportsweep"] = TrumpDeportSweep, ["vfx"] = TrumpVfxShowcase },
 		RelicChecks = TrumpRelicChecks,
 		PotionChecks = TrumpPotionChecks,
 		PowerChecks = TrumpPowerChecks,

@@ -20,6 +20,7 @@ public sealed class MakeItRain : PayGoldCard
 
 	protected override async Task OnPaidPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		await TrumpVfx.MakeItRain(CombatState!.HittableEnemies.ToList());
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).WithHitCount(DynamicVars.Repeat.IntValue).FromCard(this)
 			.TargetingAllOpponents(CombatState!)
 			.WithHitFx("vfx/vfx_coin_explosion_small")

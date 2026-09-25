@@ -53,6 +53,10 @@ public partial class NCharacterPoses : Node
 
 	private bool _dead;
 
+	private float _shakeLeft;
+
+	private float _shakeStrength;
+
 	public override void _Ready()
 	{
 		_sprite = GetParent().GetNodeOrNull<Sprite2D>("%Visuals") ?? GetParent().GetNodeOrNull<Sprite2D>("Visuals");
@@ -149,6 +153,13 @@ public partial class NCharacterPoses : Node
 		}
 	}
 
+	/// <summary>Jitter the figure in place for a moment (Biden's Espresso Shot): a visual only, on top of any pose motion.</summary>
+	public void Shake(float seconds, float strength = 6f)
+	{
+		_shakeLeft = seconds;
+		_shakeStrength = strength;
+	}
+
 	/// <summary>The painting's rectangle on screen (global coordinates), e.g. to start an effect at the character's eyes.</summary>
 	public Rect2? FigureRect => _sprite == null || _sprite.Texture == null ? null : _sprite.GetGlobalTransform() * _sprite.GetRect();
 
@@ -206,6 +217,11 @@ public partial class NCharacterPoses : Node
 		// Breathing: a slow stretch from the feet up, off while dead.
 		float breath = _dead ? 0f : 0.012f * Mathf.Sin((float)_clock * 2.4f);
 		_sprite.Scale = new Vector2(_baseScale.X * (1f - breath * 0.5f), _baseScale.Y * (1f + breath));
+		if (_shakeLeft > 0f)
+		{
+			_shakeLeft -= (float)delta;
+			offset += new Vector2((GD.Randf() - 0.5f) * 2f, (GD.Randf() - 0.5f)) * _shakeStrength;
+		}
 		_sprite.Position = _home + offset;
 		_sprite.SelfModulate = new Color(_tint.R, _tint.G, _tint.B, alpha);
 	}

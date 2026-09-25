@@ -9,6 +9,8 @@ public sealed class BigDeal : TangentCard
 {
 	public override int LineCount => 3;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.AnyEnemy, TargetType.Self, TargetType.AllEnemies };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{
 		new DamageVar(22m, ValueProp.Move),
@@ -25,8 +27,11 @@ public sealed class BigDeal : TangentCard
 		switch (line)
 		{
 			case 1:
-				ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-				await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target)
+				if (EnemyFor(cardPlay) is not Creature enemy)
+				{
+					break;
+				}
+				await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(enemy)
 					.WithHitFx("vfx/vfx_heavy_blunt", null, "heavy_attack.mp3")
 					.Execute(choiceContext);
 				break;

@@ -175,6 +175,7 @@ python scripts/balance_report.py BIDEN1
    - the select screen scene, props in the poses, the map marker, the transition;
    - the character's own art items with their `outputs` (like Trump's Wall stages).
    - the combat poses as one `figure_sheet` (the template has it); a second form gets its own sheet that references the first.
+   - props for effects (Biden's train, limo, sports car and ice cream truck: `prop` items with their own `outputs`).
 3. **Check the card `art` texts:** the character on about a third of the cards (the base game's mix: hands on about a fifth,
    objects, effects, monsters and scenes on the rest), named by `name_in_card_art` wherever they show, including forms
    ("Joe as Dark Brandon").

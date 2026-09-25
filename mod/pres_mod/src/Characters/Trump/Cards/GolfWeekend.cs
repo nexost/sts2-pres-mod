@@ -24,6 +24,7 @@ public sealed class GolfWeekend : CardModel
 	{
 		await PowerCmd.Apply<EnergyNextTurnPower>(choiceContext, Owner.Creature, DynamicVars.Energy.BaseValue, Owner.Creature, this);
 		await PowerCmd.Apply<DrawCardsNextTurnPower>(choiceContext, Owner.Creature, DynamicVars.Cards.BaseValue, Owner.Creature, this);
+		await TrumpVfx.Golf(Owner.Creature, null);
 		PlayerCmd.EndTurn(Owner, canBackOut: false);
 	}
 

@@ -340,6 +340,58 @@
       "kind": "energy_icon",
       "name": "Energy icon (card text and cost gem)",
       "art": "a small shiny navy blue gem with a white star engraved on it"
+    },
+    {
+      "id": "vfx_train",
+      "kind": "prop",
+      "name": "Effect: passenger train",
+      "fit": [
+        1100,
+        360
+      ],
+      "outputs": {
+        "prop": "images/{id}/vfx/train.png"
+      },
+      "art": "a sleek silver and navy blue passenger train locomotive with two carriages, racing to the right, a bright headlight, clouds of white steam at the front, no text or logos"
+    },
+    {
+      "id": "vfx_limo",
+      "kind": "prop",
+      "name": "Effect: armored limousine",
+      "fit": [
+        760,
+        300
+      ],
+      "outputs": {
+        "prop": "images/{id}/vfx/limo.png"
+      },
+      "art": "a massive armored black presidential limousine with small flags on the front fenders, driving fast to the right, headlights blazing, no text or logos"
+    },
+    {
+      "id": "vfx_corvette",
+      "kind": "prop",
+      "name": "Effect: '67 sports car",
+      "fit": [
+        640,
+        260
+      ],
+      "outputs": {
+        "prop": "images/{id}/vfx/corvette.png"
+      },
+      "art": "a shiny green 1967 classic sports convertible with chrome bumpers and an empty driver's seat, speeding to the right, no text or logos"
+    },
+    {
+      "id": "vfx_ice_cream_truck",
+      "kind": "prop",
+      "name": "Effect: ice cream truck",
+      "fit": [
+        640,
+        360
+      ],
+      "outputs": {
+        "prop": "images/{id}/vfx/ice_cream_truck.png"
+      },
+      "art": "a cheerful pastel pink and white ice cream truck with a giant ice cream cone on its roof, driving to the right, no text or logos"
     }
   ]
 }

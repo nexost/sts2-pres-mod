@@ -38,6 +38,7 @@ public sealed class DiamondShovel : RelicModel
 	private async Task Dig()
 	{
 		Flash();
+		TrumpVfx.Shovel(Owner.Creature);
 		await WallCmd.Build(new ThrowingPlayerChoiceContext(), Owner.Creature, DynamicVars["Build"].BaseValue);
 	}
 }

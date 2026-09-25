@@ -22,6 +22,7 @@ public sealed class ReachAcrossTheAisle : CardModel
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		BidenVfx.ReachAcross(Owner.Creature, CombatState!.Players.Select(p => p.Creature));
 		foreach (Player player in CombatState!.Players)
 		{
 			await PlayerCmd.GainEnergy(DynamicVars.Energy.BaseValue, player);

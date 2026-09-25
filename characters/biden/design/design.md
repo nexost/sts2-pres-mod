@@ -79,6 +79,11 @@ Enemies are always Spire monsters.
 - A **Tangent** card has 2 or 3 lines. **Only the lit line happens.** When you draw it, line (1) is lit.
 - **After you play any other card, every Tangent card in your hand moves to its next line** (the last wraps back to the first).
 - **As Dark Brandon, a Tangent card does all its lines.**
+- **A Tangent is what its lit line does.** On a line that hits one enemy you aim it; on a line that hits all enemies, or
+  gives Block, cards or Energy, you just play it. An Attack Tangent on a line that deals no damage is a **Skill** (its
+  frame and type change in the hand), so Attack-only effects skip it. As Dark Brandon it's all its lines at once: an
+  Attack that you aim if any line needs a target. (Added after the user's playtest: Here's the Deal on its Block line
+  still asked for a target.)
 - So Sleepy Joe's hand keeps changing its mind. The puzzle each turn is the order: play the other cards until the Tangent says what you want, then play it. Or save it for the Dark Brandon turn and get everything.
 - On screen: the lit line is gold, the others are grey, and a small (1)(2)(3) marker shows where it is.
 
@@ -208,3 +213,25 @@ their Doze: Doze is progress toward Dark Brandon, and its cost is the risk of no
 | Trump's Wall | The Wall only grows and never resets. Drowsy is a meter that fills, spends itself in Laser Eyes, and starts over; its cost is losing the rest of a turn |
 | The "Forms" powers (Demon Form, ...) | Dark Brandon is a recurring one-turn state, not a permanent power |
 | Necrobinder's Osty | No companion or summon of any kind |
+
+## 11. Visual effects
+
+Only visuals: none of them changes the game, so co-op stays in sync. Most are the game's own effects, recoloured
+(`Framework/VfxRecolor`), or built with `Framework/VfxKit`. Code: `Characters/Biden/Mechanics/BidenVfx.cs`.
+`python scripts/test.py vfx -c biden` plays every one with screenshots.
+
+| Moment | Effect |
+|---|---|
+| **Laser Eyes** (waking as Dark Brandon) | The Defect's hyperbeam in red, from his eyes on the pose shown: charge-up, white-hot beam, impact spikes, embers, screen shake. Double Vision's extra hit comes from a second, offset pair in orange-red; with Laser Focus the beam is thinner and brighter |
+| **Waking as Dark Brandon** | A red power-up burst and a jolt. During his Dark Brandon turn, a breathing red glow and embers behind his figure |
+| **Doze** | A few Z's rise from his head. Near the nod-off line (from half of it), the screen edges sink into an indigo dusk: only on his own player's screen |
+| **Nodding off** | The game's sleeping Z's (the ones sleeping monsters use) over his head, until he wakes |
+| **Tangents** | A line moving on: now and then, a speech bubble with one of his lines ("Here's the deal...", "Where was I?", "C'mon, man!"). As Dark Brandon, three quick bubbles: "Point one!", "Point two!", "And three!" |
+| **Snore, Snoring** | The game's scream shockwave in pale snore blue, with a Z |
+| **Laser Show** | The Defect's sweeping beam in red, raking every enemy from his eyes |
+| **Mic Drop** | A golden meteor slams onto the target, sparks and a hard shake |
+| **Air Force One** | The jet's shadow sweeps over the whole fight, with wind streaks high up |
+| **Vehicles** (their own art, `images/biden/vfx/`) | Full Steam Ahead and Amtrak Express: the train plows through the target. The Beast: the armored limo. Motorcade: three limos. Zero to Sixty: the '67 sports car peels out from where he stands. Corvette Cruise and All Aboard: the car or the train passes behind the fight. Ice Cream Truck: the truck drives by behind, then sprinkles |
+| **Reach Across the Aisle** (co-op) | A golden line from him to every ally, with a sparkle on each |
+| **Ice Cream Cone** (relic) | A burst of rainbow sprinkles |
+| **Potions** | Warm Milk: soft steam. Espresso Shot: he jitters, throwing off sparks. Dark Roast: the screen flashes red |

@@ -10,6 +10,8 @@ public sealed class LetMeFinish : TangentCard
 
 	public override int LineCount => 2;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.Self, TargetType.Self };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new BlockVar(8m, ValueProp.Move), new CardsVar(2) };
 
 	protected override IEnumerable<IHoverTip> ExtraHoverTips => base.ExtraHoverTips.Append(HoverTipFactory.Static(StaticHoverTip.Block));

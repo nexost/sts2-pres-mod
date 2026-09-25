@@ -29,15 +29,6 @@ public static class DrowsyCmd
 {
 	public const int BaseNodOffLine = 10;
 
-	/// <summary>
-	/// Laser Eyes' hue over the game's hyperbeam, which is drawn in the Defect's cyan. Recoloured part by part
-	/// (Framework/VfxRecolor): a tint over the whole effect multiplied its cyan to nearly black.
-	/// </summary>
-	private const float LaserHue = 0f;
-
-	/// <summary>Where his eyes are on the painting, as a share of its width and height (the figures face right).</summary>
-	private static readonly Vector2 EyesOnFigure = new Vector2(0.6f, 0.15f);
-
 	/// <summary>Raised after someone nods off. Used by the tests and the balance stats.</summary>
 	public static event Action<Creature>? NoddedOff;
 
@@ -98,6 +89,10 @@ public static class DrowsyCmd
 		{
 			await NodOff(choiceContext, owner);
 		}
+		else
+		{
+			BidenVfx.Dozed(owner);
+		}
 	}
 
 	/// <summary>
@@ -111,6 +106,7 @@ public static class DrowsyCmd
 			return;
 		}
 		await PowerCmd.Apply<NoddedOffPower>(choiceContext, owner, 1m, owner, null);
+		BidenVfx.NoddedOff(owner);
 		NoddedOff?.Invoke(owner);
 		foreach (IAfterNodOff listener in BidenHooks.ListenersOf<IAfterNodOff>(owner))
 		{
@@ -138,6 +134,7 @@ public static class DrowsyCmd
 		}
 		int drowsy = GetDrowsy(owner);
 		await PowerCmd.Apply<DarkBrandonPower>(choiceContext, owner, 1m, owner, null);
+		await BidenVfx.WokeUp(owner);
 		await LaserEyes(choiceContext, owner, drowsy);
 		await PowerCmd.Remove<DrowsyPower>(owner);
 		foreach (IAfterWakeUp listener in BidenHooks.ListenersOf<IAfterWakeUp>(owner))
@@ -150,6 +147,7 @@ public static class DrowsyCmd
 	public static async Task FallBackAsleep(Creature owner)
 	{
 		await PowerCmd.Remove<DarkBrandonPower>(owner);
+		BidenVfx.FellAsleep(owner);
 	}
 
 	/// <summary>Laser Eyes damage per hit and number of hits for this much Drowsy, after modifiers.</summary>
@@ -179,55 +177,9 @@ public static class DrowsyCmd
 			{
 				break;
 			}
-			await PlayLaserVfx(owner, enemies);
+			await BidenVfx.LaserEyes(owner, enemies, i);
 			await CreatureCmd.Damage(choiceContext, enemies, damage, ValueProp.Unpowered, owner, null);
 		}
 		LaserFired?.Invoke(owner, damage, hits);
-	}
-
-	/// <summary>
-	/// Laser Eyes: the Defect's hyperbeam (charge-up, beam, screen shake, sound) recoloured red, fired from his eyes at
-	/// the farthest enemy, with the hyperbeam's impact on every enemy. Only visuals: skipped when there's no combat room.
-	/// </summary>
-	private static async Task PlayLaserVfx(Creature owner, List<Creature> enemies)
-	{
-		NCombatRoom? room = NCombatRoom.Instance;
-		NCreature? joe = room?.GetCreatureNode(owner);
-		NCreature? far = room?.GetCreatureNode(enemies.Last());
-		if (room == null || joe == null || far == null)
-		{
-			return;
-		}
-		Vector2 eyes = EyesOf(joe);
-		NHyperbeamVfx? beam = NHyperbeamVfx.Create(eyes, far.VfxSpawnPosition);
-		if (beam == null)
-		{
-			return;
-		}
-		VfxRecolor.Apply(beam, LaserHue);
-		room.CombatVfxContainer.AddChildSafely(beam);
-		// The beam comes out after the hyperbeam's charge-up (NHyperbeamVfx.hyperbeamAnticipationDuration); the hits land with it.
-		await Cmd.Wait(NHyperbeamVfx.hyperbeamAnticipationDuration + 0.03f);
-		foreach (Creature enemy in enemies)
-		{
-			NCreature? node = room.GetCreatureNode(enemy);
-			NHyperbeamImpactVfx? impact = node == null ? null : NHyperbeamImpactVfx.Create(eyes, node.VfxSpawnPosition);
-			if (impact != null)
-			{
-				VfxRecolor.Apply(impact, LaserHue);
-				room.CombatVfxContainer.AddChildSafely(impact);
-			}
-		}
-	}
-
-	/// <summary>His eyes on screen: on the painting shown now (NCharacterPoses), else near the top of his hitbox.</summary>
-	private static Vector2 EyesOf(NCreature joe)
-	{
-		if (joe.FindChild(NCharacterPoses.NodeName, recursive: true, owned: false) is NCharacterPoses poses && poses.FigureRect is Rect2 figure)
-		{
-			return figure.Position + figure.Size * EyesOnFigure;
-		}
-		Rect2 box = joe.Hitbox.GetGlobalRect();
-		return new Vector2(box.Position.X + box.Size.X * 0.62f, box.Position.Y + box.Size.Y * 0.14f);
 	}
 }

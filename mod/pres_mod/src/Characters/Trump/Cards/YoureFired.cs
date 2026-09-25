@@ -29,6 +29,7 @@ public sealed class YoureFired : PayGoldCard, ITargetFilter
 	protected override async Task OnPaidPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
 		ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
+		await TrumpVfx.YoureFired();
 		await DeportCmd.ForceDeport(choiceContext, cardPlay.Target, Owner);
 	}
 

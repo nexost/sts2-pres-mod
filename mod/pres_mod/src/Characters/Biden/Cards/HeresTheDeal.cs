@@ -7,6 +7,8 @@ public sealed class HeresTheDeal : TangentCard
 
 	public override int LineCount => 3;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.AnyEnemy, TargetType.Self, TargetType.Self };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{
 		new DamageVar(8m, ValueProp.Move),
@@ -26,8 +28,11 @@ public sealed class HeresTheDeal : TangentCard
 		switch (line)
 		{
 			case 1:
-				ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
-				await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target)
+				if (EnemyFor(cardPlay) is not Creature enemy)
+				{
+					break;
+				}
+				await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(enemy)
 					.WithHitFx("vfx/vfx_attack_blunt")
 					.Execute(choiceContext);
 				break;

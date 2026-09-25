@@ -20,6 +20,7 @@ public sealed class AirForceOne : CardModel
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		await BidenVfx.AirForceOne(Owner.Creature);
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).WithHitCount(this.IsAwake() ? 3 : 2).FromCard(this).TargetingAllOpponents(CombatState!)
 			.WithHitFx("vfx/vfx_giant_horizontal_slash")
 			.Execute(choiceContext);

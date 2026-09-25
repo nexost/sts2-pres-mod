@@ -8,6 +8,8 @@ public sealed class Anyway : TangentCard
 {
 	public override int LineCount => 2;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.AnyEnemy, TargetType.AnyEnemy };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[]
 	{
 		new DamageVar(5m, ValueProp.Move),
@@ -22,16 +24,19 @@ public sealed class Anyway : TangentCard
 
 	protected override async Task PlayLine(int line, PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
-		ArgumentNullException.ThrowIfNull(cardPlay.Target, "cardPlay.Target");
+		if (EnemyFor(cardPlay) is not Creature enemy)
+		{
+			return;
+		}
 		if (line == 1)
 		{
-			await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(cardPlay.Target)
+			await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).Targeting(enemy)
 				.WithHitFx("vfx/vfx_attack_blunt")
 				.Execute(choiceContext);
 			await CardPileCmd.Draw(choiceContext, DynamicVars.Cards.BaseValue, Owner);
 			return;
 		}
-		await DamageCmd.Attack(DynamicVars["BigDamage"].BaseValue).FromCard(this).Targeting(cardPlay.Target)
+		await DamageCmd.Attack(DynamicVars["BigDamage"].BaseValue).FromCard(this).Targeting(enemy)
 			.WithHitFx("vfx/vfx_heavy_blunt", null, "heavy_attack.mp3")
 			.Execute(choiceContext);
 	}

@@ -18,6 +18,7 @@ public sealed class Motorcade : CardModel
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		await BidenVfx.Vehicle(Owner.Creature, "limo", CombatState!.HittableEnemies.LastOrDefault(), size: 0.55f, seconds: 1.1f, copies: 3);
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).TargetingAllOpponents(CombatState!)
 			.WithHitFx("vfx/vfx_giant_horizontal_slash")
 			.Execute(choiceContext);

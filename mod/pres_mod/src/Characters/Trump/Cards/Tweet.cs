@@ -35,6 +35,7 @@ public sealed class Tweet : CardModel
 
 	protected override async Task OnPlay(PlayerChoiceContext choiceContext, CardPlay cardPlay)
 	{
+		TrumpVfx.Tweeted(Owner.Creature);
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).FromCard(this).TargetingAllOpponents(CombatState!)
 			.WithHitFx("vfx/vfx_attack_lightning")
 			.Execute(choiceContext);

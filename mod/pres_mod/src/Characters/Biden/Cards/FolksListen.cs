@@ -10,6 +10,8 @@ public sealed class FolksListen : TangentCard
 
 	public override int LineCount => 3;
 
+	protected override TargetType[] LineTargets => new[] { TargetType.Self, TargetType.Self, TargetType.Self };
+
 	protected override IEnumerable<DynamicVar> CanonicalVars => new DynamicVar[] { new BlockVar(6m, ValueProp.Move), new EnergyVar(1), new CardsVar(2) };
 
 	protected override IEnumerable<IHoverTip> ExtraHoverTips => base.ExtraHoverTips.Append(HoverTipFactory.Static(StaticHoverTip.Block)).Append(HoverTipFactory.ForEnergy(this));

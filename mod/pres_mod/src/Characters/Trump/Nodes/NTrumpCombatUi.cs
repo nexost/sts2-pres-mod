@@ -15,6 +15,9 @@ using MegaCrit.Sts2.Core.Runs;
 using PresMod.Characters.Trump.Mechanics;
 using PresMod.Characters.Trump.Patches;
 using PresMod.Framework;
+using MegaCrit.Sts2.Core.Nodes;
+using MegaCrit.Sts2.Core.Nodes.Vfx.Utilities;
+using PresMod.Characters.Trump.Powers;
 
 namespace PresMod.Characters.Trump.Nodes;
 
@@ -33,6 +36,11 @@ public partial class NTrumpCombatUi : Node
 	private static readonly string StampArt = CharacterArt.Dir("TRUMP") + "ui/deport_stamp.png";
 
 	private readonly Dictionary<Creature, NWallDisplay> _walls = new Dictionary<Creature, NWallDisplay>();
+
+	/// <summary>Last Gold seen per Donald, and last Tariff per enemy: a change plays its effect (TrumpVfx).</summary>
+	private readonly Dictionary<Creature, int> _gold = new Dictionary<Creature, int>();
+
+	private readonly Dictionary<Creature, int> _tariffs = new Dictionary<Creature, int>();
 
 	private Font? _font;
 
@@ -76,6 +84,29 @@ public partial class NTrumpCombatUi : Node
 			{
 				UpdateDeportMarker(node, creature, meIsDonald ? me : null);
 			}
+			WatchForEffects(creature);
+		}
+	}
+
+	/// <summary>Gold paid or gained by a Donald, and Tariffs rising on an enemy, from any card, relic or power.</summary>
+	private void WatchForEffects(Creature creature)
+	{
+		if (creature.Player is Player player && player.Character is Trump)
+		{
+			if (_gold.TryGetValue(creature, out int before) && before != player.Gold)
+			{
+				TrumpVfx.GoldChanged(creature, player.Gold - before);
+			}
+			_gold[creature] = player.Gold;
+		}
+		else if (creature.Side == CombatSide.Enemy)
+		{
+			int tariff = creature.IsAlive ? creature.GetPowerAmount<TariffPower>() : 0;
+			if (_tariffs.TryGetValue(creature, out int was) && tariff > was)
+			{
+				TrumpVfx.Tariffed(creature);
+			}
+			_tariffs[creature] = tariff;
 		}
 	}
 
@@ -195,6 +226,12 @@ public partial class NTrumpCombatUi : Node
 			if (NCombatRoom.Instance is NCombatRoom room)
 			{
 				VfxCmd.PlayVfx(wall.TopGlobalPosition, "vfx/vfx_rock_shatter", room.CombatVfxContainer);
+				// Each stage lands harder; the golden Big Beautiful Wall shines.
+				NGame.Instance?.ScreenShake(stage >= 4 ? ShakeStrength.Strong : stage >= 2 ? ShakeStrength.Medium : ShakeStrength.Weak, ShakeDuration.Short);
+				if (stage >= 4)
+				{
+					TrumpVfx.GoldBurst(wall.TopGlobalPosition, 44);
+				}
 			}
 		}
 	}
@@ -208,6 +245,12 @@ public partial class NTrumpCombatUi : Node
 		// Dust off the top as bricks go on; rubble from the middle when height is spent (Demolition, Wrecking Ball).
 		Vector2 at = change > 0 ? wall.TopGlobalPosition : wall.MiddleGlobalPosition;
 		VfxCmd.PlayVfx(at, change > 0 ? "vfx/vfx_sandy_impact" : "vfx/vfx_rock_shatter", room.CombatVfxContainer);
+		// A huge jump (Great Wall, Golden Escalator): a burst of gold off the top.
+		if (change >= 16)
+		{
+			TrumpVfx.GoldBurst(wall.TopGlobalPosition);
+			NGame.Instance?.ScreenShake(ShakeStrength.Medium, ShakeDuration.Short);
+		}
 	}
 
 	private void OnDeported(Creature enemy)
@@ -219,6 +262,8 @@ public partial class NTrumpCombatUi : Node
 			return;
 		}
 		SlamStamp(room, node);
+		NGame.Instance?.ScreenShake(ShakeStrength.Medium, ShakeDuration.Short);
+		Swoosh(node);
 		var label = new Label
 		{
 			Text = new LocString("static_hover_tips", "TRUMP_DEPORT.popup").GetRawText(),
@@ -241,6 +286,28 @@ public partial class NTrumpCombatUi : Node
 		tween.TweenProperty(label, "position:y", label.Position.Y - 90f, 1.4).SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
 		tween.Parallel().TweenProperty(label, "modulate:a", 0f, 0.6).SetDelay(0.8);
 		tween.TweenCallback(Callable.From(label.QueueFree));
+	}
+
+	/// <summary>Deported: a white flash where the enemy stood and a streak off to the right, as it's sent away.</summary>
+	private static void Swoosh(NCreature node)
+	{
+		Rect2 box = node.Hitbox.GetGlobalRect();
+		VfxKit.Burst(box.GetCenter(), VfxKit.Dot(40, Colors.White), VfxKit.Palette(Colors.White, new Color(1f, 0.95f, 0.8f)),
+			count: 22, speed: 700f, gravity: 0f, lifetime: 0.5f, spread: 25f, direction: new Vector2(1f, -0.35f), spin: false, scale: 1.4f, additive: true);
+		var streak = new Line2D
+		{
+			Points = new[] { Vector2.Zero, new Vector2(-box.Size.X * 1.5f, box.Size.Y * 0.4f) }, Width = box.Size.Y * 0.35f,
+			Gradient = new Gradient { Colors = new[] { new Color(1f, 1f, 1f, 0.7f), new Color(1f, 1f, 1f, 0f) } },
+		};
+		if (VfxKit.Add(streak) == null)
+		{
+			return;
+		}
+		streak.GlobalPosition = box.GetCenter();
+		Tween tween = streak.CreateTween();
+		tween.TweenProperty(streak, "global_position", box.GetCenter() + new Vector2(VfxKit.Screen.Size.X * 0.5f, -box.Size.Y * 0.6f), 0.35).SetEase(Tween.EaseType.In);
+		tween.Parallel().TweenProperty(streak, "modulate:a", 0f, 0.35);
+		VfxKit.FreeAfter(streak, 0.5f);
 	}
 
 	/// <summary>Deport: the DENIED stamp slams down on the enemy (big and faint → full size), holds, then fades.</summary>

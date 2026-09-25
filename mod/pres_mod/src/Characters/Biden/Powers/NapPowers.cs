@@ -40,6 +40,7 @@ public sealed class SnoringPower : PowerModel, IAfterNodOff
 			return;
 		}
 		Flash();
+		await BidenVfx.Snore(Owner);
 		await CreatureCmd.Damage(choiceContext, CombatState.HittableEnemies, Amount, ValueProp.Unpowered, Owner, null);
 	}
 }

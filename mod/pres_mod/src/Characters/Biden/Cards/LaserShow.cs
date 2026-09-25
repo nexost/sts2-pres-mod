@@ -26,6 +26,7 @@ public sealed class LaserShow : CardModel
 		{
 			return;
 		}
+		await BidenVfx.LaserShow(Owner.Creature, CombatState.HittableEnemies.ToList());
 		await DamageCmd.Attack(DynamicVars.Damage.BaseValue).WithHitCount(hits).FromCard(this).TargetingAllOpponents(CombatState)
 			.WithHitFx("vfx/vfx_attack_slash")
 			.Execute(choiceContext);
