@@ -65,6 +65,12 @@ public static partial class DevHarness
 		/// <summary>The character's co-op plays in the first turn of the co-op fight: (is host, combat). Trump: Coalition Wall, Trickle Down.</summary>
 		public Func<bool, ICombatState, Task>? CoopTurn;
 
+		/// <summary>
+		/// Checks at the start of every co-op turn, after both sides recorded their state: (is host, combat, turn from 1).
+		/// For what the last turn caused (Biden: whoever nodded off wakes as Dark Brandon, with Laser Eyes).
+		/// </summary>
+		public Func<bool, ICombatState, int, Task>? CoopTurnStart;
+
 		// ---- balance bot
 		/// <summary>Once, when a balance run of this character starts (subscribe to the character's events).</summary>
 		public Action? BalanceInit;

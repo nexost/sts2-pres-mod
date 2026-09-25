@@ -104,6 +104,76 @@ def keyed(im, green=False):
     return obj.crop(mask.getbbox())
 
 
+def _parts(mask, step=4):
+    """Connected parts of a boolean mask, found on a copy scaled down by step: (area, full-size boolean mask) each."""
+    small = mask[::step, ::step]
+    left = small.copy()
+    parts = []
+    for y, x in zip(*np.nonzero(small)):
+        if not left[y, x]:
+            continue
+        comp = _flood(left, [(y, x)])
+        left &= ~comp
+        full = np.kron(comp, np.ones((step, step), bool))[:mask.shape[0], :mask.shape[1]]
+        parts.append((int(comp.sum()), full & mask))
+    return sorted(parts, key=lambda p: -p[0])
+
+
+def pose_sheet(im, count, margin=12):
+    """Cut a pose sheet (count full-body figures in count equal columns on green) into count sprites of the same
+    height, each anchored at its own feet, so a game that fits every pose to one height shows them all at one scale.
+
+    Near each expected column boundary the cut goes through the emptiest column, so a fingertip or a stray speck
+    bridging two figures doesn't matter; slivers of a neighbour and specks are then dropped from each column.
+    Raises ValueError when two figures really overlap, or a column holds no figure or two figures."""
+    im = im.convert("RGB")
+    mask = key_background(im, tol=70, hole_tol=45)
+    obj = im.convert("RGBA")
+    obj.putalpha(mask)
+    obj = despill(obj)
+    alpha = np.asarray(mask) > 40
+    h, w = alpha.shape
+    cover = np.convolve(alpha.sum(axis=0).astype(float), np.ones(9) / 9, mode="same")
+    peak = cover.max()
+    cuts = []
+    for i in range(1, count):
+        c = i * w / count
+        lo, hi = int(c - 0.4 * w / count), int(c + 0.4 * w / count)
+        x = lo + int(np.argmin(cover[lo:hi]))
+        if cover[x] > 0.08 * peak:
+            raise ValueError(f"figures {i} and {i + 1} overlap: no clear gap between them")
+        cuts.append(x)
+    bounds = [0] + cuts + [w]
+    a_full = np.asarray(obj.getchannel("A")).copy()
+    sprites_boxes = []
+    for k, (x0, x1) in enumerate(zip(bounds, bounds[1:]), 1):
+        parts = _parts(alpha[:, x0:x1])
+        if not parts:
+            raise ValueError(f"column {k} has no figure")
+        main = parts[0][0]
+        if sum(1 for area, _ in parts if area >= 0.35 * main) > 1:
+            raise ValueError(f"column {k} holds more than one figure")
+        keep = np.zeros_like(alpha[:, x0:x1])
+        for area, part in parts:
+            if area >= 0.05 * main:
+                keep |= part
+        # Grow the kept area a little so the soft edge of the alpha survives, then clear everything else.
+        keep_img = Image.fromarray(keep.astype(np.uint8) * 255).filter(ImageFilter.MaxFilter(5))
+        seg_alpha = a_full[:, x0:x1] * (np.asarray(keep_img) > 0)
+        ys, xs = np.nonzero(seg_alpha > 40)
+        sprites_boxes.append((x0, seg_alpha, int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1))
+    height = max(b[5] - b[3] for b in sprites_boxes) + 2 * margin
+    sprites = []
+    for x0, seg_alpha, left, top, right, bottom in sprites_boxes:
+        seg = obj.crop((x0, 0, x0 + seg_alpha.shape[1], h))
+        seg.putalpha(Image.fromarray(seg_alpha.astype(np.uint8)))
+        cut = seg.crop((left, top, right, bottom))
+        canvas = Image.new("RGBA", (cut.width + 2 * margin, height), (0, 0, 0, 0))
+        canvas.alpha_composite(cut, (margin, height - margin - cut.height))
+        sprites.append(canvas)
+    return sprites
+
+
 def keyed_fit(im, size, margin=0, green=False, anchor="center"):
     """Cut out and fit inside size (w, h) with a margin; size None keeps the trimmed cut-out as is."""
     obj = keyed(im, green)

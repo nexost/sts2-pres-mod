@@ -78,7 +78,9 @@ public static partial class DevHarness
 	{
 		void Doze(int amount) => Expect(up ? a.I("drowsy") == b.I("drowsy") : a.I("drowsy") - b.I("drowsy") == amount,
 			$"Drowsy {b.I("drowsy")} -> {a.I("drowsy")} (expected {(up ? "no change as Dark Brandon" : "+" + amount)})");
-		void Block(int amount) => Expect(a.Block - b.Block == amount, $"Block {b.Block} -> {a.Block} (expected +{amount})");
+		// A card's damage lines can end the fight before its Block line (Ramble On+ as Dark Brandon): no Block to read then.
+		void Block(int amount) => Expect(a.Block - b.Block == amount || (a.Enemies == 0 && b.Enemies > 0),
+			$"Block {b.Block} -> {a.Block} (expected +{amount}{(a.Enemies == 0 && b.Enemies > 0 ? "; the card ended the fight first" : "")})");
 		void Damage(int atLeast) => Expect(b.I("hpBlock") - a.I("hpBlock") >= atLeast || a.Enemies < b.Enemies,
 			$"enemy HP + Block {b.I("hpBlock")} -> {a.I("hpBlock")} (expected at least -{atLeast})");
 		void Woke() => Expect(a.I("awake") == 1 && (up || a.I("lasers") - b.I("lasers") == 1) && a.I("drowsy") == 0,

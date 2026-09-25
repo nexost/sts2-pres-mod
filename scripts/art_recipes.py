@@ -251,6 +251,60 @@ def _card_refs(ch, arch):
     return [_card_ref(r) for r in names]
 
 
+def _sprite_refs(ch, entries):
+    """Reference images made from the character's own kept sprites (mod/images/<id>/<name>.png): each entry is a
+    list of sprite names, laid side by side on green at one scale (one name: a single figure; several: a pose sheet).
+    A name ending in "#head" gives a close-up of the head instead of the whole figure: a look to copy (Dark Brandon's
+    red lenses) that the model doesn't count as one more figure to draw in a pose sheet.
+    Entries whose sprites don't exist yet are skipped. Rebuilt when a sprite changes."""
+    refs = []
+    for names in entries:
+        files = [n.split("#")[0] for n in names]
+        paths = [os.path.join(MOD, "images", ch.id, n + ".png") for n in files]
+        if not all(os.path.exists(x) for x in paths):
+            continue
+        out = os.path.join(REPO, "build", "art", "ref", ch.id, "ref_" + "+".join(n.replace("#", "_") for n in names) + ".png")
+        if not os.path.exists(out) or os.path.getmtime(out) < max(os.path.getmtime(x) for x in paths):
+            os.makedirs(os.path.dirname(out), exist_ok=True)
+            sprites = [Image.open(x).convert("RGBA") for x in paths]
+            if len(names) == 1 and names[0].endswith("#head"):
+                sp = sprites[0]
+                bbox = sp.getbbox() or (0, 0, sp.width, sp.height)
+                top, height = bbox[1], bbox[3] - bbox[1]
+                head = sp.crop((bbox[0], top, bbox[2], top + int(height * 0.3)))
+                head = head.crop(head.getbbox() or (0, 0, head.width, head.height))
+                scale = min(900 / head.width, 900 / head.height)
+                head = head.resize((round(head.width * scale), round(head.height * scale)), Image.LANCZOS)
+                canvas = Image.new("RGBA", (1024, 1024), (40, 200, 60, 255))
+                canvas.alpha_composite(head, ((1024 - head.width) // 2, (1024 - head.height) // 2))
+                canvas.convert("RGB").save(out)
+                refs.append(out)
+                continue
+            h_max = max(sp.height for sp in sprites)
+            height = 1024 if len(sprites) > 1 else 1216
+            scale = (height - 80) / h_max
+            sprites = [sp.resize((max(1, round(sp.width * scale)), max(1, round(sp.height * scale))), Image.LANCZOS) for sp in sprites]
+            gap = 60
+            width = max(832, sum(sp.width for sp in sprites) + gap * (len(sprites) + 1))
+            canvas = Image.new("RGBA", (width, height), (40, 200, 60, 255))
+            x = (width - sum(sp.width for sp in sprites) - gap * (len(sprites) - 1)) // 2
+            for sp in sprites:
+                canvas.alpha_composite(sp, (x, height - 40 - sp.height))
+                x += sp.width + gap
+            canvas.convert("RGB").save(out)
+        refs.append(out)
+    return refs
+
+
+def current_refs(ch, item):
+    """An item's references as of now. Those made from the character's own kept sprites are rebuilt from the sprites in
+    mod/ (a Keep changes them), so a regeneration never uses an outdated idle."""
+    if not item.get("sprite_refs"):
+        return item["refs"]
+    own = _sprite_refs(ch, item["sprite_refs"])
+    return (own or item["extra_refs"]) if item["kind"] == "figure_sheet" else (own + item["extra_refs"])[:3]
+
+
 def _pick_refs(pool, key, n=3):
     """n references from a pool, a fixed choice per item (the same on every run), spread over the pool."""
     return random.Random(zlib.crc32(key.encode())).sample(pool, min(n, len(pool)))
@@ -298,11 +352,31 @@ def load_items(ch):
                 f"Tiny game map marker icon: {art}, simple bold shapes, flat cel shading, thick dark outline, {LIGHT_BG}, "
                 "in the exact style of the reference images."))
         elif kind == "figure":
-            add(s, **base, refs=kit["figure"], size=[832, 1216], prompt=(
+            own = _sprite_refs(ch, s.get("refs", []))
+            add(s, **base, refs=(own + kit["figure"])[:3], sprite_refs=s.get("refs", []), extra_refs=kit["figure"],
+                size=[832, 1216], prompt=(
                 f"Full-body game character art of {persona}, {art}. The whole figure is visible from head to shoes, "
                 f"facing right, {GREEN_BG}. Painterly digital painting with bold flat color shapes, hard-edged shading "
                 "and warm rim light, in the exact style of the reference images."),
-                note="A sprite placed by its feet: combat poses, shop and rest site (Framework/Patches/ArtPatches.cs).")
+                note="A sprite placed by its feet: combat poses, shop and rest site (Framework/Patches/ArtPatches.cs)."
+                     + (" References: the character's own kept sprites, so the proportions match." if own else ""))
+        elif kind == "figure_sheet":
+            # Every pose of a set in one image, so they share one scale, one head size and one style; cut apart on
+            # generation (art_post.pose_sheet). References: the character's own kept sprites (identity, proportions).
+            poses = s["poses"]
+            n = len(poses)
+            words = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}.get(n, str(n))
+            own = _sprite_refs(ch, s.get("refs", []))
+            add(s, **base, refs=own or kit["figure"], sprite_refs=s.get("refs", []), extra_refs=kit["figure"],
+                size=s.get("size", [512 * n, 1024]), poses=poses, prompt=(
+                f"Game character pose sheet: {words} full-body poses of the same character in {words} equal columns from left "
+                "to right, with wide empty green gaps between the figures and empty space above every head, none touching the "
+                "edges, all at exactly the same scale with identical body proportions and head size, standing on the same "
+                f"baseline, every pose facing right. The character is {persona}. {art} Isolated on a plain flat bright green "
+                "background, no ground, no shadow, no text, no labels. Painterly digital painting with bold flat color "
+                "shapes, hard-edged shading and warm rim light, in the exact style of the reference images."),
+                note=f"One image with all {n} poses, cut apart when it arrives; every pose gets the same height, so the game "
+                     "shows them at one scale. A sheet with touching figures or an extra figure shows an error: regenerate it.")
         elif kind == "hand":
             sleeve = a.get("sleeve", "a sleeve of the character's outfit")
             add(s, **base, refs=kit["hand"], size=[640, 1792], prompt=(
@@ -419,6 +493,20 @@ def postprocess(item, raw, out_dir, stem):
     elif kind == "figure":
         art_post.keyed_fit(im, None, green=True).save(p("sprite"))
         files["sprite"] = p("sprite")
+    elif kind == "figure_sheet":
+        sprites = art_post.pose_sheet(im, len(item["poses"]))
+        for pose, sprite in zip(item["poses"], sprites):
+            sprite.save(p(pose))
+            files[pose] = p(pose)
+        # The preview: the cut poses side by side, as the game will show them (one scale).
+        gap = 24
+        sheet = Image.new("RGBA", (sum(sp.width for sp in sprites) + gap * (len(sprites) - 1), sprites[0].height), (0, 0, 0, 0))
+        x = 0
+        for sp in sprites:
+            sheet.alpha_composite(sp, (x, 0))
+            x += sp.width + gap
+        sheet.save(p("sheet"))
+        return files, p("sheet")
     elif kind == "hand":
         art_post.keyed_fit(im, (422, 1200), margin=0, green=True, anchor="bottom").save(p("hand"))
         files["hand"] = p("hand")

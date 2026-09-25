@@ -71,6 +71,10 @@ public static partial class DevHarness
 			// Both sides record the state before either plays a card this turn.
 			RecordCoopState($"turn{turn}", combat);
 			await Task.Delay(4000);
+			if (Kit.CoopTurnStart != null)
+			{
+				await Kit.CoopTurnStart(host, combat, turn);
+			}
 			if (turn == 1 && Kit.CoopTurn != null)
 			{
 				await Kit.CoopTurn(host, combat);
@@ -139,6 +143,12 @@ public static partial class DevHarness
 	{
 		for (int i = 0; i < 5 && CombatManager.Instance.IsInProgress; i++)
 		{
+			// Once this player's turn has ended (End Turn, or a card like Sleepy Joe's nod off), the game's hand UI
+			// blocks further plays; TryManualPlay doesn't check that, so the harness does.
+			if (CombatManager.Instance.PlayerActionsDisabled)
+			{
+				return;
+			}
 			CardModel? card = PileType.Hand.GetPile(Me).Cards
 				.FirstOrDefault(c => (c.Tags.Contains(CardTag.Strike) || c.Tags.Contains(CardTag.Defend)) && c.CanPlay(out _, out _));
 			if (card == null)

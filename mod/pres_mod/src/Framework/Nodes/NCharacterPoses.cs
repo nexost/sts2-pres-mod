@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Godot;
 
 namespace PresMod.Framework.Nodes;
@@ -55,14 +56,7 @@ public partial class NCharacterPoses : Node
 	public override void _Ready()
 	{
 		_sprite = GetParent().GetNodeOrNull<Sprite2D>("%Visuals") ?? GetParent().GetNodeOrNull<Sprite2D>("Visuals");
-		foreach ((string pose, string file, float scale) in Poses)
-		{
-			Texture2D? tex = CharacterArt.Load(ArtDir + file + ".png");
-			if (tex != null)
-			{
-				_poses[pose] = (tex, FigureHeight * scale);
-			}
-		}
+		LoadPoses("", _poses);
 		if (_sprite == null)
 		{
 			return;
@@ -125,18 +119,38 @@ public partial class NCharacterPoses : Node
 		_variantPoses.Clear();
 		if (!string.IsNullOrEmpty(prefix))
 		{
-			foreach ((string pose, string file, float scale) in Poses)
-			{
-				Texture2D? tex = CharacterArt.Load(ArtDir + prefix + file + ".png");
-				if (tex != null)
-				{
-					_variantPoses[pose] = (tex, FigureHeight * scale);
-				}
-			}
+			LoadPoses(prefix, _variantPoses);
 		}
 		_tint = string.IsNullOrEmpty(prefix) || _variantPoses.Count > 0 ? Colors.White : tint;
 		SetPose(_action == "dead" ? "hurt" : _action);
 	}
+
+	/// <summary>
+	/// Loads one pose set. Paintings made one by one are each fitted to their own share of the figure height. A set cut
+	/// from one pose sheet (art_post.pose_sheet) has images of exactly the same height, drawn at one scale: those all get
+	/// the full height, so the character keeps one size across poses.
+	/// </summary>
+	private void LoadPoses(string prefix, Dictionary<string, (Texture2D Tex, float Height)> into)
+	{
+		foreach ((string pose, string file, float scale) in Poses)
+		{
+			Texture2D? tex = CharacterArt.Load(ArtDir + prefix + file + ".png");
+			if (tex != null)
+			{
+				into[pose] = (tex, FigureHeight * scale);
+			}
+		}
+		if (into.Count > 1 && into.Values.Select(p => p.Tex.GetHeight()).Distinct().Count() == 1)
+		{
+			foreach (string pose in into.Keys.ToList())
+			{
+				into[pose] = (into[pose].Tex, FigureHeight);
+			}
+		}
+	}
+
+	/// <summary>The painting's rectangle on screen (global coordinates), e.g. to start an effect at the character's eyes.</summary>
+	public Rect2? FigureRect => _sprite == null || _sprite.Texture == null ? null : _sprite.GetGlobalTransform() * _sprite.GetRect();
 
 	private void SetPose(string pose)
 	{

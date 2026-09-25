@@ -68,6 +68,7 @@ mod/pres_mod/src/
     IModCharacter.cs     what a character class adds to CharacterModel (sound proxy, figure heights)
     CharacterArt.cs      res://images/<id>/ paths, "art exists?" lookups, placing a figure by its feet
     Nodes/NCharacterPoses.cs   the combat body for characters without a Spine rig
+    VfxRecolor.cs              recolours an instance of a game VFX scene (the Defect's hyperbeam into red Laser Eyes)
     Patches/             the compatibility patches (below)
   Dev/                   test harness and save cleanup, for every character
   Characters/<Class>/    one folder per character; namespace PresMod.Characters.<Class>
@@ -114,7 +115,7 @@ The game loads these by name for every character (`presmod.CHARACTER_SCENES`). `
 
 | Resource | Notes |
 |---|---|
-| `scenes/creature_visuals/<id>.tscn` | Combat body: a `Sprite2D` "Visuals" gets `NCharacterPoses` (idle/attack/cast/hurt paintings); `Bounds`, `CenterPos`, `IntentPos` markers. `NCharacterPoses.SetVariant("dark_", tint)` switches to a second pose set (`dark_combat_idle.png`, ...) for a form taken mid-fight, like Biden's Dark Brandon |
+| `scenes/creature_visuals/<id>.tscn` | Combat body: a `Sprite2D` "Visuals" gets `NCharacterPoses` (idle/attack/cast/hurt paintings); `Bounds`, `CenterPos`, `IntentPos` markers. `NCharacterPoses.SetVariant("dark_", tint)` switches to a second pose set (`dark_combat_idle.png`, ...) for a form taken mid-fight, like Biden's Dark Brandon. A set whose images all have the same height (cut from one pose sheet) is shown at one scale; `FigureRect` gives the painting's place on screen (Biden's lasers start at the eyes) |
 | `scenes/merchant/characters/<id>_merchant.tscn` | Shop figure: a `Sprite2D` "CharacterSprite", painting `images/<id>/merchant_pose.png` |
 | `scenes/rest_site/characters/<id>_rest_site.tscn` | Rest-site figure, same idea (`rest_site_pose.png`); flipped for co-op seats |
 | `scenes/screens/char_select/char_select_bg_<id>.tscn` | The select screen: the painting `images/<id>/char_select_bg.png`, shifted 640 px left, under ember particles |
@@ -161,7 +162,7 @@ Every **image** has a fixed path per art kind: `presmod.KIND_OUTPUTS`, listed in
 | `cards [SEED] [relics\|A,B]` | Every card base and upgraded in real fights with key-effect checks; relics, potions, turn powers; all texts rendered | ~15 min (relics only ~1 min) |
 | `balance CHARS RUNS [PREFIX] [PARALLEL] [fullheal] [favor=STYLE]` | Heuristic bot runs, e.g. `BIDEN,IRONCLAD,SILENT 9 PFX 9 fullheal`: 9 at once, tiled 3×3 on the main monitor, muted | ~25 min per 54 runs |
 | `autoslay [SEED]` | The game's AutoSlay bot plays a full run (god mode) | ~5 min |
-| `coop [CLIENT_CHARACTER]` | Two instances side by side play a co-op fight over localhost (the game's own `--fastmp` option, no Steam lobby): the host starts it, each plays its own cards (`CoopTurn` hook), both record every player and enemy at the start of each turn and the records must match (desync check), then the rest site and shop | ~4 min |
+| `coop [CLIENT_CHARACTER]` | Two instances side by side play a co-op fight over localhost (the game's own `--fastmp` option, no Steam lobby): the host starts it, each plays its own cards (`CoopTurn` hook; the scripted plays stop once that player's turn has ended, as the game's hand does), both record every player and enemy at the start of each turn and the records must match (desync check), then the rest site and shop | ~4 min |
 | a character's own mode | e.g. `deportsweep` (Trump) | varies |
 | `cleansaves [ID,...]` | Removes test runs that use the mod or a removed character (through the game, so Steam Cloud doesn't restore them) | ~30 s |
 
@@ -189,6 +190,7 @@ Every hook is optional. With none, all modes already work with the shared checks
 | `RemovesEnemy`, `CardValue` | balance | Teach the bot the character's non-damage effects |
 | `CardValueOverride` | balance | Replace a card's whole value when its printed numbers don't all happen (Biden's Tangents: only the lit line). `DamageValue` and `BlockValue` score the parts the usual way |
 | `CoopTurn` | coop | The character's co-op plays in the first turn: (is host, combat). Trump: Coalition Wall on the host, Trickle Down and Slap a Tariff on the client |
+| `CoopTurnStart` | coop | Checks at the start of every turn, after both sides recorded their state: (is host, combat, turn). Biden: everyone who nodded off in turn 1 woke as Dark Brandon, with Laser Eyes |
 
 Command-line flags (all `--pres-*`):
 - `test`, `out`, `seed`, `character`, `only`, `encounters`, `fullheal`, `favor`, `tile`, `mute`, `savedir`;

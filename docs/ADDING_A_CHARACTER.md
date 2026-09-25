@@ -174,6 +174,7 @@ python scripts/balance_report.py BIDEN1
 2. **Give `art_assets.json` the character's jokes:**
    - the select screen scene, props in the poses, the map marker, the transition;
    - the character's own art items with their `outputs` (like Trump's Wall stages).
+   - the combat poses as one `figure_sheet` (the template has it); a second form gets its own sheet that references the first.
 3. **Check the card `art` texts:** the character on about a third of the cards (the base game's mix: hands on about a fifth,
    objects, effects, monsters and scenes on the rest), named by `name_in_card_art` wherever they show, including forms
    ("Joe as Dark Brandon").
@@ -193,7 +194,7 @@ Things to know:
 ## C7. Final checks and docs
 
 - `test.py ui`, `test.py cards`, `test.py autoslay` all PASS for the new character, **and for the other characters** (their shared code may have moved).
-- **Co-op:** `test.py coop -c <id>` (two of the new character) and `test.py coop -c <id> IRONCLAD` (a mixed party) PASS. Give the kit a `CoopTurn` if the character has cards that affect allies. Two things to check on the screenshots: anything drawn beside the character must fit the co-op line-up (Trump's Walls needed `WallSpacingPatch`), and co-op-only cards (`mp` in cards.json) must play.
+- **Co-op:** `test.py coop -c <id>` (two of the new character) and `test.py coop -c <id> IRONCLAD` (a mixed party) PASS. Give the kit a `CoopTurn` if the character has cards that affect allies, and a `CoopTurnStart` to check what a turn caused (Biden: nodding off ends only that player's turn; everyone who napped wakes as Dark Brandon). If a co-op run fails with a desync, run The Donald's co-op test as a control before suspecting the new character. Two things to check on the screenshots: anything drawn beside the character must fit the co-op line-up (Trump's Walls needed `WallSpacingPatch`), and co-op-only cards (`mp` in cards.json) must play.
 - The release steps are in [PUBLISHING.md](PUBLISHING.md).
 - Write the character's reports in `characters/<id>/docs/`; update [00_project_plan.md](00_project_plan.md) and the README's character table.
 - Commit when the user asks.

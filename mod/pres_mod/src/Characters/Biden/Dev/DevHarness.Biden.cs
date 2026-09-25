@@ -29,6 +29,9 @@ public static partial class DevHarness
 			PrepareCardTurnFor = async (ctx, card, upgraded) => await BidenResetState(ctx, awake: upgraded, drowsy: 3),
 			Snapshot = BidenSnapshot,
 			CheckCardEffect = BidenCheckCardEffect,
+			// Co-op: nodding off ends only this player's turn; Reach Across the Aisle; everyone who napped wakes as Dark Brandon.
+			CoopTurn = BidenCoopTurn,
+			CoopTurnStart = BidenCoopTurnStart,
 			// The balance bot: his cards valued as they actually play, and naps, lasers and Drowsy per fight.
 			CardValueOverride = BidenCardValueOverride,
 			CardValue = (card, fight, _) => BidenExtraValue(card, fight),
@@ -149,8 +152,14 @@ public static partial class DevHarness
 		// Wake Up right away: Laser Eyes for the 3 Drowsy he has.
 		lasers = 0;
 		Task wake = DrowsyCmd.WakeUp(ctx, joe);
-		await Task.Delay(550);
-		Screenshot("laser_eyes_beam");
+		// The effect over time: the charge-up at his eyes, the beam, the impacts, the end burst.
+		int elapsed = 0;
+		foreach ((int at, string label) in new[] { (250, "laser_1_charge"), (650, "laser_2_beam"), (900, "laser_3_impact"), (1250, "laser_4_end") })
+		{
+			await Task.Delay(at - elapsed);
+			elapsed = at;
+			Screenshot(label);
+		}
 		await wake;
 		await Task.Delay(1200);
 		Check(DrowsyCmd.IsDarkBrandon(joe) && lasers == 1 && laserDamage == 3, $"Wake Up: Dark Brandon, Laser Eyes for {laserDamage} (expected 3)");

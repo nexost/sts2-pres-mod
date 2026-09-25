@@ -76,7 +76,8 @@ Recipes live in `scripts/art_recipes.py` (references, prompt template, size, pos
 | `fullscreen` | 1792×832 → 2560×1200 | `images/{id}/char_select_bg.png` | Only the **right 3/4** shows (the painting is shifted 640 px left): keep the subject in the right half |
 | `top_icon` | 1024² → 88² | `images/ui/top_panel/character_icon_{id}.png` + `_outline` | |
 | `map_marker` | 832×1088 → 49×64 | `images/packed/map/icons/map_marker_{id}.png` | |
-| `figure` | 832×1216 → trimmed | `images/{id}/{item}.png` | Combat poses (`combat_idle`, `_attack`, `_cast`, `_hurt`), `merchant_pose`, `rest_site_pose`. Green screen keyed out. **Face right**, whole body, no furniture cut by the edge. Placed by the feet. A second pose set for a form the character takes mid-fight uses a prefix (Biden's `dark_combat_idle`, ...; `NCharacterPoses.SetVariant`); its stand-in can ask for coloured eyes with `"placeholder_eyes": "FF3B30"` |
+| `figure` | 832×1216 → trimmed | `images/{id}/{item}.png` | `merchant_pose`, `rest_site_pose` (and any single figure). Green screen keyed out. **Face right**, whole body, no furniture cut by the edge. Placed by the feet. `"refs": [["combat_idle"]]` uses the kept idle as a reference, so the proportions match the combat poses |
+| `figure_sheet` | 512 per pose × 1024 → cut apart | `images/{id}/{pose}.png` per name in `poses` | **Combat poses.** One image with every pose of a set side by side, so they share one head size, scale and style; `art_post.pose_sheet` cuts it at the emptiest column near each boundary, drops slivers, and gives every pose the same height (the game then shows the set at one scale). A sheet with an extra or overlapping figure is rejected with an error: regenerate. `refs`: lists of kept sprite names laid side by side on green (`[["combat_idle"]]`; a whole set: `[["combat_idle", "combat_attack", ...]]`); a name ending in `#head` gives a close-up of the head instead. A second set for a form taken mid-fight (Biden's `dark_combat_*`, `NCharacterPoses.SetVariant`) uses the first set as its reference; its stand-in can ask for coloured eyes with `"placeholder_eyes"` |
 | `hand` | 640×1792 → 422×1200 | `images/ui/hands/multiplayer_hand_{id}_{gesture}.png` | Co-op rock/paper/scissors/point, arm from the bottom edge |
 | `transition` | 1792×832 → 2560×1200 grey | `images/ui/transitions/{id}_transition.png` | Greyscale dissolve mask |
 | `orb` | 1024² → 256² per layer | `images/ui/combat/energy_counters/{id}/{id}_orb_layer_{n}.png` | Items list their `layers` (1 base, 2–3 swirl, 4–5 rim) |
@@ -170,6 +171,14 @@ Nothing else changes: scenes and code don't hard-code image sizes.
 - **A form needs its one visual cue named strongly:** "the lenses of his aviators glowing solid bright red" worked where
   "his aviators glowing red" didn't.
 - Power icons need a plain symbol: "a half-closed eye" came out as a ball icon.
+- **Poses generated one by one never match** (head sizes and builds changed from pose to pose). Generating a whole set in one
+  image fixed it: `figure_sheet`. Put the character's full description in the prompt every time, or the likeness drifts
+  (his gold aviators turned into black glasses).
+- **The model copies what it sees in the references, figure by figure.** A four-pose sheet plus one full figure gave
+  five-figure sheets 7 times in 8; a head close-up instead (`#head`) fixed the count. Each pose also copies its column's
+  reference, so a look the references don't have (Dark Brandon's red lenses) only comes out about 1 time in 3.
+- **References made from kept sprites must be rebuilt after a Keep**: the tool now rebuilds them before every
+  generation and stamps their links, so the page can't show (or the generator use) an old idle.
 - **Power icons used the same two references for every icon**, and all 24 came out as copies of Thorns' green star and
   Strength's red. Each icon now gets its own pair from a pool of 12 varied game icons (`POWER_REF_POOL` in
   `art_recipes.py`) at style strength 0.55, and every icon's text names its colours.

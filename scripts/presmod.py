@@ -139,6 +139,8 @@ def art_outputs(ch, item_id, kind, spec=None):
     spec = spec or {}
     if kind == "orb":
         return {f"layer{n}": f"images/ui/combat/energy_counters/{ch.id}/{ch.id}_orb_layer_{n}.png" for n in spec["layers"]}
+    if kind == "figure_sheet" and not spec.get("outputs"):
+        return {pose: f"images/{ch.id}/{pose}.png" for pose in spec["poses"]}
     outputs = spec.get("outputs") or KIND_OUTPUTS.get(kind)
     if outputs is None:
         raise ValueError(f"{ch.id}: art item '{item_id}' of kind '{kind}' needs \"outputs\" in art_assets.json")

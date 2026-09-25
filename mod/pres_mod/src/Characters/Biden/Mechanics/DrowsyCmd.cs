@@ -13,6 +13,8 @@ using MegaCrit.Sts2.Core.Nodes.Combat;
 using MegaCrit.Sts2.Core.Nodes.Rooms;
 using MegaCrit.Sts2.Core.Nodes.Vfx;
 using PresMod.Characters.Biden.Powers;
+using PresMod.Framework;
+using PresMod.Framework.Nodes;
 
 namespace PresMod.Characters.Biden.Mechanics;
 
@@ -28,10 +30,13 @@ public static class DrowsyCmd
 	public const int BaseNodOffLine = 10;
 
 	/// <summary>
-	/// Laser Eyes' colour over the game's hyperbeam, which is drawn for the Defect. Almost pure red: the beam's layers add up,
-	/// and any green or blue in the tint turns the white core pink.
+	/// Laser Eyes' hue over the game's hyperbeam, which is drawn in the Defect's cyan. Recoloured part by part
+	/// (Framework/VfxRecolor): a tint over the whole effect multiplied its cyan to nearly black.
 	/// </summary>
-	private static readonly Color LaserTint = new Color(1f, 0.1f, 0.06f);
+	private const float LaserHue = 0f;
+
+	/// <summary>Where his eyes are on the painting, as a share of its width and height (the figures face right).</summary>
+	private static readonly Vector2 EyesOnFigure = new Vector2(0.6f, 0.15f);
 
 	/// <summary>Raised after someone nods off. Used by the tests and the balance stats.</summary>
 	public static event Action<Creature>? NoddedOff;
@@ -180,7 +185,10 @@ public static class DrowsyCmd
 		LaserFired?.Invoke(owner, damage, hits);
 	}
 
-	/// <summary>The Defect's hyperbeam from his eyes, tinted red. Only visuals: skipped when there's no combat room.</summary>
+	/// <summary>
+	/// Laser Eyes: the Defect's hyperbeam (charge-up, beam, screen shake, sound) recoloured red, fired from his eyes at
+	/// the farthest enemy, with the hyperbeam's impact on every enemy. Only visuals: skipped when there's no combat room.
+	/// </summary>
 	private static async Task PlayLaserVfx(Creature owner, List<Creature> enemies)
 	{
 		NCombatRoom? room = NCombatRoom.Instance;
@@ -190,26 +198,36 @@ public static class DrowsyCmd
 		{
 			return;
 		}
-		// The figure's eyes: near the top of his hitbox, a little toward the side he faces.
-		Rect2 box = joe.Hitbox.GetGlobalRect();
-		Vector2 eyes = new Vector2(box.Position.X + box.Size.X * 0.62f, box.Position.Y + box.Size.Y * 0.14f);
+		Vector2 eyes = EyesOf(joe);
 		NHyperbeamVfx? beam = NHyperbeamVfx.Create(eyes, far.VfxSpawnPosition);
 		if (beam == null)
 		{
 			return;
 		}
-		beam.Modulate = LaserTint;
+		VfxRecolor.Apply(beam, LaserHue);
 		room.CombatVfxContainer.AddChildSafely(beam);
-		await Cmd.Wait(0.45f);
+		// The beam comes out after the hyperbeam's charge-up (NHyperbeamVfx.hyperbeamAnticipationDuration); the hits land with it.
+		await Cmd.Wait(NHyperbeamVfx.hyperbeamAnticipationDuration + 0.03f);
 		foreach (Creature enemy in enemies)
 		{
 			NCreature? node = room.GetCreatureNode(enemy);
 			NHyperbeamImpactVfx? impact = node == null ? null : NHyperbeamImpactVfx.Create(eyes, node.VfxSpawnPosition);
 			if (impact != null)
 			{
-				impact.Modulate = LaserTint;
+				VfxRecolor.Apply(impact, LaserHue);
 				room.CombatVfxContainer.AddChildSafely(impact);
 			}
 		}
+	}
+
+	/// <summary>His eyes on screen: on the painting shown now (NCharacterPoses), else near the top of his hitbox.</summary>
+	private static Vector2 EyesOf(NCreature joe)
+	{
+		if (joe.FindChild(NCharacterPoses.NodeName, recursive: true, owned: false) is NCharacterPoses poses && poses.FigureRect is Rect2 figure)
+		{
+			return figure.Position + figure.Size * EyesOnFigure;
+		}
+		Rect2 box = joe.Hitbox.GetGlobalRect();
+		return new Vector2(box.Position.X + box.Size.X * 0.62f, box.Position.Y + box.Size.Y * 0.14f);
 	}
 }

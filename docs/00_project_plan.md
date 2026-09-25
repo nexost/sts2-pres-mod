@@ -5,7 +5,7 @@ If a chat session is lost, this file + [`README.md`](../README.md) + [`FRAMEWORK
 For a new character, follow [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md).
 
 _Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done. The repo is public at https://github.com/nexost/sts2-pres-mod with release v1.0.0. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md)).
-Joe Biden is in progress on branch `feature/biden`: C1 (scaffold) and C2 (design v1, reviewed: [Sleepy Joe Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv)) are done, C4 and C5 (balance) are committed, and C6 (art) is done, waiting for review._
+Joe Biden is in progress on branch `feature/biden`: C1 (scaffold) and C2 (design v1, reviewed: [Sleepy Joe Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv)) is complete: C1–C6 are committed and C7 (final checks) is done, waiting for review. Every test passes for him and for The Donald; releasing him would be v1.1.0._
 
 ---
 
@@ -60,7 +60,7 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | Character | Status |
 |---|---|
 | The Donald (`trump`) | Complete (Steps 3–8) |
-| Joe Biden (`biden`) | In progress on branch `feature/biden` (phases in [ADDING_A_CHARACTER.md](ADDING_A_CHARACTER.md)) |
+| Joe Biden (`biden`) | Complete on branch `feature/biden` (C1–C7); not merged or released yet |
 
 **Joe Biden's phases:**
 
@@ -71,8 +71,8 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | C3 Mechanics and starter set | ✅ Done (`f818dfb`) | [Report](../characters/biden/docs/C3_mechanics_report.md). Drowsy, nodding off, Dark Brandon and Laser Eyes, Tangent cards (lit line in the card text); Catnap, Here's the Deal, Aviator Shades / Dark Aviators. `test.py ui -c biden` passes (31 checks) |
 | C4 All content and text | ✅ Done (`0d273c7`) | [Report](../characters/biden/docs/C4_content_report.md). 88 cards, 24 powers, 9 relics, 3 potions, every text and Ancient line; stubs removed. `test.py cards` 257 checks PASS, AutoSlay **victory** |
 | C5 Balance | ✅ Done (`2c1d7b3`) | [Report](../characters/biden/docs/C5_balance_report.md). The bot learned Tangent lines, his two forms, Doze and naps. One change: Aviator Shades' end-of-turn Doze 2 → **3**. Over two seed sets (35 runs each), the average floor is Sleepy Joe **28.1**, Ironclad 27.1, Silent 25.8. He naps in 82% of fights. `test.py ui` and the relic/potion/power checks pass |
-| C6 Art | ✅ Done, in review | [Report](../characters/biden/docs/C6_art_report.md). All 147 items made and kept by the user: select screen (the '67 Corvette), poses for both forms, 88 cards (Joe on 24, his hand on 5, the rest objects, effects, monsters and scenes), relics, potions, powers, energy orb. Laser Eyes tinted red. `test.py ui` PASS |
-| C7 Final checks | ⬜ | cards, autoslay, co-op, The Donald's regressions |
+| C6 Art | ✅ Done (`4712ed4`) | [Report](../characters/biden/docs/C6_art_report.md). All 147 items made and kept by the user: select screen (the '67 Corvette), poses for both forms, 88 cards (Joe on 24, his hand on 5, the rest objects, effects, monsters and scenes), relics, potions, powers, energy orb. Laser Eyes tinted red. `test.py ui` PASS |
+| C7 Final checks | ✅ Done, in review | [Report](../characters/biden/docs/C7_final_report.md). ui, cards, autoslay (victory), co-op (two Sleepy Joes, and with an Ironclad: 0 desyncs) all PASS; The Donald's ui, cards, autoslay and co-op PASS. New co-op hook `CoopTurnStart` |
 
 ### Step 1: Research and feasibility ✅
 Set up the workspace and tools (ilspycmd, GDRE Tools, Godot 4.5.1 .NET, Pillow). Decompile the current build and unpack the resource pack.
@@ -263,6 +263,8 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-24 | C3 committed (`f818dfb`). **Biden C4:** all content. Implementation choices (listed in the C4 report and design.md): Infrastructure Law is energy only, Corvette Cruise uses the game's Free Attack, Repeat the Line replays from the Discard Pile only, Tall Tales grows damage and Block. The cards test got a shared `PrepareCardTurnFor` hook. |
 | 2026-09-24 | C4 committed (`0d273c7`). **Biden C5 (balance):** the Aviator Shades' end-of-turn Doze went from 2 to **3**. With 2, he was at the bottom of the base-game range (floor 25.7 vs 29.6 / 26.5) and weak against Act 1 elites. With 3, over two seed sets, he's level with Ironclad (28.1 vs 27.1, Silent 25.8) and naps in 82% of fights. Nodding off still ends the turn on the spot, and Laser Eyes stay at 1× Drowsy. If playtests find him too strong, the next lever is the nap Block (8 → 6). The balance bot got a `CardValueOverride` hook (Tangents do only their lit line), and `DamageValue` / `BlockValue` became shared helpers. Lesson: confirm a tuning change on fresh seeds; 18 runs move 2–3 floors from luck alone. |
 | 2026-09-24 | C5 committed (`2c1d7b3`). **Biden C6 (art):** all 147 items, reviewed and kept by the user. From the user's review: Joe was on 80 of 88 cards, and the base game's mix (character on 30–40%, hands on about a fifth) became the rule, with 54 cards rewritten. Power icons had copied their two fixed references, so each now gets its own pair from a pool, at lower strength. Five look-alike Dark Brandon cards got their own framing and palette. The model's riskier ideas (real handguns, a knife, a burning Air Force One, an "Illuminati" eye) were rewritten. Tool changes: `card_notes`, per-card `art_background`, the reference-copy race fixed, and the review page works on a phone over Wi-Fi (`--host 0.0.0.0`). |
+| 2026-09-24 | C6 committed (`4712ed4`). **Biden C7 (final checks):** every test passes for Sleepy Joe and The Donald. Co-op now checks that nodding off ends only that player's turn (the game blocks their plays), that Reach Across the Aisle reaches every player, and that each napper wakes as Dark Brandon on both instances (new `CoopTurnStart` hook). The co-op desyncs first seen were the PC: the second game instance crawled until a restart. The Donald's co-op test failed the same way, and is now the control. By the versioning rules, releasing Sleepy Joe would be **v1.1.0**, when the user decides. |
+| 2026-09-24 | **Biden polish, before release (user's review).** Poses generated one by one never matched, so each form's four combat poses are now one generated image cut apart by the tool (`figure_sheet`); every pose shows at one scale in game. Regular Joe looks sleepy (yawning idle, tired smiles). The mega laser is back: the Defect's hyperbeam recoloured part by part (`VfxRecolor`); a whole-effect tint had multiplied its cyan to near-black. It fires from the eyes of the pose shown. Kept out on purpose: code that repaints Dark Brandon's lenses red (tools stay generic). |
 
 ## Open items
 
@@ -270,6 +272,9 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 - Steam Cloud also syncs the test save folders (`modded_prestest`). Files deleted by hand come back; use `test.py cleansaves` (it goes through the game).
 - `.claude/launch.json` in the game folder serves `characters/` on port 8765 for local page previews (e.g. `/trump/design/gallery.html`).
 - If the game suddenly runs at ~8 fps in tests (the shared preload in `godot.log` takes ~30 s instead of ~2 s), the PC needs a restart. It isn't the mod (checked on 2026-09-23).
+  The same on 2026-09-24, in co-op: only the second instance crawled (`Preloading 'Act=…'` ~600 ms instead of ~20 ms), the two drifted apart and
+  the test failed with a desync at the rest site. The monitors had switched from 60 to 120 Hz (listed at the top of `godot.log`). The Donald's co-op test failed
+  the same way, so run it as a control; after a restart both passed.
 - The full one-at-a-time Deport sweep over all 80 encounters (~45 min) hasn't been run. Targeted lists are the default: `test.py deportsweep SEED A,B,C`.
 - **Other mods** (deferred by the user): test alongside BaseLib and a popular character mod. Worth adding then: a startup check that logs a clear error when another mod defines a class with the same model ID as ours. The game silently keeps the last one loaded.
 - Workshop users can't run `uninstall.cmd`'s save cleanup; the Workshop description should ask them to finish runs before unsubscribing.

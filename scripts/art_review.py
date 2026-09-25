@@ -232,6 +232,17 @@ class Workspace:
                 return "/files/" + rel
         return None
 
+    def refs(self, it):
+        """The item's references now (the ones made from kept sprites are rebuilt after a Keep)."""
+        it["refs"] = art_recipes.current_refs(self.ch, it)
+        return it["refs"]
+
+    def ref_url(self, path):
+        """A reference image's URL, stamped with its file time: the browser caches files forever, and a rebuilt
+        reference keeps its name."""
+        u = self.url(path)
+        return f"{u}?t={int(os.path.getmtime(path))}" if u and os.path.exists(path) else (u or "")
+
     def vurl(self, path, v):
         """A version's file URL. The creation time makes it unique, so the browser (told these files never change)
         can't show an old picture for a new version."""
@@ -263,7 +274,7 @@ class Workspace:
             "arch": it.get("arch"), "ctype": it.get("ctype"), "rarity": it.get("rarity"), "text": it.get("text", ""),
             "art": it.get("art", ""), "note": it.get("note", ""), "frame": it.get("frame"), "frameMode": it.get("frameMode"),
             "prompt": s["prompt"] or it["prompt"], "promptCustom": bool(s["prompt"]), "defaultPrompt": it["prompt"],
-            "refs": [self.url(r) or "" for r in it["refs"]], "outputs": list(it["outputs"].values()),
+            "refs": [self.ref_url(r) for r in self.refs(it)], "outputs": list(it["outputs"].values()),
             "versions": versions, "current": s["current"], "kept": s["kept"], "status": self.status(s),
             "pending": [{"state": j["state"], "pos": j.get("pos"), "since": j.get("started") or j["created"],
                          "quality": art_recipes.QUALITY.get(j.get("quality") or "", {}).get("label", "")} for j in pend],
@@ -304,6 +315,10 @@ class Workspace:
                 s["reviewed"] = max(x["v"] for x in s["versions"])
                 self.emit_item(item_id)
             self.save()
+            # Items whose references are made from kept sprites may have just changed: show their new references.
+            for it in self.items:
+                if it.get("sprite_refs") and it["id"] not in ids:
+                    self.emit_item(it["id"])
 
     def unkeep(self, ids):
         with self.lock:
@@ -395,7 +410,7 @@ class Workspace:
                 continue
             prompt = self.st(j["item"])["prompt"] or it["prompt"]
             job = {"name": f"{self.cid}__" + j["item"].replace(":", "__") + "_%d" % j["seed"], "method": it["method"],
-                   "prompt": prompt, "style": it["refs"], "size": it["size"], "seed": j["seed"]}
+                   "prompt": prompt, "style": self.refs(it), "size": it["size"], "seed": j["seed"]}
             job.update(art_recipes.quality_settings(j.get("quality"), it))
             try:
                 res = art_gen._post("/prompt", {"prompt": art_gen.build_graph(job)})

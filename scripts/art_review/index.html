@@ -250,7 +250,7 @@ const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;
 const SECTIONS = ["All", "Character", "Cards", "Relics", "Potions", "Powers", "UI & mechanics"];
 let ARCHS = [];  // the character's play styles (character.json "archetypes"), set by loadState
 const ICON_KINDS = new Set(["relic", "potion", "power"]);
-const CHECK_KINDS = new Set(["top_icon", "map_marker", "figure", "hand", "prop", "decal", "orb", "small_icon", "energy_icon", "char_button"]);
+const CHECK_KINDS = new Set(["top_icon", "map_marker", "figure", "figure_sheet", "hand", "prop", "decal", "orb", "small_icon", "energy_icon", "char_button"]);
 
 const store = (k, v) => { try { v === undefined ? null : localStorage.setItem("artreview." + k, JSON.stringify(v)); } catch (e) {} };
 const load = (k, d) => { try { const v = localStorage.getItem("artreview." + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } };

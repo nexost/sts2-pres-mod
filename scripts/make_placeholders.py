@@ -214,7 +214,7 @@ def make_art_standins(ch):
             continue  # made above
         outputs = presmod.art_outputs(ch, spec["id"], kind, spec)
         for key, rel in outputs.items():
-            if kind == "figure":
+            if kind in ("figure", "figure_sheet"):
                 img = figure((600, 900), pal, spec.get("placeholder_eyes"))
             elif kind == "fullscreen":
                 img = Image.new("RGBA", (2560, 1200))

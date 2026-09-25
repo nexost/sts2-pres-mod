@@ -26,40 +26,67 @@
       "art": "a small chocolate chip ice cream cone, its pointed tip pointing straight down"
     },
     {
-      "id": "combat_idle",
-      "kind": "figure",
-      "name": "Combat pose: idle",
-      "art": "standing relaxed with a wide toothy grin, one hand in his pocket and the other pointing finger guns to the right"
+      "id": "combat_sheet",
+      "kind": "figure_sheet",
+      "name": "Combat poses: Sleepy Joe",
+      "poses": [
+        "combat_idle",
+        "combat_attack",
+        "combat_cast",
+        "combat_hurt"
+      ],
+      "refs": [
+        [
+          "combat_idle"
+        ]
+      ],
+      "art": "Exactly like the character in the reference image. He looks tired and sleepy in every pose: droopy eyebrows raised sleepily above his gold aviators, drowsy droopy cheeks. Pose 1: standing and yawning widely, one hand covering his open mouth. Pose 2: lunging to the right with a slow, lazy haymaker punch, mouth closed in a tired half-smile. Pose 3: leaning forward and pointing to the right mid-speech, a stack of index cards in his other hand, a sleepy lopsided smile. Pose 4: jolted awake, leaning backwards away from the right with both open hands raised in surprise, aviators knocked crooked, mouth in a small round o."
     },
     {
-      "id": "combat_attack",
-      "kind": "figure",
-      "name": "Combat pose: attack",
-      "art": "lunging forward with a big folksy haymaker punch, aviators glinting"
-    },
-    {
-      "id": "combat_cast",
-      "kind": "figure",
-      "name": "Combat pose: cast",
-      "art": "leaning in and jabbing one finger forward mid-speech, the other hand holding a stack of index cards"
-    },
-    {
-      "id": "combat_hurt",
-      "kind": "figure",
-      "name": "Combat pose: hurt",
-      "art": "knocked backwards mid-sentence, leaning away from the hit with one foot lifted, aviators askew, a startled expression, arms thrown out, normal body proportions"
+      "id": "dark_combat_sheet",
+      "kind": "figure_sheet",
+      "name": "Combat poses: Dark Brandon",
+      "poses": [
+        "dark_combat_idle",
+        "dark_combat_attack",
+        "dark_combat_cast",
+        "dark_combat_hurt"
+      ],
+      "refs": [
+        [
+          "combat_idle",
+          "combat_attack",
+          "combat_cast",
+          "combat_hurt"
+        ],
+        [
+          "dark_combat_idle#head"
+        ]
+      ],
+      "placeholder_eyes": "FF3B30",
+      "art": "Exactly the same character, body proportions, head size and scale as the four figures in the first reference image, laid out the same way. Only his look changes: he is Dark Brandon, with the face and red lenses of the close-up in the second reference image: the lenses of his gold-rimmed aviators glow solid bright red with laser light, a stern confident smirk, dramatic red rim light along his silhouette. Pose 1: standing tall with his arms crossed. Pose 2: lunging to the right with a powerful punch. Pose 3: pointing forward to the right commandingly, jaw set. Pose 4: staggering back from a hit, one forearm raised to block, jaw set, lenses still glowing red. No laser beams."
     },
     {
       "id": "merchant_pose",
       "kind": "figure",
       "name": "Shop pose",
-      "art": "standing alone, seen from slightly behind, a chocolate chip ice cream cone in one hand, leaning forward to inspect something with great interest over the top of his aviators, no furniture or counter"
+      "art": "exactly like the character in the reference image, standing alone, seen from slightly behind, a chocolate chip ice cream cone in one hand, leaning forward to inspect something with great interest over the top of his aviators, no furniture or counter",
+      "refs": [
+        [
+          "combat_idle"
+        ]
+      ]
     },
     {
       "id": "rest_site_pose",
       "kind": "figure",
       "name": "Rest site pose",
-      "art": "sitting in a folding camp chair with his feet up, dozed off with his head tilted back and his mouth open in a snore, his aviators still on, a small campfire glow on his face"
+      "art": "exactly like the character in the reference image, sitting in a folding camp chair with his feet up, dozed off with his head tilted back and his mouth open in a snore, his aviators still on, a small campfire glow on his face",
+      "refs": [
+        [
+          "combat_idle"
+        ]
+      ]
     },
     {
       "id": "hand_rock",
@@ -90,34 +117,6 @@
       "kind": "transition",
       "name": "Screen transition mask",
       "art": "a swirling vortex of puffy dream clouds and speech bubbles, spiraling into the center"
-    },
-    {
-      "id": "dark_combat_idle",
-      "kind": "figure",
-      "name": "Dark Brandon: Combat pose: idle",
-      "art": "as Dark Brandon, the lenses of his aviators glowing solid bright red with laser light, a stern confident smirk, dramatic red rim light, standing tall with his arms crossed",
-      "placeholder_eyes": "FF3B30"
-    },
-    {
-      "id": "dark_combat_attack",
-      "kind": "figure",
-      "name": "Dark Brandon: Combat pose: attack",
-      "art": "as Dark Brandon, the lenses of his aviators glowing solid bright red with laser light, a stern confident smirk, dramatic red rim light, lunging forward with a punch as two red laser beams shoot from his aviators",
-      "placeholder_eyes": "FF3B30"
-    },
-    {
-      "id": "dark_combat_cast",
-      "kind": "figure",
-      "name": "Dark Brandon: Combat pose: cast",
-      "art": "as Dark Brandon, the lenses of his aviators glowing solid bright red with laser light, a stern confident smirk, dramatic red rim light, pointing forward commandingly with one finger, jaw set",
-      "placeholder_eyes": "FF3B30"
-    },
-    {
-      "id": "dark_combat_hurt",
-      "kind": "figure",
-      "name": "Dark Brandon: Combat pose: hurt",
-      "art": "as Dark Brandon, the lenses of his aviators glowing solid bright red with laser light, a stern confident smirk, dramatic red rim light, staggering back from a hit with one forearm raised to block, jaw set, normal body proportions",
-      "placeholder_eyes": "FF3B30"
     }
   ],
   "relics": [
