@@ -4,8 +4,8 @@ One mod (id `pres_mod`), several lighthearted caricature characters. Targets StS
 
 | Character | Id | Status | Folder |
 |---|---|---|---|
-| **The Donald**: builds walls, makes deals, deports the Spire's riff-raff | `trump` | v1.0.0: 88 cards + the Tweet token, 9 relics, 3 potions, full art, co-op tested | [`characters/trump/`](characters/trump/) |
-| **Sleepy Joe** (Joe Biden): dozes off, rambles, wakes up as Dark Brandon | `biden` | Complete on branch `feature/biden` (not released yet): 88 cards, relics, potions, all art, balanced, co-op tested | [`characters/biden/`](characters/biden/) |
+| **The Donald**: builds walls, makes deals, deports the Spire's riff-raff | `trump` | Since v1.0.0: 88 cards + the Tweet token, 9 relics, 3 potions, full art, co-op tested; visual effects in v1.1.0 | [`characters/trump/`](characters/trump/) |
+| **Sleepy Joe** (Joe Biden): dozes off, rambles, wakes up as Dark Brandon | `biden` | v1.1.0: 88 cards, 9 relics, 3 potions, full art and effects, balanced, co-op tested | [`characters/biden/`](characters/biden/) |
 
 **Start with [`docs/00_project_plan.md`](docs/00_project_plan.md)**: the plan, the status, the decisions and how to resume.
 **New PC?** [`docs/SETUP.md`](docs/SETUP.md) goes from a fresh clone to a built and tested mod, and to making art.
