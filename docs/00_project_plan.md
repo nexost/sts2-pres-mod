@@ -4,8 +4,8 @@
 If a chat session is lost, this file + [`README.md`](../README.md) + [`FRAMEWORK.md`](FRAMEWORK.md) are enough to carry on.
 For a new character, follow [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md).
 
-_Last updated: 2026-09-24. Step 9 (polish and packaging, v1.0.0) is done. The repo is public at https://github.com/nexost/sts2-pres-mod with release v1.0.0. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md)).
-Joe Biden is in progress on branch `feature/biden`: C1 (scaffold) and C2 (design v1, reviewed: [Sleepy Joe Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv)) is complete: C1–C6 are committed and C7 (final checks) is done, waiting for review. Every test passes for him and for The Donald; releasing him would be v1.1.0._
+_Last updated: 2026-09-25. **v1.1.0 is released** (Sleepy Joe, and visual effects for The Donald): https://github.com/nexost/sts2-pres-mod/releases/tag/v1.1.0. The repo is public at https://github.com/nexost/sts2-pres-mod. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md)).
+Joe Biden is complete (C1–C7, [Sleepy Joe Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv)) and merged into `master`; the full release test set passed for both characters on 2026-09-25._
 
 ---
 
@@ -60,7 +60,7 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | Character | Status |
 |---|---|
 | The Donald (`trump`) | Complete (Steps 3–8) |
-| Joe Biden (`biden`) | Complete on branch `feature/biden` (C1–C7); not merged or released yet |
+| Joe Biden (`biden`) | Complete (C1–C7), released in **v1.1.0** |
 
 **Joe Biden's phases:**
 
@@ -268,6 +268,7 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-24 | **Biden visual effects** (the user picked 6 of 13 ideas): nodding off (the game's sleeping Z's), the Dark Brandon wake-up (red burst, then a glow and embers for the turn), Doze (Z's, and a dusk vignette near the line, local player only), Tangent speech bubbles, Snore/Snoring (the scream wave in blue), Laser Show (the sweeping beam in red). All visual only, so co-op state is untouched. design.md §11 lists them and the effects still to do. |
 | 2026-09-24 | **VFX overhaul, both characters (user's request).** Biden: the other 7 ideas too (Double Vision and Laser Focus beams, Mic Drop meteor, Air Force One shadow, vehicles driving across with generated side-view art, Reach Across the Aisle lines, Ice Cream Cone sprinkles, potion effects). The Donald: coins in and out with his Gold, Tariff coin pops, Tweet bubbles, harder Wall stage-ups and gold bursts, a Deport swoosh, and card effects (You're Fired!, Fire and Fury, Make It Rain, Wrecking Ball, golf, potions, shovels). New shared `Framework/VfxKit` and a `test.py vfx` showcase mode. All visual only; ui, targeted card and co-op tests pass for both. |
 | 2026-09-25 | **Playtest fix (user):** Here's the Deal on its Block line still asked for an enemy target. Now every Tangent aims and counts as its lit line: one-enemy lines need a target; all-enemy, Block, draw and Energy lines don't; an Attack Tangent on a no-damage line is a Skill (frame and type redraw in the hand). A one-enemy line played without a target (its line changed while queued) hits the first enemy standing. |
+| 2026-09-25 | **Released v1.1.0** (MINOR: new character, old saves still load). Full release test set passed for both characters (ui, full cards, AutoSlay victory, co-op ×2 and with Ironclad), the zip was installed on a clean mod folder and both characters played; the uninstaller's dry run was clean. `feature/biden` fast-forwarded into `master`, tagged `v1.1.0`, GitHub release with the zip (30.7 MB). |
 
 ## Open items
 
