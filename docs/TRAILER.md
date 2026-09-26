@@ -1,6 +1,7 @@
 # The trailer: how it was made and how to update it
 
 *Presidents of the Spire*, 1:22.6, 2560×1440 at 60 fps, both characters (Step 12 of the [plan](00_project_plan.md)).
+**Watch it: https://youtu.be/co-SsNDz3go**
 Everything that made it is in this repo: the director bot in the mod, the sound and picture tools in `trailer/tools/`,
 and the edit in `trailer/edit/` (Remotion). Generated media live in `build/trailer/` (git-ignored). Game files never go
 in git.

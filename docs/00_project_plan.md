@@ -4,7 +4,7 @@
 If a chat session is lost, this file + [`README.md`](../README.md) + [`FRAMEWORK.md`](FRAMEWORK.md) are enough to carry on.
 For a new character, follow [`ADDING_A_CHARACTER.md`](ADDING_A_CHARACTER.md).
 
-_Last updated: 2026-09-25. **v1.1.0 is released** (Sleepy Joe, and visual effects for The Donald): https://github.com/nexost/sts2-pres-mod/releases/tag/v1.1.0. The repo is public at https://github.com/nexost/sts2-pres-mod. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md)).
+_Last updated: 2026-09-26. **The trailer is out:** https://youtu.be/co-SsNDz3go (Step 12). **v1.1.0 is released** (Sleepy Joe, and visual effects for The Donald): https://github.com/nexost/sts2-pres-mod/releases/tag/v1.1.0. The repo is public at https://github.com/nexost/sts2-pres-mod. Not on the Steam Workshop ([PUBLISHING.md](PUBLISHING.md)).
 Joe Biden is complete (C1–C7, [Sleepy Joe Compendium](https://claude.ai/artifact/KhC3qpBBpx2UDJAA3KCdyv)) and merged into `master`; the full release test set passed for both characters on 2026-09-25._
 
 ---
@@ -54,7 +54,7 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | 9 | Polish and packaging | ✅ Done (`eca8ecb`) | v1.0.0: `build.py --zip`, [RELEASE_NOTES.md](RELEASE_NOTES.md), [PUBLISHING.md](PUBLISHING.md) |
 | 10 | Extra balance testing (optional) | ⬜ | More measured tuning, if wanted |
 | 11 | Custom style LoRA art (optional) | ⬜ | Art regenerated with a LoRA trained on the game's art, if wanted |
-| 12 | Trailer (1:22.6, both characters) | ⏳ T7 final in review | Phases T1–T7 below; code in `trailer/`, media in `build/trailer/` |
+| 12 | Trailer (1:22.6, both characters) | ✅ Done: [on YouTube](https://youtu.be/co-SsNDz3go) | Phases T1–T7 below; code in `trailer/`, media in `build/trailer/` |
 
 **Characters:**
 
@@ -247,7 +247,7 @@ user's go-ahead. One phase at a time, stopping for review after each.
 | T4 | Director bot and gameplay capture: a `trailer` harness mode that stages each shot, all shots recorded | ✅ [Trailer Dailies](https://claude.ai/artifact/GgKYJuNYaZqb6tZvt1RzDr) (49 clips with game sound, 354 card images) |
 | T5 | Cinematic shots and graphics: MiniMax H3 image-to-video on the mod's paintings, title logo, end card | ✅ [Trailer Cinematics](https://claude.ai/artifact/X3hkwFYv1nq8cAkwsBfB1E): five picks finished at 2520x1440, 60 fps (SeedVR2 + RIFE), Spectral title, backtoback s11 thumbnail art |
 | T6 | Edit v1 in Remotion: cut to the radio cut, motion graphics, transitions, sound design, grade | ✅ [Trailer Edit](https://claude.ai/artifact/YJG1SAdnEcX38PMqPhnzNC) v2, 1:22.6 (v1 was 1:12.6; masters in `trailer/edit/out/`) |
-| T7 | Notes, final mix and master, exports (16:9 master, optional vertical cut, thumbnail), `docs/TRAILER.md` | ⏳ In review: [Trailer Final](https://claude.ai/artifact/A11JbQLKhEhJEKrd12yLKy): YouTube 1440p60, 1080p60, 1080p60 with captions, .srt, thumbnail, mix; [TRAILER.md](TRAILER.md). Vertical cut not made (maybe later) |
+| T7 | Notes, final mix and master, exports (16:9 master, optional vertical cut, thumbnail), `docs/TRAILER.md` | ✅ [Trailer Final](https://claude.ai/artifact/A11JbQLKhEhJEKrd12yLKy): YouTube 1440p60, 1080p60, 1080p60 with captions, .srt, thumbnail, mix; [TRAILER.md](TRAILER.md). Vertical cut not made (maybe later) |
 
 Rules: AI video stays in the game's painted style (never photoreal), no imitation of the real people's voices, and the
 project's tone rules apply to every line. Publishing the trailer anywhere is the user's call.
@@ -411,6 +411,7 @@ during gameplay), so the runtime is 1:12.
 | 2026-09-26 | **Trailer T6, edit v2.** The user: the hero cards (0:55) and the relic ring (1:01) went by too fast. Each hero card now holds a full bar (1.43 s) and plays a full bar; the ring holds 4.9 s. The finale gets two bars of its drop repeated in the mix (bar 1.4275 s, found by correlation; librosa's 172 BPM was really 168) and runs one more bar, so the cuts stay on the beat: Golden Escalator slams on the drop's return, the repeat re-hits on Laser Show, the title lands before the track's bass fades. Runtime 1:22.6. |
 | 2026-09-26 | **Trailer T7.** The user approved v2. Final: the mix mastered to -14.0 LUFS / -1.3 dBTP (true-peak limiter), the picture re-rendered from PNG frames through a ProRes HQ master, exports for YouTube (1440p60), Reddit (1080p60, with and without burned-in captions), YouTube captions (.srt), the thumbnail and the mix; `docs/TRAILER.md` tells how to update or remake it. No vertical cut (the user's "maybe later"). Nothing uploaded anywhere: publishing is the user's call. |
 | 2026-09-26 | **README for visitors.** The user asked for a front page that sells the mod to people coming from YouTube and Reddit and tells how it was made: the characters with GIFs from the trailer and card fans, install steps, the four-day, human-on-a-phone story with images of the tools (balance and co-op bots, the art style board, the soundtrack read as spectrograms, clip contact sheets, the upscale comparison, review pages), how to contribute (with or without an agent), and the developer reference kept below. Images in `docs/readme/` (~18 MB, mostly five GIFs); the banner is the `Banner` Remotion still. The trailer link waits for the YouTube upload. |
+| 2026-09-26 | **Trailer published.** The user uploaded it to YouTube: https://youtu.be/co-SsNDz3go (the video file is too big for the browser tool's 10 MB upload limit, so the user uploaded it and Claude supplied the title, description, thumbnail and captions). README's play button and the repo description updated. Step 12 done. |
 
 ## Open items
 

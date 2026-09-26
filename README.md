@@ -13,7 +13,7 @@
 
 <p align="center">
   <a href="https://github.com/nexost/sts2-pres-mod/releases/latest"><b>Download</b></a> ·
-  <a href="#-the-trailer"><b>Trailer</b></a> ·
+  <a href="https://youtu.be/co-SsNDz3go"><b>Trailer</b></a> ·
   <a href="#-meet-the-candidates"><b>The characters</b></a> ·
   <a href="#-install"><b>Install</b></a> ·
   <a href="#-how-it-was-made-an-ai-agent-and-a-human-on-their-phone"><b>How it was made</b></a> ·
@@ -35,9 +35,8 @@ art, effects and dialogue, balanced against the base game's heroes, and playable
 
 ## ▶ The trailer
 
-<!-- Trailer link: replace REPLACE_WITH_YOUTUBE_ID with the YouTube video id once it's uploaded. -->
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=REPLACE_WITH_YOUTUBE_ID"><img src="docs/readme/trailer.jpg" alt="Watch the trailer: Presidents of the Spire" width="80%"></a>
+  <a href="https://youtu.be/co-SsNDz3go"><img src="docs/readme/trailer.jpg" alt="Watch the trailer: Presidents of the Spire" width="80%"></a>
 </p>
 
 Staged by a bot in the real game, narrated, scored, animated and edited by the agent. [How the trailer was made](docs/TRAILER.md).
