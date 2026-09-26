@@ -34,6 +34,8 @@ public static partial class DevHarness
 			CoopTurnStart = BidenCoopTurnStart,
 			// test.py vfx -c biden: every visual effect, with screenshots.
 			ExtraModes = { ["vfx"] = BidenVfxShowcase },
+			// scripts/trailer_capture.py: shots for the trailer (DevHarness.Biden.Trailer.cs).
+			TrailerShots = BidenTrailerShots(),
 			// The balance bot: his cards valued as they actually play, and naps, lasers and Drowsy per fight.
 			CardValueOverride = BidenCardValueOverride,
 			CardValue = (card, fight, _) => BidenExtraValue(card, fight),

@@ -42,6 +42,9 @@ COMFY_PYTHON = setting("comfy_python", os.path.join(COMFY_DIR, ".venv", "Scripts
 # Comfy Desktop keeps models in a shared folder listed in this file; other installs don't need it.
 COMFY_MODELS_YAML = setting("comfy_models_yaml", os.path.join(os.environ.get("APPDATA", ""), "Comfy Desktop", "shared_model_paths.yaml"))
 COMFY_LORA_DIR = setting("comfy_lora_dir", r"D:\Comfy-Desktop\ComfyUI-Shared\models\loras")   # art_train.py writes LoRAs here
+# The trailer's video tools (Step 12): ffmpeg from gyan.dev, unzipped into tools/ffmpeg/
+FFMPEG = setting("ffmpeg", os.path.join(REPO, "tools", "ffmpeg", "bin", "ffmpeg.exe"))
+FFPROBE = os.path.join(os.path.dirname(FFMPEG), "ffprobe.exe")
 
 
 MOD = _load_json(os.path.join(REPO, "mod.json"))

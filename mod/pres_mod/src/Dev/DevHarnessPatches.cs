@@ -215,3 +215,18 @@ public static class TestMutePatch
 		volume = 0f;
 	}
 }
+
+/// <summary>
+/// Test mode with --pres-nomusic: the music volume stays 0 while every sound effect plays (the trailer's game-audio
+/// pass records the fights' sounds under its own soundtrack).
+/// </summary>
+[HarmonyPatch(typeof(NAudioManager), nameof(NAudioManager.SetBgmVol))]
+public static class TestNoMusicPatch
+{
+	public static bool Prepare() => DevHarness.Enabled && CommandLineHelper.HasArg("pres-nomusic");
+
+	public static void Prefix(ref float volume)
+	{
+		volume = 0f;
+	}
+}

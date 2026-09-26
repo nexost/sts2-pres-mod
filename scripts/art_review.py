@@ -123,7 +123,9 @@ class Hub:
         args += ["--output-directory", art_gen.COMFY_OUT, "--input-directory", art_gen.COMFY_IN,
                  "--port", "8189", "--listen", "127.0.0.1", "--disable-pinned-memory", "--disable-auto-launch"]
         flags = getattr(subprocess, "CREATE_NO_WINDOW", 0)
-        self.comfy_proc = subprocess.Popen(args, cwd=COMFY_DIR, stdout=log, stderr=subprocess.STDOUT, creationflags=flags)
+        # UTF-8 output: with stdout in a file Python uses the ANSI code page, and nodes that print emoji (SeedVR2) fail to import.
+        env = dict(os.environ, PYTHONIOENCODING="utf-8")
+        self.comfy_proc = subprocess.Popen(args, cwd=COMFY_DIR, env=env, stdout=log, stderr=subprocess.STDOUT, creationflags=flags)
         print("Starting ComfyUI (log: build/art/comfy.log)...", flush=True)
 
     def stop_comfy(self):

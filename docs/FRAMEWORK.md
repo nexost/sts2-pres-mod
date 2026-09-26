@@ -168,6 +168,7 @@ Every **image** has a fixed path per art kind: `presmod.KIND_OUTPUTS`, listed in
 | `vfx` | A character's visual effects played one after another in a fight, with a screenshot at each key moment (the character's `ExtraModes["vfx"]`: Biden, Trump) | ~2 min |
 | `coop [CLIENT_CHARACTER]` | Two instances side by side play a co-op fight over localhost (the game's own `--fastmp` option, no Steam lobby): the host starts it, each plays its own cards (`CoopTurn` hook; the scripted plays stop once that player's turn has ended, as the game's hand does), both record every player and enemy at the start of each turn and the records must match (desync check), then the rest site and shop | ~4 min |
 | a character's own mode | e.g. `deportsweep` (Trump) | varies |
+| `trailer` (via `scripts/trailer_capture.py SHOTS`) | Stages the trailer's shots (`CharacterTests.TrailerShots`) and records each clip: the engine runs at `--fixed-fps 60` and `TrailerRecorder` pipes every frame to ffmpeg. Output in `build/trailer/capture/` | ~1 min per shot |
 | `cleansaves [ID,...]` | Removes test runs that use the mod or a removed character (through the game, so Steam Cloud doesn't restore them) | ~30 s |
 
 `python scripts/balance_report.py PREFIX` compares balance batches.
@@ -194,6 +195,7 @@ Every hook is optional. With none, all modes already work with the shared checks
 | `RemovesEnemy`, `CardValue` | balance | Teach the bot the character's non-damage effects |
 | `CardValueOverride` | balance | Replace a card's whole value when its printed numbers don't all happen (Biden's Tangents: only the lit line). `DamageValue` and `BlockValue` score the parts the usual way |
 | `CoopTurn` | coop | The character's co-op plays in the first turn: (is host, combat). Trump: Coalition Wall on the host, Trickle Down and Slap a Tariff on the client |
+| `TrailerShots` | trailer | The character's trailer shots by name; each sets up its scene and records clips with `Record` (game-time `Wait`s) |
 | `CoopTurnStart` | coop | Checks at the start of every turn, after both sides recorded their state: (is host, combat, turn). Biden: everyone who nodded off in turn 1 woke as Dark Brandon, with Laser Eyes |
 
 Command-line flags (all `--pres-*`):
@@ -211,6 +213,7 @@ Command-line flags (all `--pres-*`):
 | `build.py` | Build (and install) |
 | `make_placeholders.py [-c id] [--force]` | Stand-in art for anything missing; run by the build |
 | `test.py`, `balance_report.py` | Tests (§6) |
+| `trailer_capture.py SHOTS [-c id] [--method frames\|moviemaker\|realtime]` | Records trailer clips through the harness's `trailer` mode (§6); the trailer project is Step 12 of the plan |
 | `analyze_cards.py` | Mine the base game's cards into `build/analysis/` (the benchmarks) |
 | `render_design.py`, `render_gallery.py`, `render_compendium.py` `[-c id]` | `cards.json` → card list with validation, local gallery, review page |
 | `art_review.py`, `art_recipes.py`, `art_gen.py`, `art_post.py`, `art_train.py` | Art ([ART_PIPELINE.md](ART_PIPELINE.md)) |

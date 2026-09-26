@@ -1,0 +1,1494 @@
+{
+  "_about": "The trailer's timeline (seconds). One source for the sound mix (trailer/tools/mix.py) and the picture (Remotion). Audio paths are relative to build/trailer/audio/; media to build/trailer/media/. music, vo and sfx are the radio cut (T3); shots are the picture edit (T6): src is a captured clip (media/clips/<src>.mp4, its game sound from audio/game/<src>.wav), ai/<tag> a painted shot, or graphics; from is the source time, cam [scale, x, y] frames the 4K source (x, y = the visible centre, 0..1), camTo moves it over the shot. graphics are the overlays. beats is the animatic's storyboard (T3).",
+  "duration": 82.59,
+  "mix": {
+    "duckDb": -7,
+    "busDb": {
+      "music": 0,
+      "vo": 1.5,
+      "sfx": -1,
+      "game": -12
+    },
+    "gameTrimDb": 27
+  },
+  "music": [
+    {
+      "cue": "spire",
+      "file": "music/spire_s4.flac",
+      "at": 0.0,
+      "from": 8.0,
+      "to": 18.2,
+      "gain": 0,
+      "fadeIn": 1.5,
+      "fadeOut": 0.08
+    },
+    {
+      "cue": "donald",
+      "file": "music/donald_phonk_s13.flac",
+      "at": 10.2,
+      "from": 0.0,
+      "to": 15.3,
+      "gain": -2,
+      "bass": 2,
+      "fadeIn": 0.005,
+      "fadeOut": 0.03
+    },
+    {
+      "cue": "lullaby",
+      "file": "music/lullaby_slowed_s13.flac",
+      "at": 26.2,
+      "from": 3.0,
+      "to": 13.1,
+      "gain": 1,
+      "bass": 4,
+      "fadeIn": 0.3,
+      "tapeStop": 0.9
+    },
+    {
+      "cue": "brandon",
+      "file": "music/brandon_s2.flac",
+      "at": 37.0,
+      "from": 0.0,
+      "to": 11.05,
+      "gain": -1,
+      "bass": 3,
+      "drive": 3,
+      "fadeIn": 0.005,
+      "fadeOut": 0.05
+    },
+    {
+      "cue": "finale",
+      "file": "music/finale_dubstep_s12.flac",
+      "at": 48.05,
+      "from": 6.0,
+      "to": 20.2845,
+      "gain": 0,
+      "bass": 2,
+      "fadeIn": 0.02,
+      "fadeOut": 0.012
+    },
+    {
+      "cue": "finale_repeat",
+      "file": "music/finale_dubstep_s12.flac",
+      "at": 62.334,
+      "from": 17.43,
+      "to": 20.2845,
+      "gain": 0,
+      "bass": 2,
+      "fadeIn": 0.012,
+      "fadeOut": 0.012
+    },
+    {
+      "cue": "finale_end",
+      "file": "music/finale_dubstep_s12.flac",
+      "at": 65.189,
+      "from": 20.2845,
+      "to": 28.086,
+      "gain": 0,
+      "bass": 2,
+      "fadeIn": 0.012,
+      "fadeOut": 0.04
+    }
+  ],
+  "vo": [
+    {
+      "line": "n01_centuries",
+      "take": 1,
+      "at": 0.3,
+      "text": "For centuries... the Spire has devoured heroes."
+    },
+    {
+      "line": "n02_warriors",
+      "take": 1,
+      "at": 4.3,
+      "text": "Warriors.",
+      "from": 0.0,
+      "to": 0.95,
+      "fadeOut": 0.06
+    },
+    {
+      "line": "n02_warriors",
+      "take": 1,
+      "at": 5.15,
+      "text": "Assassins.",
+      "from": 1.03,
+      "to": 2.17,
+      "fadeOut": 0.06
+    },
+    {
+      "line": "n02_warriors",
+      "take": 1,
+      "at": 6.05,
+      "text": "Machines.",
+      "from": 2.25,
+      "to": 3.5,
+      "fadeOut": 0.06
+    },
+    {
+      "line": "n03_but_this_year",
+      "take": 1,
+      "at": 7.3,
+      "text": "But this year..."
+    },
+    {
+      "line": "n04_running",
+      "take": 1,
+      "at": 8.35,
+      "text": "two new candidates are running."
+    },
+    {
+      "line": "n05_walls",
+      "take": 3,
+      "at": 12.4,
+      "text": "One... builds walls."
+    },
+    {
+      "line": "n06_deals",
+      "take": 1,
+      "at": 16.2,
+      "text": "Makes deals."
+    },
+    {
+      "line": "n07_worst",
+      "take": 1,
+      "at": 18.3,
+      "text": "And shows the Spire's worst..."
+    },
+    {
+      "line": "n08_door",
+      "take": 2,
+      "at": 20.8,
+      "text": "the door."
+    },
+    {
+      "line": "n09_other_one",
+      "take": 3,
+      "at": 27.0,
+      "text": "The other one..."
+    },
+    {
+      "line": "n10_resting",
+      "take": 3,
+      "at": 28.5,
+      "text": "is resting his eyes."
+    },
+    {
+      "line": "n11_whatever",
+      "take": 2,
+      "at": 33.6,
+      "text": "Whatever you do..."
+    },
+    {
+      "line": "n12_dont_wake",
+      "take": 3,
+      "at": 35.05,
+      "text": "don't wake him up."
+    },
+    {
+      "line": "n13_two_presidents",
+      "take": 1,
+      "at": 48.1,
+      "text": "Two presidents."
+    },
+    {
+      "line": "n14_one_spire",
+      "take": 2,
+      "at": 49.5,
+      "text": "One Spire."
+    },
+    {
+      "line": "n15_finally",
+      "take": 1,
+      "at": 50.9,
+      "text": "Finally..."
+    },
+    {
+      "line": "n16_bipartisan",
+      "take": 3,
+      "at": 51.8,
+      "text": "bipartisan infrastructure."
+    }
+  ],
+  "sfx": [
+    {
+      "name": "thunder",
+      "take": 1,
+      "at": 0.0,
+      "gain": -6
+    },
+    {
+      "name": "impact",
+      "take": 1,
+      "at": 4.33,
+      "gain": -5
+    },
+    {
+      "name": "impact",
+      "take": 2,
+      "at": 5.18,
+      "gain": -5
+    },
+    {
+      "name": "impact",
+      "take": 1,
+      "at": 6.08,
+      "gain": -4
+    },
+    {
+      "name": "riser",
+      "take": 1,
+      "at": 7.2,
+      "gain": -5
+    },
+    {
+      "name": "braam",
+      "take": 1,
+      "at": 10.2,
+      "gain": 0
+    },
+    {
+      "name": "wall_rise",
+      "take": 1,
+      "at": 12.8,
+      "gain": -9
+    },
+    {
+      "name": "impact",
+      "take": 2,
+      "at": 12.87,
+      "gain": -10
+    },
+    {
+      "name": "impact",
+      "take": 1,
+      "at": 13.61,
+      "gain": -10
+    },
+    {
+      "name": "impact",
+      "take": 2,
+      "at": 14.36,
+      "gain": -8
+    },
+    {
+      "name": "cash_register",
+      "take": 1,
+      "at": 15.1,
+      "gain": -5
+    },
+    {
+      "name": "coins",
+      "take": 1,
+      "at": 16.44,
+      "gain": -7
+    },
+    {
+      "name": "stamp",
+      "take": 1,
+      "at": 18.81,
+      "gain": -6
+    },
+    {
+      "name": "stamp",
+      "take": 1,
+      "at": 19.64,
+      "gain": -2
+    },
+    {
+      "name": "whoosh",
+      "take": 1,
+      "at": 19.86,
+      "gain": -5
+    },
+    {
+      "name": "whoosh",
+      "take": 2,
+      "at": 21.04,
+      "gain": -5
+    },
+    {
+      "name": "impact",
+      "take": 2,
+      "at": 23.55,
+      "gain": -1
+    },
+    {
+      "name": "record_scratch",
+      "take": 1,
+      "at": 25.45,
+      "gain": 0
+    },
+    {
+      "name": "snore",
+      "take": 1,
+      "at": 32.77,
+      "gain": -5
+    },
+    {
+      "name": "glint",
+      "take": 1,
+      "at": 36.6,
+      "gain": -2
+    },
+    {
+      "name": "sub_drop",
+      "take": 1,
+      "at": 37.0,
+      "gain": 0
+    },
+    {
+      "name": "braam",
+      "take": 2,
+      "at": 37.0,
+      "gain": -3
+    },
+    {
+      "name": "laser_charge",
+      "take": 1,
+      "at": 38.63,
+      "gain": -7
+    },
+    {
+      "name": "laser_beam",
+      "take": 1,
+      "at": 39.16,
+      "gain": -5
+    },
+    {
+      "name": "impact",
+      "take": 1,
+      "at": 43.94,
+      "gain": -5
+    },
+    {
+      "name": "whoosh",
+      "take": 1,
+      "at": 45.54,
+      "gain": -7
+    },
+    {
+      "name": "impact",
+      "take": 1,
+      "at": 48.1,
+      "gain": -3
+    },
+    {
+      "name": "impact",
+      "take": 2,
+      "at": 49.5,
+      "gain": -3
+    },
+    {
+      "name": "card_wave",
+      "take": 1,
+      "at": 54.0,
+      "gain": -4
+    },
+    {
+      "name": "card_flick",
+      "take": 1,
+      "at": 56.626,
+      "gain": -6
+    },
+    {
+      "name": "impact",
+      "take": 2,
+      "at": 56.626,
+      "gain": -9
+    },
+    {
+      "name": "whoosh",
+      "take": 2,
+      "at": 57.973,
+      "gain": -9
+    },
+    {
+      "name": "card_flick",
+      "take": 2,
+      "at": 59.48,
+      "gain": -6
+    },
+    {
+      "name": "impact",
+      "take": 1,
+      "at": 59.48,
+      "gain": -9
+    },
+    {
+      "name": "whoosh",
+      "take": 2,
+      "at": 60.827,
+      "gain": -9
+    },
+    {
+      "name": "card_flick",
+      "take": 1,
+      "at": 62.334,
+      "gain": -6
+    },
+    {
+      "name": "impact",
+      "take": 2,
+      "at": 62.334,
+      "gain": -9
+    },
+    {
+      "name": "whoosh",
+      "take": 2,
+      "at": 63.682,
+      "gain": -9
+    },
+    {
+      "name": "card_flick",
+      "take": 2,
+      "at": 65.189,
+      "gain": -6
+    },
+    {
+      "name": "impact",
+      "take": 1,
+      "at": 65.189,
+      "gain": -8
+    },
+    {
+      "name": "whoosh",
+      "take": 2,
+      "at": 66.536,
+      "gain": -9
+    },
+    {
+      "name": "relic_chime",
+      "take": 1,
+      "at": 68.163,
+      "gain": -7
+    },
+    {
+      "name": "relic_chime",
+      "take": 2,
+      "at": 69.343,
+      "gain": -7
+    },
+    {
+      "name": "riser",
+      "take": 2,
+      "at": 69.99,
+      "gain": -5
+    },
+    {
+      "name": "relic_chime",
+      "take": 1,
+      "at": 70.643,
+      "gain": -8
+    },
+    {
+      "name": "relic_chime",
+      "take": 2,
+      "at": 71.843,
+      "gain": -8
+    },
+    {
+      "name": "logo_hit",
+      "take": 1,
+      "at": 72.99,
+      "gain": 0
+    },
+    {
+      "name": "typing",
+      "take": 1,
+      "at": 77.19,
+      "gain": -4
+    },
+    {
+      "name": "ping",
+      "take": 1,
+      "at": 78.59,
+      "gain": -6
+    },
+    {
+      "name": "typing",
+      "take": 1,
+      "at": 79.19,
+      "gain": -6
+    }
+  ],
+  "beats": [
+    {
+      "at": 0.0,
+      "dur": 4.3,
+      "frame": "f01_spire.jpg",
+      "section": "Cold open",
+      "shot": "G01 The Spire (title-screen plate)"
+    },
+    {
+      "at": 4.3,
+      "dur": 3.0,
+      "frame": "f02_monsters.jpg",
+      "section": "Cold open",
+      "shot": "G02 Monsters, a cut per word"
+    },
+    {
+      "at": 7.3,
+      "dur": 2.9,
+      "frame": "f03_candidates.jpg",
+      "section": "Cold open",
+      "shot": "G03 Character select row (random \"?\" button hidden)"
+    },
+    {
+      "at": 10.2,
+      "dur": 2.2,
+      "frame": "f04_donald_painting.jpg",
+      "section": "The Donald",
+      "shot": "A1 The Donald hero (AI)",
+      "card": {
+        "text": "THE DONALD",
+        "style": "donald"
+      }
+    },
+    {
+      "at": 12.4,
+      "dur": 3.8,
+      "frame": "f05_wall.jpg",
+      "section": "The Donald",
+      "shot": "G04 The Wall, 4 stages"
+    },
+    {
+      "at": 16.2,
+      "dur": 2.1,
+      "frame": "f06_rain.jpg",
+      "section": "The Donald",
+      "shot": "G05 Make It Rain + card callout"
+    },
+    {
+      "at": 18.3,
+      "dur": 5.2,
+      "frame": "f07_deport.jpg",
+      "section": "The Donald",
+      "shot": "G06-G07 Deport, Mass Deportation"
+    },
+    {
+      "at": 23.5,
+      "dur": 2.0,
+      "frame": "f08_fired.jpg",
+      "section": "The Donald",
+      "shot": "G08 You're Fired! + callout"
+    },
+    {
+      "at": 25.5,
+      "dur": 0.7,
+      "frame": null,
+      "section": "The Donald",
+      "shot": "Record scratch, black"
+    },
+    {
+      "at": 26.2,
+      "dur": 4.0,
+      "frame": "f09_doze.jpg",
+      "section": "Sleepy Joe",
+      "shot": "G09 Dozing",
+      "card": {
+        "text": "SLEEPY JOE",
+        "style": "joe"
+      }
+    },
+    {
+      "at": 30.2,
+      "dur": 2.4,
+      "frame": "f10_tangent.jpg",
+      "section": "Sleepy Joe",
+      "shot": "G10 Tangent close-up + callout"
+    },
+    {
+      "at": 32.6,
+      "dur": 4.0,
+      "frame": "f11_nodoff.jpg",
+      "section": "Sleepy Joe",
+      "shot": "G11 Nods off mid-turn"
+    },
+    {
+      "at": 36.6,
+      "dur": 0.4,
+      "frame": null,
+      "section": "Sleepy Joe",
+      "shot": "Silence, the glint"
+    },
+    {
+      "at": 37.0,
+      "dur": 2.0,
+      "frame": "f12_joe_face.jpg",
+      "section": "Dark Brandon",
+      "shot": "A2 Eyes blaze red (AI)",
+      "card": {
+        "text": "DARK BRANDON",
+        "style": "brandon"
+      }
+    },
+    {
+      "at": 39.0,
+      "dur": 3.0,
+      "frame": "f13_laser.jpg",
+      "section": "Dark Brandon",
+      "shot": "G12 The mega laser"
+    },
+    {
+      "at": 42.0,
+      "dur": 2.0,
+      "frame": "f17c_lasershow.jpg",
+      "section": "Dark Brandon",
+      "shot": "G13 Laser Show"
+    },
+    {
+      "at": 44.0,
+      "dur": 1.5,
+      "frame": "f14b_micdrop.jpg",
+      "section": "Dark Brandon",
+      "shot": "G14 Mic Drop"
+    },
+    {
+      "at": 45.5,
+      "dur": 2.5,
+      "frame": "f14_motorcade.jpg",
+      "section": "Dark Brandon",
+      "shot": "G14 Motorcade"
+    },
+    {
+      "at": 48.0,
+      "dur": 3.0,
+      "frame": "f15_coop.jpg",
+      "section": "Together",
+      "shot": "G15 Co-op (stand-in frame: Ironclad; the real shot is The Donald + Sleepy Joe)"
+    },
+    {
+      "at": 51.0,
+      "dur": 3.0,
+      "frame": "f16_aisle.jpg",
+      "section": "Together",
+      "shot": "G15 Coalition Wall, Reach Across the Aisle (stand-in frame)"
+    },
+    {
+      "at": 54.0,
+      "dur": 2.0,
+      "frame": "f19_collection.jpg",
+      "section": "The collection",
+      "shot": "G18 The wave of cards"
+    },
+    {
+      "at": 56.0,
+      "dur": 1.0,
+      "frame": "f17_wrecking.jpg",
+      "section": "The collection",
+      "shot": "Hero card: Wrecking Ball"
+    },
+    {
+      "at": 57.0,
+      "dur": 1.0,
+      "frame": "f05_wall.jpg",
+      "section": "The collection",
+      "shot": "Hero card: Golden Escalator"
+    },
+    {
+      "at": 58.0,
+      "dur": 1.0,
+      "frame": "f17c_lasershow.jpg",
+      "section": "The collection",
+      "shot": "Hero card: Laser Show"
+    },
+    {
+      "at": 59.0,
+      "dur": 1.0,
+      "frame": "f13_laser.jpg",
+      "section": "The collection",
+      "shot": "Hero card: State of the Union"
+    },
+    {
+      "at": 60.0,
+      "dur": 3.0,
+      "frame": "f19_collection.jpg",
+      "section": "The collection",
+      "shot": "Relics and potions, the counters",
+      "card": {
+        "text": "176 CARDS · 18 RELICS · 6 POTIONS · CO-OP",
+        "style": "stats"
+      }
+    },
+    {
+      "at": 63.0,
+      "dur": 4.0,
+      "frame": "title",
+      "section": "Title",
+      "shot": "Logo over key art (A4)"
+    },
+    {
+      "at": 67.0,
+      "dur": 4.7,
+      "frame": "button",
+      "section": "Final joke",
+      "shot": "The Tweet, then Joe cut off"
+    },
+    {
+      "at": 71.7,
+      "dur": 0.9,
+      "frame": null,
+      "section": "Final joke",
+      "shot": "Black"
+    }
+  ],
+  "button": {
+    "tweetFrom": 0.2,
+    "tweetTo": 1.5,
+    "joeFrom": 2.2,
+    "joeTo": 3.0,
+    "_about": "seconds from the start of the final-joke beat: the Tweet types, then Joe's line types fast and holds ~1.5 s before the cut"
+  },
+  "shots": [
+    {
+      "at": 0.0,
+      "dur": 4.3,
+      "src": "menu_spire",
+      "from": 0.3,
+      "cam": [
+        1.0,
+        0.5,
+        0.5
+      ],
+      "camTo": [
+        1.14,
+        0.55,
+        0.46
+      ],
+      "look": "cold",
+      "fadeIn": 0.9
+    },
+    {
+      "at": 4.3,
+      "dur": 0.85,
+      "src": "joe_sotu_clean",
+      "from": 0.05,
+      "cam": [
+        1.8,
+        0.72,
+        0.46
+      ],
+      "camTo": [
+        1.95,
+        0.73,
+        0.46
+      ],
+      "look": "mono"
+    },
+    {
+      "at": 5.15,
+      "dur": 0.9,
+      "src": "joe_wake_cave_clean",
+      "from": 0.05,
+      "cam": [
+        1.9,
+        0.72,
+        0.52
+      ],
+      "camTo": [
+        2.05,
+        0.72,
+        0.52
+      ],
+      "look": "mono"
+    },
+    {
+      "at": 6.05,
+      "dur": 1.25,
+      "src": "donald_wall_clean",
+      "from": 0.05,
+      "cam": [
+        1.7,
+        0.72,
+        0.5
+      ],
+      "camTo": [
+        1.85,
+        0.73,
+        0.5
+      ],
+      "look": "mono"
+    },
+    {
+      "at": 7.3,
+      "dur": 1.38,
+      "src": "select_row",
+      "from": 1.3,
+      "cam": [
+        1.0,
+        0.5,
+        0.5
+      ],
+      "camTo": [
+        1.6,
+        0.66,
+        0.68
+      ]
+    },
+    {
+      "at": 8.68,
+      "dur": 1.52,
+      "src": "split",
+      "from": 0.0,
+      "left": "select_donald_clean",
+      "right": "select_joe_clean"
+    },
+    {
+      "at": 10.2,
+      "dur": 2.3,
+      "src": "ai/a1_donald_hero_s7_quality",
+      "from": 1.6
+    },
+    {
+      "at": 12.5,
+      "dur": 0.74,
+      "src": "donald_wall_full",
+      "from": 0.41,
+      "cam": [
+        1.0,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "at": 13.24,
+      "dur": 0.74,
+      "src": "donald_wall_full",
+      "from": 1.97,
+      "cam": [
+        1.35,
+        0.38,
+        0.55
+      ]
+    },
+    {
+      "at": 13.98,
+      "dur": 0.75,
+      "src": "donald_wall_full",
+      "from": 3.28,
+      "cam": [
+        1.7,
+        0.32,
+        0.56
+      ]
+    },
+    {
+      "at": 14.73,
+      "dur": 1.46,
+      "src": "donald_wall_full",
+      "from": 4.75,
+      "cam": [
+        1.18,
+        0.5,
+        0.5
+      ],
+      "camTo": [
+        1.06,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "at": 16.19,
+      "dur": 1.51,
+      "src": "donald_rain_clean",
+      "from": 0.5,
+      "cam": [
+        1.15,
+        0.55,
+        0.48
+      ]
+    },
+    {
+      "at": 17.7,
+      "dur": 0.74,
+      "src": "donald_rain_clean",
+      "from": 1.3,
+      "cam": [
+        1.7,
+        0.7,
+        0.45
+      ]
+    },
+    {
+      "at": 18.44,
+      "dur": 0.75,
+      "src": "donald_deport_eel_full",
+      "from": 1.63,
+      "cam": [
+        1.5,
+        0.55,
+        0.45
+      ]
+    },
+    {
+      "at": 19.19,
+      "dur": 1.48,
+      "src": "donald_deport_full",
+      "from": 1.1,
+      "cam": [
+        1.3,
+        0.55,
+        0.48
+      ]
+    },
+    {
+      "at": 20.67,
+      "dur": 1.51,
+      "src": "donald_mass_full",
+      "from": 0.41,
+      "cam": [
+        1.15,
+        0.55,
+        0.48
+      ]
+    },
+    {
+      "at": 22.18,
+      "dur": 0.37,
+      "src": "donald_tweets_full",
+      "from": 1.95,
+      "cam": [
+        1.4,
+        0.55,
+        0.45
+      ]
+    },
+    {
+      "at": 22.55,
+      "dur": 0.37,
+      "src": "donald_fury_full",
+      "from": 0.45,
+      "cam": [
+        1.4,
+        0.55,
+        0.45
+      ]
+    },
+    {
+      "at": 22.92,
+      "dur": 0.38,
+      "src": "donald_golf_full",
+      "from": 0.85,
+      "cam": [
+        1.5,
+        0.55,
+        0.45
+      ]
+    },
+    {
+      "at": 23.3,
+      "dur": 1.48,
+      "src": "donald_fired_clean",
+      "from": 0.25,
+      "cam": [
+        1.1,
+        0.5,
+        0.45
+      ]
+    },
+    {
+      "at": 24.78,
+      "dur": 0.67,
+      "src": "donald_fired_clean",
+      "from": 2.75,
+      "cam": [
+        1.9,
+        0.38,
+        0.42
+      ]
+    },
+    {
+      "at": 25.45,
+      "dur": 0.35,
+      "src": "donald_fired_clean",
+      "from": 3.42,
+      "cam": [
+        2.1,
+        0.38,
+        0.42
+      ],
+      "freeze": true,
+      "look": "mono",
+      "sound": false
+    },
+    {
+      "at": 26.2,
+      "dur": 2.3,
+      "src": "select_joe_clean",
+      "from": 0.2,
+      "cam": [
+        1.0,
+        0.5,
+        0.5
+      ],
+      "camTo": [
+        1.1,
+        0.55,
+        0.42
+      ],
+      "look": "dusk"
+    },
+    {
+      "at": 28.5,
+      "dur": 2.16,
+      "src": "joe_doze_full",
+      "from": 0.35,
+      "cam": [
+        1.3,
+        0.3,
+        0.55
+      ],
+      "camTo": [
+        1.55,
+        0.28,
+        0.56
+      ],
+      "look": "dusk"
+    },
+    {
+      "at": 30.66,
+      "dur": 2.11,
+      "src": "joe_tangent_full",
+      "from": 0.95,
+      "cam": [
+        1.7,
+        0.31,
+        0.47
+      ],
+      "look": "dusk"
+    },
+    {
+      "at": 32.77,
+      "dur": 3.53,
+      "src": "joe_nodoff_full",
+      "from": 0.3,
+      "cam": [
+        1.2,
+        0.45,
+        0.5
+      ],
+      "camTo": [
+        1.45,
+        0.36,
+        0.52
+      ],
+      "look": "dusk"
+    },
+    {
+      "at": 36.3,
+      "dur": 0.7,
+      "src": "ai/a2_joe_eyes_s3_quality",
+      "from": 2.9,
+      "look": "dusk"
+    },
+    {
+      "at": 37.0,
+      "dur": 1.63,
+      "src": "ai/a2_joe_eyes_s3_quality",
+      "from": 3.6,
+      "rate": 0.94,
+      "look": "brandon"
+    },
+    {
+      "at": 38.63,
+      "dur": 0.53,
+      "src": "joe_nodoff_clean",
+      "from": 8.97,
+      "cam": [
+        1.5,
+        0.3,
+        0.55
+      ]
+    },
+    {
+      "at": 39.16,
+      "dur": 0.53,
+      "src": "joe_nodoff_clean",
+      "from": 9.5,
+      "cam": [
+        1.6,
+        0.3,
+        0.55
+      ],
+      "rate": 0.5
+    },
+    {
+      "at": 39.69,
+      "dur": 0.54,
+      "src": "joe_nodoff_clean",
+      "from": 9.765,
+      "cam": [
+        1.25,
+        0.5,
+        0.52
+      ]
+    },
+    {
+      "at": 40.23,
+      "dur": 1.07,
+      "src": "ai/a3_brandon_unleashed_s2_quality",
+      "from": 1.2
+    },
+    {
+      "at": 41.3,
+      "dur": 1.57,
+      "src": "joe_lasershow_clean",
+      "from": 2.15,
+      "cam": [
+        1.3,
+        0.55,
+        0.5
+      ]
+    },
+    {
+      "at": 42.87,
+      "dur": 0.54,
+      "src": "joe_wake_full",
+      "from": 2.1,
+      "cam": [
+        1.3,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "at": 43.41,
+      "dur": 1.07,
+      "src": "joe_micdrop_full",
+      "from": 0.37,
+      "cam": [
+        1.4,
+        0.55,
+        0.5
+      ]
+    },
+    {
+      "at": 44.48,
+      "dur": 1.06,
+      "src": "joe_motorcade_full",
+      "from": 0.45,
+      "cam": [
+        1.3,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "at": 45.54,
+      "dur": 1.05,
+      "src": "joe_airforce_full",
+      "from": 0.6,
+      "cam": [
+        1.3,
+        0.55,
+        0.48
+      ]
+    },
+    {
+      "at": 46.59,
+      "dur": 1.46,
+      "src": "ai/a3_brandon_rises_s1_quality",
+      "from": 3.35
+    },
+    {
+      "at": 48.05,
+      "dur": 1.56,
+      "src": "coop_both_full",
+      "from": 0.3,
+      "cam": [
+        1.75,
+        0.29,
+        0.6
+      ],
+      "camTo": [
+        1.85,
+        0.29,
+        0.6
+      ]
+    },
+    {
+      "at": 49.61,
+      "dur": 1.29,
+      "src": "coop_both_full",
+      "from": 2.1,
+      "cam": [
+        1.3,
+        0.52,
+        0.58
+      ],
+      "sound": {
+        "src": "donald_wall_full",
+        "from": 0.35
+      }
+    },
+    {
+      "at": 50.9,
+      "dur": 0.9,
+      "src": "coop_both_full",
+      "from": 3.75,
+      "cam": [
+        1.7,
+        0.3,
+        0.55
+      ]
+    },
+    {
+      "at": 51.8,
+      "dur": 2.2,
+      "src": "coop_both_full",
+      "from": 4.9,
+      "cam": [
+        1.3,
+        0.52,
+        0.56
+      ],
+      "camTo": [
+        1.26,
+        0.52,
+        0.56
+      ],
+      "sound": {
+        "src": "joe_wake_full",
+        "from": 0.9
+      }
+    },
+    {
+      "at": 54.0,
+      "dur": 4.053,
+      "src": "graphics",
+      "from": 0.0
+    },
+    {
+      "at": 58.053,
+      "dur": 1.427,
+      "src": "donald_wrecking_clean",
+      "from": 0.62,
+      "cam": [
+        1.35,
+        0.55,
+        0.45
+      ]
+    },
+    {
+      "at": 59.48,
+      "dur": 1.427,
+      "src": "graphics",
+      "from": 0.0
+    },
+    {
+      "at": 60.907,
+      "dur": 1.427,
+      "src": "donald_wall_clean",
+      "from": 4.75,
+      "cam": [
+        1.25,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "at": 62.334,
+      "dur": 1.428,
+      "src": "graphics",
+      "from": 0.0
+    },
+    {
+      "at": 63.762,
+      "dur": 1.427,
+      "src": "joe_lasershow_clean",
+      "from": 2.2,
+      "cam": [
+        1.3,
+        0.55,
+        0.5
+      ]
+    },
+    {
+      "at": 65.189,
+      "dur": 1.427,
+      "src": "graphics",
+      "from": 0.0
+    },
+    {
+      "at": 66.616,
+      "dur": 1.427,
+      "src": "joe_sotu_clean",
+      "from": 2.1,
+      "cam": [
+        1.3,
+        0.55,
+        0.5
+      ]
+    },
+    {
+      "at": 68.043,
+      "dur": 4.947,
+      "src": "graphics",
+      "from": 0.0
+    },
+    {
+      "at": 72.99,
+      "dur": 4.0,
+      "src": "ai/a4_title_walk_s22_s2_quality",
+      "from": 0.6
+    },
+    {
+      "at": 76.99,
+      "dur": 5.6,
+      "src": "graphics",
+      "from": 0.0
+    }
+  ],
+  "graphics": [
+    {
+      "type": "lightning",
+      "at": 0.12,
+      "dur": 0.2
+    },
+    {
+      "type": "lightning",
+      "at": 2.86,
+      "dur": 0.2
+    },
+    {
+      "type": "name",
+      "at": 10.27,
+      "dur": 1.95,
+      "text": "THE DONALD",
+      "style": "donald"
+    },
+    {
+      "type": "stamp",
+      "at": 12.87,
+      "dur": 0.74,
+      "text": "CHAIN-LINK FENCE",
+      "level": 0
+    },
+    {
+      "type": "stamp",
+      "at": 13.61,
+      "dur": 0.75,
+      "text": "BRICK WALL",
+      "level": 1
+    },
+    {
+      "type": "stamp",
+      "at": 14.36,
+      "dur": 0.74,
+      "text": "CONCRETE WALL",
+      "level": 2
+    },
+    {
+      "type": "stamp",
+      "at": 15.1,
+      "dur": 1.05,
+      "text": "BIG BEAUTIFUL WALL",
+      "level": 3
+    },
+    {
+      "type": "callout",
+      "at": 16.3,
+      "dur": 1.35,
+      "card": "trump/make_it_rain",
+      "side": "right"
+    },
+    {
+      "type": "callout",
+      "at": 23.4,
+      "dur": 1.3,
+      "card": "trump/youre_fired",
+      "side": "left",
+      "valign": "bottom"
+    },
+    {
+      "type": "name",
+      "at": 26.41,
+      "dur": 2.0,
+      "text": "SLEEPY JOE",
+      "style": "joe"
+    },
+    {
+      "type": "callout",
+      "at": 31.45,
+      "dur": 1.25,
+      "card": "biden/heres_the_deal",
+      "side": "right",
+      "valign": "bottom"
+    },
+    {
+      "type": "glint",
+      "at": 36.6,
+      "x": 0.39,
+      "y": 0.34
+    },
+    {
+      "type": "name",
+      "at": 37.05,
+      "dur": 1.5,
+      "text": "DARK BRANDON",
+      "style": "brandon"
+    },
+    {
+      "type": "kinetic",
+      "at": 48.1,
+      "dur": 1.45,
+      "text": "TWO PRESIDENTS."
+    },
+    {
+      "type": "kinetic",
+      "at": 49.5,
+      "dur": 1.35,
+      "text": "ONE SPIRE."
+    },
+    {
+      "type": "collection",
+      "at": 54.0,
+      "dur": 18.99,
+      "wave": {
+        "at": 54.0,
+        "dur": 2.626
+      },
+      "heroes": [
+        {
+          "at": 56.626,
+          "card": "trump/wrecking_ball",
+          "name": "WRECKING BALL",
+          "hold": 1.427
+        },
+        {
+          "at": 59.48,
+          "card": "trump/golden_escalator",
+          "name": "GOLDEN ESCALATOR",
+          "hold": 1.427
+        },
+        {
+          "at": 62.334,
+          "card": "biden/laser_show",
+          "name": "LASER SHOW",
+          "hold": 1.428
+        },
+        {
+          "at": 65.189,
+          "card": "biden/state_of_the_union",
+          "name": "STATE OF THE UNION",
+          "hold": 1.427
+        }
+      ],
+      "ring": {
+        "at": 68.043,
+        "dur": 4.947
+      }
+    },
+    {
+      "type": "title",
+      "at": 72.99,
+      "dur": 4.0
+    },
+    {
+      "type": "button",
+      "at": 76.99,
+      "dur": 4.7
+    }
+  ]
+}

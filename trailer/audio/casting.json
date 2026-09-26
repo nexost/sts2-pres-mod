@@ -1,0 +1,53 @@
+{
+  "_about": "Narrator casting (T3): every voice reads the same three lines, epic, deadpan and whispered. Voices from the ElevenLabs library (id + owner = public_owner_id).",
+  "model": "eleven_v3",
+  "lines": [
+    {
+      "text": "For centuries... the Spire has devoured heroes."
+    },
+    {
+      "text": "The other one... is resting his eyes."
+    },
+    {
+      "text": "[whispers] Whatever you do... don't wake him up."
+    }
+  ],
+  "voices": [
+    {
+      "slug": "david",
+      "name": "David - Movie Trailer Narrator",
+      "id": "FF7KdobWPaiR0vkcALHF",
+      "owner": "ec7e32559d497b5578cf8d3111efd59b6c0a5611bc0f825c218d87ed0b1a2c9d"
+    },
+    {
+      "slug": "don",
+      "name": "Don - Movie Trailer Narrator",
+      "id": "JJCR1UICgHnHljtvu5uF",
+      "owner": "3f02bdfa108b3fc0a8a14e5e88d0808fd571c4bf61d2fcc01ea3c60054b0633a"
+    },
+    {
+      "slug": "titan",
+      "name": "Titan - Deep, Bold, and Powerful",
+      "id": "dtSEyYGNJqjrtBArPCVZ",
+      "owner": "e0464333b21941625fcdd28b2ce050bc74911f6bd69cec0d6861a8bd9e24032b"
+    },
+    {
+      "slug": "hank",
+      "name": "Hank - Deep and Engaging Narrator",
+      "id": "6F5Zhi321D3Oq7v1oNT4",
+      "owner": "e33eb547f8af39719b57253a6230915455d19c17d3f7781cabe273337a2e5df2"
+    },
+    {
+      "slug": "rex",
+      "name": "Rex Thunder - Deep N Tough",
+      "id": "mtrellq69YZsNwzUSyXh",
+      "owner": "675db5c1a341e2f820aefb00825680aa042d958a4a3aef3200735c799210dcb4"
+    },
+    {
+      "slug": "storm",
+      "name": "Storm Styles - Dark, Suspenseful",
+      "id": "YI5bDiiDOYHHb2eLadHv",
+      "owner": "da6d18324da66b26c0a653d55d9a659c77cb85df3941904668ee2b344bb9d510"
+    }
+  ]
+}

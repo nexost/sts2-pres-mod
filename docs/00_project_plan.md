@@ -54,6 +54,7 @@ A new character follows the phases C1–C7 of [`ADDING_A_CHARACTER.md`](ADDING_A
 | 9 | Polish and packaging | ✅ Done (`eca8ecb`) | v1.0.0: `build.py --zip`, [RELEASE_NOTES.md](RELEASE_NOTES.md), [PUBLISHING.md](PUBLISHING.md) |
 | 10 | Extra balance testing (optional) | ⬜ | More measured tuning, if wanted |
 | 11 | Custom style LoRA art (optional) | ⬜ | Art regenerated with a LoRA trained on the game's art, if wanted |
+| 12 | Trailer (1:22.6, both characters) | ⏳ T7 final in review | Phases T1–T7 below; code in `trailer/`, media in `build/trailer/` |
 
 **Characters:**
 
@@ -232,6 +233,135 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
   - depth 1 overflows the 24 GB of VRAM and stalls.
 - Then regenerate a few cards with the LoRA, compare them with the Step 8 art, and swap in the better set.
 
+### Step 12: Trailer
+Added by the user on 2026-09-25: a ~1 minute trailer showing both characters, epic and funny, edited like a big-studio game
+trailer, that makes people want to download the mod. Any tools; paid APIs (voice, music) are fine if not too expensive, with the
+user's go-ahead. One phase at a time, stopping for review after each.
+
+| Phase | What | Status |
+|---|---|---|
+| T0 | Plan | ✅ Approved |
+| T1 | Creative treatment: title, script, beat sheet, shot list, jokes (tone-checked), music brief, storyboard page | ✅ [Trailer treatment](https://claude.ai/artifact/KneX9Nm4JGDJe5YbGWiC78) v2 (source `trailer/treatment/`) |
+| T2 | Toolchain and capture test: ffmpeg, Remotion, Godot Movie Maker (`--write-movie`) vs OBS on one scripted shot | ✅ In-game recorder chosen (below) |
+| T3 | Audio backbone: music (MiniMax Music 3 locally), narrator casting and takes, SFX kit, the audio-only "radio cut" | ✅ Picks locked ([Trailer Sound Review](https://claude.ai/artifact/3gpByBPAY78JaGPY14Lzyp)); the timeline and mix are in `trailer/edit/src/timeline.json` |
+| T4 | Director bot and gameplay capture: a `trailer` harness mode that stages each shot, all shots recorded | ✅ [Trailer Dailies](https://claude.ai/artifact/GgKYJuNYaZqb6tZvt1RzDr) (49 clips with game sound, 354 card images) |
+| T5 | Cinematic shots and graphics: MiniMax H3 image-to-video on the mod's paintings, title logo, end card | ✅ [Trailer Cinematics](https://claude.ai/artifact/X3hkwFYv1nq8cAkwsBfB1E): five picks finished at 2520x1440, 60 fps (SeedVR2 + RIFE), Spectral title, backtoback s11 thumbnail art |
+| T6 | Edit v1 in Remotion: cut to the radio cut, motion graphics, transitions, sound design, grade | ✅ [Trailer Edit](https://claude.ai/artifact/YJG1SAdnEcX38PMqPhnzNC) v2, 1:22.6 (v1 was 1:12.6; masters in `trailer/edit/out/`) |
+| T7 | Notes, final mix and master, exports (16:9 master, optional vertical cut, thumbnail), `docs/TRAILER.md` | ⏳ In review: [Trailer Final](https://claude.ai/artifact/A11JbQLKhEhJEKrd12yLKy): YouTube 1440p60, 1080p60, 1080p60 with captions, .srt, thumbnail, mix; [TRAILER.md](TRAILER.md). Vertical cut not made (maybe later) |
+
+Rules: AI video stays in the game's painted style (never photoreal), no imitation of the real people's voices, and the
+project's tone rules apply to every line. Publishing the trailer anywhere is the user's call.
+
+Set by the user (T0 review): a generic narrator voice, the characters speak in on-screen text only. For YouTube and Reddit,
+mastered at 2560×1440 (a Shorts/TikTok cut maybe later). Downloads approved for T2: ffmpeg, Remotion, librosa.
+
+**T1 decisions:** title *Presidents of the Spire*, narrator style A (epic, straight-faced), final joke = the Tweet plus Joe
+cut off mid-word. The user added a **collection beat** (the mod's cards and relics shown off in 3D, with card callouts
+during gameplay), so the runtime is 1:12.
+
+**T2, the toolchain** (all local, nothing in git but code):
+- `tools/ffmpeg/` (gyan.dev 9.0.2 essentials, NVENC); path setting `ffmpeg` in `presmod.py`.
+- `trailer/edit/`: the Remotion project (4.0.529, `npm install` there). Media come from `build/trailer/media/`;
+  `npx remotion render src/index.ts <Composition> out/<file>.mp4`. A 5.9 s 1440p60 test renders in 42 s.
+- librosa (pip) for the music's beats.
+- **Capture: `python scripts/trailer_capture.py SHOTS -c <id>`**, mode `trailer` in the harness
+  (`Dev/DevHarness.Trailer.cs`, `Dev/TrailerRecorder.cs`, shots in `CharacterTests.TrailerShots`). The engine runs at
+  `--fixed-fps 60` and the harness pipes each clip's frames to ffmpeg (H.264 4:4:4, NVENC): 4K, no dropped frames,
+  ~37 fps capture speed, clips only (no startup footage). Waits inside shots use game time (`Wait`), never `Task.Delay`.
+- Compared on the same shot: Movie Maker (`--write-movie`) works in the shipped game and matches frame for frame, but
+  records the whole session (a 583 MB AVI per run) at ~20 fps. Real-time screen capture (ffmpeg ddagrab) sees only
+  the desktop, not the game, on this PC (4090 + Intel iGPU displays).
+- No capture method gets the game's sound: it is FMOD in real time, and the PC has no loopback device.
+
+**T4, the footage** (masters in `build/trailer/capture/`, 4K 60 fps, H.264 4:4:4; ~2.6 GB):
+- **Director code:** `Dev/DevHarness.Trailer.cs` (clips, takes, fights in any act, setup helpers; pre-run shots `menu_spire`
+  and `select`; shared `gallery` and `cards`), `Dev/TrailerUi.cs` (clean looks through the game's own trailer-mode flags,
+  version labels, mouse parked), `Characters/<Class>/Dev/DevHarness.<Class>.Trailer.cs` (the shots), `Dev/DevHarness.Trailer.Coop.cs`
+  (co-op, mode `trailer_coop`). Every moment is taken twice from a fresh fight: `_full` (as played) and `_clean` (no interface).
+- **Scenery** from the probe gallery: Glory's castle (the Wall, gold, knights, the Queen), Underdocks (Deport, Tweets, the laser
+  on the docks), Hive (Mass Deportation, Fire and Fury, Laser Show, Motorcade), Overgrowth (Sleepy Joe, golf, the Vantom cave).
+- **Co-op:** `trailer_capture.py coop full|clean`, one take per launch (a second take in the same run desynced the client).
+  The host (The Donald) records full screen at a fixed 60 fps; the client (Sleepy Joe) is a small window on the second screen,
+  set up only through networked commands and card plays, reacting to the shared state (its Wall, its own card).
+- **Game sound:** `--method audio` replays the shots in real time with the music off (`--pres-nomusic`) and records the PC's
+  output (WASAPI loopback, gaps filled against the clock); every clip's sound lines up within ~0.1 s.
+- **Card images:** all 177 cards base and upgraded, 1000x1360 PNG with transparency (`cards/<character>/`).
+- **Review page:** `trailer/tools/dailies.py CAPTURE_DIRS...` (later folders replace earlier takes).
+- Lessons: set a Deport target's HP at the line but above the card's damage, or it just dies; the last enemy leaving ends the
+  fight (the Loot screen fades in about 1.5 s later); enemy hover tooltips open under a parked mouse unless it's moved aside.
+
+**T5, the painted shots** (`trailer/ai/shots.json`, `trailer/tools/h3.py`, output `build/trailer/ai/`):
+- The user's earlier H3 workflow gave weak results, so the settings were researched and tested. The released quality
+  configuration is res_multistep, 20 steps (21 sigmas), shift 12 video / 3 audio, guidance 1, no acceleration, the native
+  1344x768 canvas (the user's workflow: turbo LoRA at 6 steps, euler, Spectrum forecasting, 0.4 MP). A/B on the same seed:
+  the quality run moves more and stays crisp; the turbo run barely moves and grains the texture. Sage attention is
+  visually identical (under 4% pixel difference) at half the time (~4.5 min a clip): takes are explored with it, the
+  chosen ones re-rendered without it. The pruned int8 model was kept (the 34 GB full int8 is the next step if needed).
+- Prompts follow MiniMax's official format (the minimax-h3-prompt skill): the alignment line, one shot, observable
+  action, soundscape. First frames are the mod's own paintings and card art, cropped to 1.75:1.
+- Key art: Krea 2 through `scripts/art_gen.py trailer/ai/keyart_jobs.json` (the mod's art pipeline, style references =
+  both select paintings and the Spire plate), 1920x1088.
+- Title drafts: Remotion stills (`TitleDraft`) in the game's own OFL fonts (Kreon, Spectral, Fira Sans Extra Condensed,
+  copied from the game's files to `build/trailer/media/fonts/`, never committed).
+- Picks (the user): a1_donald_hero s7, a2_joe_eyes s3, a3_brandon_rises s1, a3_brandon_unleashed s2, a4_title_walk s22 s2;
+  title font A (Spectral); thumbnail from key art backtoback s11.
+- **Finishing** (`trailer/tools/upscale.py TAG...`, output `build/trailer/media/ai/<TAG>.mp4`, 2520x1440 at 60 fps with
+  H3's audio): SeedVR2 7B fp16 (numz's ComfyUI node) to 1440p, then RIFE v4.26 (ComfyUI's built-in FrameInterpolate)
+  x5 with every other frame kept, 24 to exactly 60 fps. SeedVR2 is a one-step model, so block swap (all 36 blocks and the
+  I/O layers in system RAM) costs one weight transfer per batch; without it the 7B at 1440p spilled 18 GB into shared
+  memory and ran at 90 W for 10+ minutes on one batch. Batch 21 peaks at ~12 GB (DiT) and ~18 GB (tiled VAE decode);
+  ~70 s per 21 frames. Against a Lanczos upscale: clean line work on glasses, hair and teeth, still painted, not photoreal.
+- Local patch: SeedVR2's `src/optimization/compatibility.py` stubbed `flash_attn` when it's missing, which makes
+  transformers 5.x fail (KeyError 'flash_attn'); the stub is skipped on ImportError. Its dependencies were installed with
+  a constraints file pinning torch, safetensors, huggingface_hub, transformers and numpy. ComfyUI must run with
+  `PYTHONIOENCODING=utf-8` or the node fails to import on its emoji output (art_review.py now sets it).
+
+**T7, master and exports** (`trailer/tools/export.py`, `subtitles.py`; output `build/trailer/export/`; how-to in
+[TRAILER.md](TRAILER.md)):
+- Mastering in `mix.py`: gain to -14 LUFS into a 4x-oversampled true-peak limiter, measured with ffmpeg's EBU R128
+  meter and corrected until both -14.0 LUFS and <= -1 dBTP hold (v2's mix was -14.5 LUFS, -0.8 dBTP).
+- The master picture is a ProRes HQ intermediate rendered from PNG frames; Remotion's own ffmpeg quit on a full-length
+  x264 slow crf 10 encode (and ProRes rejects a CRF, so `remotion.config.ts` no longer sets one). `export.py` encodes
+  YouTube's file (x264 slow crf 12, closed GOP, keyframe every 30 frames, BT.709, AAC 384 kbps), a 1080p60 file for
+  Reddit, and a captioned 1080p60 (libass with Kreon; the lines already shown as big type are left out).
+- Thumbnail: the `Thumbnail` still (key art backtoback s11, the title in the trailer's gold Spectral, a "SLAY THE
+  SPIRE 2 · FREE MOD" ribbon), 1280x720 JPG; readable at search size (320x180).
+
+**T6, the edit** (`trailer/edit/src/trailer/`, the Remotion composition `Trailer`; data in `timeline.json`):
+- **Workflow:** `python trailer/tools/prep_edit.py` (hard-links the clips, game sound, card renders, relic and potion art
+  and the roster portraits and sprites into `build/trailer/media/` and `build/trailer/audio/game/`), `python
+  trailer/tools/moments.py [CLIP...]` (a time-stamped contact sheet per clip with its sound's hits, to set cuts), edit
+  `timeline.json`, `python trailer/tools/mix.py`, `node stills.mjs Trailer T1 T2...` in `trailer/edit/` (checks framing
+  in seconds), then `npx remotion render src/index.ts Trailer out/trailer_v1.mp4` (~8 min at 1440p60, 12 tabs) and
+  remux `mix.wav` onto it. `python trailer/tools/edit_page.py RENDER` makes the review page.
+- **timeline.json** now holds the picture too: `shots` (source clip, in-point, speed, freeze, camera `[scale, x, y]`
+  into the 4K master and `camTo` for moves, grade `look`) and `graphics` (name cards, the Wall's stamps, card callouts,
+  kinetic lines, lightning, glint, the collection beat, title, the button). The mix places each shot's own game sound
+  under it (`shot_sounds`, slowed with slow motion; `sound` overrides, e.g. the co-op shots borrow the solo takes').
+- Cuts sit on the music's beats (librosa beat grid of the placed cues: ~161 BPM Donald, ~172 Joe, ~112 Brandon; the
+  finale is really 168 BPM, a bar of 1.4275 s found by correlating the drop against itself, which also gives seamless
+  bar-aligned repeats: `music` entries can repeat a span of a cue). Every big sound effect kicks the picture (`fx.ts`: zoom punch, shake, flash, a few deep-fried frames).
+- The captures are 4K, so shots punch in up to 2x without upscaling past the master; the co-op crops keep the dev
+  player names ("Test Host") out. Callout shots use the `_clean` takes so the game's own played-card display doesn't
+  double the callout; clean takes keep the text effects ("YOU'RE FIRED!", SAD!).
+- Game sound: the audio pass recorded at the PC's volume (peaks ~-33 dBFS on every clip), so `mix.gameTrimDb` 27 brings
+  it up before the -12 dB bus: about 18 dB under the music.
+- Fonts: a transformed inline-block can't share its parent's `background-clip: text` (each letter carries the foil),
+  and Spectral's space collapses in an inline-block (spaces get an explicit width).
+
+**T3, the sound** (`trailer/audio/*.json` hold the briefs; `trailer/tools/` the tools; output in `build/trailer/audio/`):
+- **ElevenLabs** (`trailer/tools/eleven.py`): key `elevenlabs_api_key` in `local_settings.json` (git-ignored; needs the
+  voices, models and user read permissions). Starter plan: 40,000 credits a month, mp3 128 kbps only. `cast`, `vo VOICE_ID`,
+  `sfx`, `credits`. Casting added six library voices to the account (it holds 10 custom voices in all).
+- **Music** (`trailer/tools/music.py`): MiniMax Music 3 through ComfyUI's API, the official template's graph; ~22 s a take.
+  Five cues (`music.json`), four takes each. Captions follow the model's three parts (Global Metadata, Vocal Details, Arrangement).
+- **Mix** (`trailer/tools/mix.py`): music, narration, effects and the game's audio placed from `trailer/edit/src/timeline.json`,
+  music ducked under the narrator, peak limiter, −14 LUFS / −1 dBFS. Remotion only plays the mix (it can't duck or limit).
+- **Animatic** (`Animatic` composition): the mix over the storyboard frames with name cards and subtitles, from the same timeline.
+- `audio_report.py` measures takes (tempo, key, loudness shape, hits) and draws spectrograms; `reel.py` makes labelled listening reels.
+- The user asked for the game's own sound, quietly under everything: T4 records it in a real-time pass per shot
+  (PyAudioWPatch, WASAPI loopback) and lines it up with the silent 4K clips.
+
 ## Decision log
 
 | Date | Decision |
@@ -269,6 +399,17 @@ Added by the user during Step 7: the art is made with Krea 2 + style reference f
 | 2026-09-24 | **VFX overhaul, both characters (user's request).** Biden: the other 7 ideas too (Double Vision and Laser Focus beams, Mic Drop meteor, Air Force One shadow, vehicles driving across with generated side-view art, Reach Across the Aisle lines, Ice Cream Cone sprinkles, potion effects). The Donald: coins in and out with his Gold, Tariff coin pops, Tweet bubbles, harder Wall stage-ups and gold bursts, a Deport swoosh, and card effects (You're Fired!, Fire and Fury, Make It Rain, Wrecking Ball, golf, potions, shovels). New shared `Framework/VfxKit` and a `test.py vfx` showcase mode. All visual only; ui, targeted card and co-op tests pass for both. |
 | 2026-09-25 | **Playtest fix (user):** Here's the Deal on its Block line still asked for an enemy target. Now every Tangent aims and counts as its lit line: one-enemy lines need a target; all-enemy, Block, draw and Energy lines don't; an Attack Tangent on a no-damage line is a Skill (frame and type redraw in the hand). A one-enemy line played without a target (its line changed while queued) hits the first enemy standing. |
 | 2026-09-25 | **Released v1.1.0** (MINOR: new character, old saves still load). Full release test set passed for both characters (ui, full cards, AutoSlay victory, co-op ×2 and with Ironclad), the zip was installed on a clean mod folder and both characters played; the uninstaller's dry run was clean. `feature/biden` fast-forwarded into `master`, tagged `v1.1.0`, GitHub release with the zip (30.7 MB). |
+| 2026-09-25 | **Step 12, trailer.** Plan approved: 7 phases, one stop each. Generic narrator (ElevenLabs), no voice imitation, characters in on-screen text; painted-style AI shots only; master 2560×1440 60 fps for YouTube and Reddit. T1 treatment published: 1:05, epic straight-faced narration undercut by the footage (brass for The Donald, a lullaby for Sleepy Joe, a synthwave drop for Dark Brandon), co-op "bipartisan infrastructure" beat, title and a final joke. The mod's "riff-raff" phrasing is left out of the trailer (reads as a real-world jab out of context). |
+| 2026-09-25 | **Trailer T1 and T2.** T1 decisions: *Presidents of the Spire*, narrator A, the Tweet ending, and a collection beat for the cards and relics (user's request), 1:12. T2: ffmpeg in `tools/ffmpeg`, Remotion in `trailer/edit`, librosa. Trailer footage is recorded **in the game** at `--fixed-fps 60` (harness mode `trailer`, `scripts/trailer_capture.py`): every frame of each clip at 4K, none dropped; Movie Maker works too but is slower and records the whole session; real-time screen capture can't see the game here. Clips are silent (FMOD). |
+| 2026-09-25 | **Trailer T3.** ElevenLabs Starter for the narrator (six library voices cast, Don provisional) and 22 effects × 2; music made locally with MiniMax Music 3 (5 cues × 4 takes); the sound is mixed in Python from the edit's timeline (ducking, limiter, −14 LUFS) and Remotion only plays it. The cold open had ~9.9 s of speech in 10 s, so the three words "Warriors. Assassins. Machines." are placed one per hit and The Donald starts at 0:10.2. The collection mock now shows both decks (user). The game's own audio goes under the mix, quietly (user). |
+| 2026-09-25 | **Trailer T3, round 2 (user).** Narrator David; Spire take 4 and Brandon take 2 kept. Donald, the lullaby and the finale were "too high and happy": new D minor variants (brass trap, brass phonk, dark hybrid; slowed or dark lullaby; hybrid, orchestral phonk, orchestral dubstep finale), and the mixer can deep-fry any clip (speed, pitch, bass, reverb, drive). The edit goes to a fast "holy shit" pace: cuts on the beat, zoom punches and blown-out frames on the big hits (in the animatic already); T4 records alternates of every shot. |
+| 2026-09-25 | **Trailer T3 done.** Final sound: narrator David; music spire take 4, Donald brass phonk (take 13), lullaby slowed (take 13), Dark Brandon take 2, finale orchestral dubstep (take 12, its drop on the wave of cards at 0:54). The final joke holds Joe's line ~1.5 s before the cut (1:12.6). User notes for T4: the character-select shot hides the game's random "?" button; the "two presidents" shot must be The Donald with Sleepy Joe (the storyboard frame was an Ironclad stand-in). |
+| 2026-09-25 | **Trailer T4.** The director bot records every shot in the game at 4K 60 fps (full and clean takes), over four acts' scenery; co-op with both presidents (host records, client reacts to shared state); the game's own sound in a real-time pass with the music off; all 354 card images rendered by the game. 49 clips on the dailies page. |
+| 2026-09-26 | **Trailer T5.** The user's earlier H3 workflow was not trusted (their results were weak): the released quality configuration (res_multistep 20 steps, shift 12/3, guidance 1, native 1344x768) beat the turbo+Spectrum workflow in an A/B on the same seed; Sage attention kept (identical look, half the time) for exploring, final takes re-rendered without it. Five painted shots from the mod's own art (Donald hero, Joe dozing into Dark Brandon, Dark Brandon Rises, Unleashed, the title walk) and new key art of both presidents (Krea 2). Title in the game's own OFL fonts. Upscaling (SeedVR2) and 24-to-60 fps interpolation (RIFE) proposed, pending the user's OK for the downloads. |
+| 2026-09-26 | **Trailer T5 finished.** The user picked a take per shot, the Spectral title and the backtoback s11 key art for the thumbnail, and approved the SeedVR2 and RIFE downloads. Picks re-rendered without Sage, then SeedVR2 7B fp16 to 2520x1440 (block swap and batch 21 to stay inside 24 GB; the first try at batch 41 spilled into shared memory) and RIFE v4.26 to 60 fps, ~10 min a shot. Upscaling beat a plain Lanczos resize clearly (line work, still painted); RIFE is clean on camera moves and coins and blends only things that jump between frames (lightning, a laser, a brick entering), for one 1/60 s frame. The 24 fps upscaled frames stay available per shot for the edit. |
+| 2026-09-26 | **Trailer T6, edit v1.** The picture edit lives in `timeline.json` next to the sound (shots and graphics), rendered by Remotion from the 4K captures, the painted shots and the mod's own card, relic and character art. Moment maps (contact sheets with each clip's sound hits) and the music's beat grid set every cut; the captures are punched in rather than shown whole. New gags inside the approved script: the Wall's stages stamped and struck through, CANDIDATE No. 1 / No. 2 / No. 2 (AWAKE) name cards, a freeze on SAD! under the record scratch. End card: Free on GitHub with the repo link; small print now says "parody". Game sound raised by a 27 dB trim (it was recorded at a low PC volume) to sit ~18 dB under the music. No burned-in subtitles (a captions switch exists for a Reddit cut). |
+| 2026-09-26 | **Trailer T6, edit v2.** The user: the hero cards (0:55) and the relic ring (1:01) went by too fast. Each hero card now holds a full bar (1.43 s) and plays a full bar; the ring holds 4.9 s. The finale gets two bars of its drop repeated in the mix (bar 1.4275 s, found by correlation; librosa's 172 BPM was really 168) and runs one more bar, so the cuts stay on the beat: Golden Escalator slams on the drop's return, the repeat re-hits on Laser Show, the title lands before the track's bass fades. Runtime 1:22.6. |
+| 2026-09-26 | **Trailer T7.** The user approved v2. Final: the mix mastered to -14.0 LUFS / -1.3 dBTP (true-peak limiter), the picture re-rendered from PNG frames through a ProRes HQ master, exports for YouTube (1440p60), Reddit (1080p60, with and without burned-in captions), YouTube captions (.srt), the thumbnail and the mix; `docs/TRAILER.md` tells how to update or remake it. No vertical cut (the user's "maybe later"). Nothing uploaded anywhere: publishing is the user's call. |
 
 ## Open items
 

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "keyart_backtoback",
+    "method": "styleref",
+    "style_strength": 0.75,
+    "style": ["mod/images/trump/char_select_bg.png", "mod/images/biden/char_select_bg.png", "trailer/treatment/frames/f01_spire.jpg"],
+    "size": [1920, 1088],
+    "seed": 11,
+    "out": "build/trailer/keyart/keyart_backtoback.png",
+    "prompt": "Epic key art for a fantasy card game, wide cinematic composition. Two men stand back to back in the lower half of the frame, seen from a low heroic angle. On the left, Donald Trump is drawn as a comic caricature with his iconic swooping blond comb-over, orange-tan face, pouting lips, navy suit and an extra-long red tie, a golden shovel resting on his shoulder, chin raised. On the right, Joe Biden is drawn as a comic caricature with neat swept-back white hair, gold-rimmed aviator sunglasses whose lenses glow solid bright red, a navy suit and a small flag pin, arms crossed, grinning. Behind them, far away in the center, a colossal dark stone tower studded with glowing orange windows rises into a stormy sky of swirling clouds, lit gold on the left and blood red on the right. Warm embers float in the air. Painterly digital illustration with flat graphic shapes, soft painted shading and bold rim light, the top third of the image is open sky for a title."
+  },
+  {
+    "name": "keyart_walk",
+    "method": "styleref",
+    "style_strength": 0.75,
+    "style": ["mod/images/trump/char_select_bg.png", "mod/images/biden/char_select_bg.png", "trailer/treatment/frames/f01_spire.jpg"],
+    "size": [1920, 1088],
+    "seed": 21,
+    "out": "build/trailer/keyart/keyart_walk.png",
+    "prompt": "Epic key art for a fantasy card game, wide cinematic composition. Two men walk side by side straight toward the viewer across dark rocky ground, full figures, confident strides. On the left, Donald Trump is drawn as a comic caricature with his iconic swooping blond comb-over, orange-tan face, pouting lips, navy suit and an extra-long red tie, carrying a golden shovel over his shoulder. On the right, Joe Biden is drawn as a comic caricature with neat swept-back white hair, gold-rimmed aviator sunglasses whose lenses glow solid bright red, a navy suit and a small flag pin, smiling. Behind them a huge explosion of gold coins and red light bursts in front of a colossal dark stone tower with glowing orange windows under a stormy sky. Painterly digital illustration with flat graphic shapes, soft painted shading and bold rim light, open sky in the top third for a title."
+  },
+  {
+    "name": "keyart_shoulder",
+    "method": "styleref",
+    "style_strength": 0.75,
+    "style": ["mod/images/trump/char_select_bg.png", "mod/images/biden/char_select_bg.png", "trailer/treatment/frames/f01_spire.jpg"],
+    "size": [1920, 1088],
+    "seed": 31,
+    "out": "build/trailer/keyart/keyart_shoulder.png",
+    "prompt": "Epic key art for a fantasy card game, wide cinematic composition. Two men stand shoulder to shoulder in the foreground, waist up, facing the viewer, ready for battle. On the left, Donald Trump is drawn as a comic caricature with his iconic swooping blond comb-over, orange-tan face, pouting lips, navy suit and an extra-long red tie, gripping a golden shovel. On the right, Joe Biden is drawn as a comic caricature with neat swept-back white hair, gold-rimmed aviator sunglasses whose lenses glow solid bright red, a navy suit and a small flag pin, rolling up his sleeves. Behind them, a colossal dark stone tower with glowing orange windows rises into a storm, a golden glow behind the left man and a red glow behind the right man. Painterly digital illustration with flat graphic shapes, soft painted shading and bold rim light, open sky in the top third for a title."
+  }
+]

@@ -35,6 +35,10 @@ public static partial class DevHarness
 		/// <summary>Extra test modes only this character has (Trump: "deportsweep"), run with test.py &lt;mode&gt;.</summary>
 		public Dictionary<string, Func<Task>> ExtraModes = new Dictionary<string, Func<Task>>();
 
+		// ---- trailer (DevHarness.Trailer.cs)
+		/// <summary>Trailer shots by name: each sets up its scene, then records its clips with Record (scripts/trailer_capture.py).</summary>
+		public Dictionary<string, Func<Task>> TrailerShots = new Dictionary<string, Func<Task>>();
+
 		// ---- cards test
 		/// <summary>Relic, potion and turn-power checks, run before the cards (test.py cards SEED relics runs only these).</summary>
 		public Func<Task>? RelicChecks;

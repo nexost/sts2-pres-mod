@@ -1,0 +1,98 @@
+{
+  "_about": "The trailer's music cues (T3), generated locally with MiniMax Music 3 (trailer/tools/music.py). Captions follow the model's format: Global Metadata, Vocal Details, Arrangement. Lyrics hold only structure tags (instrumental). Timings are the treatment's (1:12 cut). v2 (user, T3 review): Donald, lullaby and finale were too high and happy; the new variants are deeper, harder and deep-fried (bass-boosted, saturated). Picked from v1: spire take 4, brandon take 2.",
+  "steps": 30,
+  "cfg": 1.7,
+  "cues": [
+    {
+      "name": "spire",
+      "use": "0:00-0:10 cold open, ends on the BRAAM at 'running'",
+      "seconds": 26,
+      "caption": "Global Metadata: Epic cinematic trailer music, dark hybrid orchestral. 100 BPM, D minor. Ominous, slow-building tension, the opening of a AAA fantasy game trailer. Sparse and heavy, dark and majestic, rising to a huge brass BRAAM at the very end.\n\nVocal Details: No lead vocals. Only a distant, wordless dark choir, low in the mix.\n\nArrangement: Intro: deep sub-bass drone and low cello tremolo, a slow booming taiko hit every two bars like distant thunder. Middle: the choir swells, a rising string ostinato and a reversed cymbal riser build the tension. Ending: a massive low brass braam with a huge percussion hit, then a short ringing tail.",
+      "lyrics": "[Intro]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "donald",
+      "use": "0:10-0:26 The Donald, brass march, ends on the record scratch",
+      "seconds": 24,
+      "caption": "Global Metadata: Pompous, triumphant brass march in an epic orchestral trailer style. 100 BPM, D major, strutting march feel. Grandiose, heroic and self-important to the point of comedy: a huge victory fanfare for a showman. Bright, bold, gold-plated sound.\n\nVocal Details: Instrumental, no vocals.\n\nArrangement: Starts right away with a bold trumpet fanfare over snare drum rolls and timpani. The full brass section, trumpets, French horns, trombones and tuba, plays a strutting march melody, with cymbal crashes on every phrase, glockenspiel sparkle and big orchestral percussion hits. Builds to an enormous, triumphant climax with the whole orchestra.",
+      "lyrics": "[Intro]\n\n[Instrumental]\n\n[Chorus]\n\n[Outro]"
+    },
+    {
+      "name": "lullaby",
+      "use": "0:26-0:37 Sleepy Joe, music box, ends in a tape stop",
+      "seconds": 18,
+      "caption": "Global Metadata: A gentle lullaby on a lone music box. 70 BPM, D major. Sleepy, cozy, innocent and a little comedic, like a bedtime scene in an animated film. Warm and soft, the music box slightly out of tune.\n\nVocal Details: Instrumental, no vocals.\n\nArrangement: A solo music box plays a simple, soft lullaby melody, with a warm, quiet string pad and a light celesta underneath. Very sparse and calm throughout. Ending: the music box winds down and slows to a stop.",
+      "lyrics": "[Intro]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "brandon",
+      "use": "0:37-0:48 Dark Brandon, synthwave drop",
+      "seconds": 20,
+      "caption": "Global Metadata: Aggressive 80s synthwave meets epic trailer music. 100 BPM, D minor. Dark, powerful and neon, a retro laser-filled boss fight. Loud and hard-hitting from the very first beat.\n\nVocal Details: Instrumental, no vocals.\n\nArrangement: Opens on a huge bass drop: distorted analog synth bass, gated-reverb drums, driving arpeggiated synths and retro synth-brass stabs, layered with orchestral braams and taiko drums. Relentless and heavy throughout, with a screaming lead synth riff.",
+      "lyrics": "[Intro]\n\n[Chorus]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "finale",
+      "use": "0:48-1:07 together, the collection, the title hit and its tail",
+      "seconds": 30,
+      "caption": "Global Metadata: Epic hybrid orchestral trailer finale. 100 BPM, D major. Triumphant and huge, the climax of a AAA game trailer: full orchestra, big choir and modern synths together. Heroic, joyful and grand, building all the way.\n\nVocal Details: A powerful wordless epic choir, no lyrics.\n\nArrangement: Full orchestra with a soaring brass melody, pounding taiko and orchestral percussion, driving string ostinatos, retro synth arpeggios underneath and a massive choir. Builds higher and higher to one final enormous orchestral hit with a long ringing tail.",
+      "lyrics": "[Intro]\n\n[Chorus]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "donald_trap",
+      "use": "0:10-0:25.5 The Donald, v2: dark brass trap",
+      "seconds": 24,
+      "caption": "Global Metadata: Dark, aggressive trap anthem with heavy orchestral brass. 140 BPM with a half-time feel, D minor. Menacing swagger, a villain's grand entrance in a blockbuster: huge, low, powerful and hard. Deep-fried mix: bass-boosted, distorted 808s, saturated and overdriven, loud and punchy.\n\nVocal Details: Instrumental, no vocals, no vocal chops or samples.\n\nArrangement: Starts immediately with a massive low brass riff, tubas, trombones and French horns in a low register, over distorted 808 bass slides and hard trap drums: booming kicks, snapping snares, fast rolling hi-hats. Orchestral hits and low choir stabs on the downbeats. Heavy and aggressive throughout, building to a huge brass climax.",
+      "lyrics": "[Intro]\n\n[Chorus]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "donald_phonk",
+      "use": "0:10-0:25.5 The Donald, v2: brass phonk",
+      "seconds": 24,
+      "caption": "Global Metadata: Hard drift phonk with epic low brass. 145 BPM, D minor. Aggressive, dark, cocky and relentless, the soundtrack of a hype edit. Deep-fried: bass-boosted, heavily distorted and saturated, a blown-out low end.\n\nVocal Details: Instrumental, no vocals, no vocal chops or samples.\n\nArrangement: A dark phonk cowbell melody and a distorted, sliding 808 bass from the first beat, hard-hitting drums with crisp hi-hats, layered with massive low brass stabs and orchestral hits. Relentless and heavy throughout, even harder in the second half.",
+      "lyrics": "[Intro]\n\n[Chorus]\n\n[Instrumental]\n\n[Chorus]"
+    },
+    {
+      "name": "donald_dark",
+      "use": "0:10-0:25.5 The Donald, v2: dark hybrid brass",
+      "seconds": 24,
+      "caption": "Global Metadata: Dark, heroic hybrid trailer music. 120 BPM, D minor. Powerful, menacing and triumphant at once: a ruthless tycoon's theme. Deep and heavy, saturated, bass-heavy mix, very loud.\n\nVocal Details: Instrumental, no vocals, no vocal chops or samples.\n\nArrangement: Opens hard with massive low brass and pounding taiko, driving low string ostinatos, a distorted synth bass underneath and huge braams on the downbeats. Relentless and heavy throughout, climbing to a crushing brass climax.",
+      "lyrics": "[Intro]\n\n[Chorus]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "lullaby_slowed",
+      "use": "0:26-0:36 Sleepy Joe, v2: slowed + reverb music box",
+      "seconds": 18,
+      "caption": "Global Metadata: A slowed-down, pitched-down music box lullaby drenched in reverb. 60 BPM, D minor. Sleepy, hazy, eerie and dreamlike, a little unsettling. Lo-fi, warbly and detuned, with a deep, dark sub-bass drone underneath.\n\nVocal Details: Instrumental, no vocals, no vocal chops or samples.\n\nArrangement: A low, detuned music box plays a slow lullaby melody, drenched in reverb and tape warble, over a deep sub-bass drone and a soft, dark pad. Sparse and hypnotic throughout. Ending: the music box slows down and winds to a stop.",
+      "lyrics": "[Intro]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "lullaby_dark",
+      "use": "0:26-0:36 Sleepy Joe, v2: dark ambient lullaby",
+      "seconds": 18,
+      "caption": "Global Metadata: A dark, drowsy ambient lullaby. 60 BPM, D minor. Heavy-eyed, murky and deep, like falling asleep underwater. Low, warm and slightly distorted, deep bass.\n\nVocal Details: Instrumental, no vocals, no vocal chops or samples.\n\nArrangement: A slow, low celesta and music box melody over deep sub-bass drones, a soft, slow heartbeat-like kick and low, dark strings. Very sparse. Ending: everything slows and fades into a low hum.",
+      "lyrics": "[Intro]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "finale_hybrid",
+      "use": "0:48-1:03 finale, v2: dark hybrid, distorted 808",
+      "seconds": 30,
+      "caption": "Global Metadata: Massive, aggressive hybrid trailer climax. 140 BPM, D minor. Dark, heavy, relentless and overwhelming, the final jaw-dropping moment of a AAA game trailer. Deep-fried: bass-boosted, distorted and saturated, extremely loud and hard-hitting.\n\nVocal Details: A powerful, low wordless choir, no lyrics.\n\nArrangement: Full orchestra with huge low brass, pounding taiko and hybrid trailer percussion, distorted 808 bass and an aggressive synth bass, screaming synth leads and braams, a massive low choir. Builds relentlessly with hits and risers to one final enormous impact.",
+      "lyrics": "[Intro]\n\n[Chorus]\n\n[Instrumental]\n\n[Outro]"
+    },
+    {
+      "name": "finale_phonk",
+      "use": "0:48-1:03 finale, v2: phonk orchestral",
+      "seconds": 30,
+      "caption": "Global Metadata: Epic orchestral phonk, the hardest hype-edit climax. 145 BPM, D minor. Aggressive, dark, triumphant and relentless. Deep-fried: bass-boosted, heavily distorted 808s, saturated and blown-out, extremely loud.\n\nVocal Details: A huge, low wordless epic choir, no lyrics, no vocal chops.\n\nArrangement: A dark phonk cowbell riff and distorted sliding 808 bass with hard drums, layered with a full orchestra: massive low brass, pounding taiko, driving strings and the choir. Keeps building harder and harder to one enormous final hit.",
+      "lyrics": "[Intro]\n\n[Chorus]\n\n[Instrumental]\n\n[Chorus]"
+    },
+    {
+      "name": "finale_dubstep",
+      "use": "0:48-1:03 finale, v2: orchestral dubstep",
+      "seconds": 30,
+      "caption": "Global Metadata: Aggressive orchestral dubstep hybrid, a trailer finale. 140 BPM, D minor. Dark, colossal and brutal. Deep-fried: bass-boosted, distorted, saturated, crushing low end.\n\nVocal Details: A massive low wordless choir, no lyrics.\n\nArrangement: A building intro of low brass, choir and taiko, then a huge bass drop: growling, distorted wobble bass with heavy half-time drums, braams and orchestral hits. Relentless to one final crushing impact.",
+      "lyrics": "[Intro]\n\n[Build]\n\n[Drop]\n\n[Outro]"
+    }
+  ]
+}

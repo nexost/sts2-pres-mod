@@ -4,5 +4,6 @@
   "comfy_dir": "D:\\Comfy-Desktop\\ComfyUI-Installs\\ComfyUI\\ComfyUI",
   "comfy_python": "D:\\Comfy-Desktop\\ComfyUI-Installs\\ComfyUI\\ComfyUI\\.venv\\Scripts\\python.exe",
   "comfy_models_yaml": "C:\\Users\\<you>\\AppData\\Roaming\\Comfy Desktop\\shared_model_paths.yaml",
-  "comfy_lora_dir": "D:\\Comfy-Desktop\\ComfyUI-Shared\\models\\loras"
+  "comfy_lora_dir": "D:\\Comfy-Desktop\\ComfyUI-Shared\\models\\loras",
+  "elevenlabs_api_key": "(the trailer only: an ElevenLabs key with text-to-speech, sound effects and voices/models/user read; never commit it)"
 }

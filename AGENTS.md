@@ -16,6 +16,7 @@ This repo is a Slay the Spire 2 mod (id `pres_mod`) that adds playable, lighthea
 | Make or change art (ComfyUI, models, the review tool) | [docs/ART_PIPELINE.md](docs/ART_PIPELINE.md) |
 | The game updated | [docs/GAME_UPDATES.md](docs/GAME_UPDATES.md) |
 | Release a version, where it may be published | [docs/PUBLISHING.md](docs/PUBLISHING.md), [docs/RELEASE_NOTES.md](docs/RELEASE_NOTES.md) |
+| Update or remake the trailer | [docs/TRAILER.md](docs/TRAILER.md) |
 | Why something is the way it is | The step reports: `docs/01`, `02`, `09` and `characters/trump/docs/04`–`07` |
 | A character's design and rules | `characters/<id>/design/design.md` and `cards.json` (the source of truth) |
 

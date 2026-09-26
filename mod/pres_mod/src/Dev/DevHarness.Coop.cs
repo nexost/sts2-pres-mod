@@ -34,26 +34,7 @@ public static partial class DevHarness
 		DisableTutorials();
 		Note($"co-op {(host ? "host" : "client")}, character {TestCharacterId}");
 
-		// fastmp opens the lobby by itself: the host's, or the client's once it has connected.
-		NCharacterSelectScreen? select = null;
-		await WaitHelper.Until(() => (select = UiHelper.FindFirst<NCharacterSelectScreen>(root)) != null && select.Visible && select.Lobby != null,
-			_ct, TimeSpan.FromSeconds(120));
-		await Task.Delay(2000);
-		if (host)
-		{
-			// Readying alone would start a one-player run: wait for the client.
-			await WaitHelper.Until(() => select!.Lobby.Players.Count >= 2, _ct, TimeSpan.FromSeconds(120));
-			Note("client joined the lobby");
-		}
-		List<NCharacterSelectButton> buttons = UiHelper.FindAll<NCharacterSelectButton>(select!);
-		buttons.First(b => b.Character.Id.Entry == TestCharacterId).Select();
-		await Task.Delay(2500);
-		Screenshot("lobby");
-		await UiHelper.Click(select!.GetNode<NButton>("ConfirmButton"));
-		await WaitHelper.Until(() => RunManager.Instance.DebugOnlyGetState()?.CurrentRoom != null, _ct, TimeSpan.FromSeconds(90));
-		await Task.Delay(5000);
-		RunState run = RunManager.Instance.DebugOnlyGetState()!;
-		Check(run.Players.Count == 2, $"co-op run started with {run.Players.Count} players ({string.Join(", ", run.Players.Select(p => p.Character.Id.Entry))})");
+		RunState run = await CoopEnterRun(host);
 		Screenshot("run_start");
 
 		// One fight: the host starts it (console commands are networked in co-op).
@@ -117,6 +98,35 @@ public static partial class DevHarness
 		{
 			await Task.Delay(8000);
 		}
+	}
+
+	/// <summary>
+	/// Both instances, through the lobby into one co-op run as the character under test: fastmp opens the lobby by
+	/// itself (the host's, or the client's once it has connected), the host waits for the client, both confirm.
+	/// </summary>
+	private static async Task<RunState> CoopEnterRun(bool host)
+	{
+		Node root = ((SceneTree)Engine.GetMainLoop()).Root;
+		NCharacterSelectScreen? select = null;
+		await WaitHelper.Until(() => (select = UiHelper.FindFirst<NCharacterSelectScreen>(root)) != null && select.Visible && select.Lobby != null,
+			_ct, TimeSpan.FromSeconds(120));
+		await Task.Delay(2000);
+		if (host)
+		{
+			// Readying alone would start a one-player run: wait for the client.
+			await WaitHelper.Until(() => select!.Lobby.Players.Count >= 2, _ct, TimeSpan.FromSeconds(120));
+			Note("client joined the lobby");
+		}
+		List<NCharacterSelectButton> buttons = UiHelper.FindAll<NCharacterSelectButton>(select!);
+		buttons.First(b => b.Character.Id.Entry == TestCharacterId).Select();
+		await Task.Delay(2500);
+		Screenshot("lobby");
+		await UiHelper.Click(select!.GetNode<NButton>("ConfirmButton"));
+		await WaitHelper.Until(() => RunManager.Instance.DebugOnlyGetState()?.CurrentRoom != null, _ct, TimeSpan.FromSeconds(90));
+		await Task.Delay(5000);
+		RunState run = RunManager.Instance.DebugOnlyGetState()!;
+		Check(run.Players.Count == 2, $"co-op run started with {run.Players.Count} players ({string.Join(", ", run.Players.Select(p => p.Character.Id.Entry))})");
+		return run;
 	}
 
 	/// <summary>

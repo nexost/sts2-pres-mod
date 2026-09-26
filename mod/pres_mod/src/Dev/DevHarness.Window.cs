@@ -9,6 +9,9 @@ namespace PresMod.Dev;
 /// on the primary monitor, so all of them can be watched at once. Set straight on the DisplayServer, never through the
 /// game's settings, and re-applied for the first seconds because the game applies its own display settings at startup.
 /// With --pres-mute the game is silenced the same way (FMOD master volume via TestMutePatch, plus Godot's bus).
+/// --pres-window fullscreen keeps the window a borderless fullscreen one (it doesn't minimize when another window
+/// takes focus, so a trailer capture keeps its full 4K frame); --pres-window screenN puts a small window on screen N
+/// (the co-op trailer's second instance, out of the way on another monitor).
 /// </summary>
 public static partial class DevHarness
 {
@@ -22,7 +25,8 @@ public static partial class DevHarness
 	{
 		string? tile = CommandLineHelper.GetValue("pres-tile");
 		bool mute = CommandLineHelper.HasArg("pres-mute");
-		if (tile == null && !mute)
+		string? window = CommandLineHelper.GetValue("pres-window");
+		if (tile == null && !mute && window == null)
 		{
 			return;
 		}
@@ -40,6 +44,24 @@ public static partial class DevHarness
 		{
 			AudioServer.SetBusMute(0, true);
 			NGame.Instance?.AudioManager?.SetMasterVol(0f);
+		}
+		if (window == "fullscreen")
+		{
+			if (DisplayServer.WindowGetMode() != DisplayServer.WindowMode.Fullscreen)
+			{
+				DisplayServer.WindowSetMode(DisplayServer.WindowMode.Fullscreen);
+			}
+		}
+		else if (window != null && window.StartsWith("screen", StringComparison.Ordinal) && int.TryParse(window.AsSpan(6), out int screenIndex)
+			&& screenIndex < DisplayServer.GetScreenCount())
+		{
+			if (DisplayServer.WindowGetMode() != DisplayServer.WindowMode.Windowed)
+			{
+				DisplayServer.WindowSetMode(DisplayServer.WindowMode.Windowed);
+			}
+			Vector2I at = DisplayServer.ScreenGetPosition(screenIndex);
+			DisplayServer.WindowSetSize(new Vector2I(1280, 720));
+			DisplayServer.WindowSetPosition(at + new Vector2I(40, 40));
 		}
 		if (tile == null)
 		{

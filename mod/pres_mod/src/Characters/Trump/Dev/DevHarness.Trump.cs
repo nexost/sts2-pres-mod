@@ -32,6 +32,8 @@ public static partial class DevHarness
 			await TrumpAfterMechanics();
 		},
 		ExtraModes = { ["deportsweep"] = TrumpDeportSweep, ["vfx"] = TrumpVfxShowcase },
+		// scripts/trailer_capture.py: shots for the trailer (DevHarness.Trump.Trailer.cs).
+		TrailerShots = TrumpTrailerShots(),
 		RelicChecks = TrumpRelicChecks,
 		PotionChecks = TrumpPotionChecks,
 		PowerChecks = TrumpPowerChecks,

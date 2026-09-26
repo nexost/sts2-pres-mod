@@ -1,0 +1,635 @@
+<title>Presidents Mod Trailer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kreon:wght@400;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+  /* One deliberate dark look: a screening room, so the dark game frames read true. */
+  :root {
+    color-scheme: dark;
+    --ground: #0e1513;
+    --panel: #141e1b;
+    --panel-2: #1a2623;
+    --line: #273531;
+    --ink: #ebe5d5;
+    --muted: #97a39b;
+    --spire: #7fae9e;
+    --gold: #e6b84a;
+    --joe: #8590f5;
+    --red: #f0474a;
+    --both: #d9d3c3;
+    --display: "Kreon", "Rockwell", Georgia, serif;
+    --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    --vo: "Courier Prime", "Courier New", monospace;
+    --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  html { background: var(--ground); }
+  body { background: var(--ground); color: var(--ink); font: 16px/1.55 var(--body); }
+  .wrap { max-width: 1080px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+  h1, h2, h3 { font-family: var(--display); font-weight: 700; text-wrap: balance; margin: 0; line-height: 1.15; }
+  h1 { font-size: clamp(30px, 6vw, 48px); letter-spacing: .01em; }
+  h2 { font-size: clamp(22px, 3.6vw, 30px); margin-bottom: 14px; }
+  h3 { font-size: 19px; margin-bottom: 8px; }
+  p { margin: 0 0 12px; max-width: 68ch; }
+  section { margin-top: 48px; }
+  .eyebrow { font: 600 12px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .lede { font-size: 18px; color: var(--ink); max-width: 64ch; margin-top: 14px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 16px; font: 13px/1.4 var(--mono); color: var(--muted); }
+  .meta b { color: var(--ink); font-weight: 600; }
+  .muted { color: var(--muted); }
+  a { color: var(--gold); }
+
+  /* Timeline strip: widths are the real seconds of each part */
+  .strip { display: flex; height: 44px; border-radius: 4px; overflow: hidden; margin-top: 22px; border: 1px solid var(--line); }
+  .strip div { display: flex; align-items: center; justify-content: center; font: 600 11px/1.1 var(--mono); color: #0e1513; text-transform: uppercase; letter-spacing: .06em; overflow: hidden; white-space: nowrap; padding-inline: 2px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font: 12px/1.4 var(--mono); color: var(--muted); }
+  .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+  .c-open { --c: var(--spire); background: var(--spire); }
+  .c-don { --c: var(--gold); background: var(--gold); }
+  .c-joe { --c: var(--joe); background: var(--joe); }
+  .c-db { --c: var(--red); background: var(--red); }
+  .c-both { --c: var(--both); background: var(--both); }
+  .c-col { --c: #d9b86a; background: linear-gradient(90deg, var(--gold), #b9a7ff); }
+  .c-title { --c: #f5efe0; background: #f5efe0; }
+  .c-btn { --c: #6d7a74; background: #6d7a74; }
+
+  /* Decisions */
+  .calls { display: grid; gap: 12px; }
+  .call { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; }
+  .call h3 { font-size: 17px; }
+  .opts { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+  .opts li { padding-left: 22px; position: relative; }
+  .opts li::before { content: "○"; position: absolute; left: 0; color: var(--muted); }
+  .opts li.rec::before { content: "●"; color: var(--gold); }
+  .rec-tag { font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-left: 6px; }
+
+  /* Storyboard */
+  .act { margin-top: 36px; }
+  .act-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding-bottom: 10px; border-bottom: 2px solid var(--c); }
+  .act-head h3 { color: var(--c); font-size: 22px; margin: 0; }
+  .act-head .eyebrow { color: var(--muted); }
+  .beat { display: grid; grid-template-columns: 64px minmax(0, 360px) minmax(0, 1fr); gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--line); align-items: start; }
+  .tc { font: 600 15px/1.2 var(--mono); color: var(--c); font-variant-numeric: tabular-nums; padding-top: 2px; }
+  .frame { position: relative; aspect-ratio: 16 / 9; max-width: 100%; border-radius: 4px; overflow: hidden; background: #000; border: 1px solid var(--line); }
+  .frame img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .src { position: absolute; left: 8px; top: 8px; font: 600 10px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; padding: 5px 7px; border-radius: 3px; background: rgba(8, 12, 11, .82); color: var(--ink); }
+  .src.ai { color: #ffd98a; }
+  .src.gfx { color: #bfe3d6; }
+  .note-standin { position: absolute; left: 8px; bottom: 8px; right: 8px; font: 11px/1.3 var(--body); color: #d8d3c6; background: rgba(8, 12, 11, .78); padding: 4px 7px; border-radius: 3px; }
+  .desc { display: grid; gap: 8px; min-width: 0; }
+  .row { display: grid; grid-template-columns: 58px minmax(0, 1fr); gap: 10px; }
+  .row .k { font: 600 11px/1.9 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .vo { font-family: var(--vo); font-size: 16px; color: var(--ink); }
+  .vo em { color: var(--muted); font-style: italic; }
+  .ost { font-family: var(--display); font-weight: 600; letter-spacing: .02em; }
+  .snd { color: #c6d0ca; }
+
+  /* Graphic mocks (title card, button) */
+  .mock { aspect-ratio: 16 / 9; max-width: 100%; border-radius: 4px; overflow: hidden; border: 1px solid var(--line); position: relative; background: #070a09; }
+  .mock-title { display: grid; grid-template-columns: 1fr 1fr; }
+  .mock-title img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.55) saturate(1.1); }
+  .mock-title .logo { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 8px; gap: 4px; }
+  .logo .l1 { font: 700 clamp(18px, 3.2vw, 30px)/1 var(--display); color: #f7e7b3; letter-spacing: .06em; text-shadow: 0 2px 0 #6b4a10, 0 0 18px rgba(230,184,74,.5); }
+  .logo .l2 { font: 600 clamp(9px, 1.3vw, 12px)/1.3 var(--mono); color: #e9e2cf; letter-spacing: .12em; text-transform: uppercase; }
+  .logo .l3 { font: 400 clamp(8px, 1.1vw, 10px)/1.3 var(--mono); color: #b9b3a3; }
+  .mock-btn { display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 6% 8%; }
+  .bubble { max-width: 78%; padding: 8px 12px; border-radius: 14px; font: 600 clamp(10px, 1.6vw, 14px)/1.3 var(--body); }
+  .bubble.tweet { background: #2a5d8f; color: #fff; align-self: flex-start; border-bottom-left-radius: 3px; }
+  .bubble.tangent { background: #3b4a58; color: #e9eef2; align-self: flex-end; border-bottom-right-radius: 3px; font-weight: 400; }
+
+  /* Script */
+  .script { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 22px clamp(16px, 4vw, 40px); font-family: var(--vo); font-size: 16px; line-height: 1.6; }
+  .script .slug { font-weight: 700; text-transform: uppercase; margin-top: 18px; color: var(--c, var(--ink)); }
+  .script .slug:first-child { margin-top: 0; }
+  .script .who { text-align: center; margin-top: 12px; text-transform: uppercase; }
+  .script .par { text-align: center; color: var(--muted); font-style: italic; }
+  .script .line { max-width: 34ch; margin: 0 auto; }
+  .script .act { font-style: italic; color: var(--muted); margin-top: 8px; }
+  .alts { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 14px; }
+  .alt { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; }
+  .alt .vo { font-size: 15px; margin-top: 8px; }
+
+  /* Tables */
+  .tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+  th { font: 600 11px/1.3 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); background: var(--panel); }
+  tr:last-child td { border-bottom: 0; }
+  td.nowrap { white-space: nowrap; }
+  .ok { color: #8fd3a8; font-weight: 600; }
+  .care { color: var(--gold); font-weight: 600; }
+  .mono { font-family: var(--mono); font-size: 13px; }
+
+  .cues { display: grid; gap: 10px; }
+  .cue { display: grid; grid-template-columns: 6px minmax(0, 1fr); gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px 14px 0; overflow: hidden; }
+  .cue .bar { background: var(--c); border-radius: 0 3px 3px 0; }
+  .cue h3 { font-size: 17px; margin-bottom: 4px; }
+  .cue .mono { color: var(--muted); }
+
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  ul.plain { margin: 0; padding-left: 20px; }
+  ul.plain li { margin-bottom: 6px; }
+
+  @media (max-width: 720px) {
+    .beat { grid-template-columns: 1fr; gap: 10px; }
+    .tc { padding-top: 0; }
+    .row { grid-template-columns: 1fr; gap: 2px; }
+    .row .k { line-height: 1.4; }
+    .strip div { font-size: 9px; letter-spacing: 0; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .frame img { transition: transform .4s ease; }
+    .frame:hover img { transform: scale(1.03); }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Step 12 · Trailer · T1 creative treatment · v4, harder and faster</div>
+    <h1>Presidents of the Spire</h1>
+    <p class="lede">An epic, straight-faced trailer that keeps getting undercut by its own stars, cut like a hype edit. The Donald gets heavy brass over distorted 808s. Sleepy Joe gets a slowed, warbly music box, until he wakes up as Dark Brandon and the trailer turns into a synthwave laser show.</p>
+    <div class="meta">
+      <span>Runtime <b>1:12</b></span>
+      <span>Master <b>2560×1440, 60 fps</b></span>
+      <span>For <b>YouTube, Reddit</b></span>
+      <span>Narrator <b>generic trailer voice</b></span>
+      <span>Characters <b>speak in on-screen text only</b></span>
+    </div>
+
+    <div class="strip" role="img" aria-label="Timeline: cold open 10 seconds, The Donald 16, Sleepy Joe 11, Dark Brandon 11, together 6, the collection 9, title 4, final joke 5">
+      <div class="c-open" style="flex:10">Cold open</div>
+      <div class="c-don" style="flex:16">The Donald</div>
+      <div class="c-joe" style="flex:11">Sleepy Joe</div>
+      <div class="c-db" style="flex:11">Dark Brandon</div>
+      <div class="c-both" style="flex:6">Both</div>
+      <div class="c-col" style="flex:9">Collection</div>
+      <div class="c-title" style="flex:4">Title</div>
+      <div class="c-btn" style="flex:5">·</div>
+    </div>
+    <div class="legend">
+      <span class="c-open" style="background:none">0:00 Cold open</span>
+      <span class="c-don" style="background:none">0:10 The Donald</span>
+      <span class="c-joe" style="background:none">0:26 Sleepy Joe</span>
+      <span class="c-db" style="background:none">0:37 Dark Brandon</span>
+      <span class="c-both" style="background:none">0:48 Together</span>
+      <span class="c-col" style="background:none">0:54 The collection</span>
+      <span class="c-title" style="background:none">1:03 Title</span>
+      <span class="c-btn" style="background:none">1:07 Final joke</span>
+    </div>
+  </header>
+
+  <section id="calls">
+    <h2>Decided</h2>
+    <div class="calls">
+      <div class="call">
+        <ul class="opts">
+          <li class="rec"><b>Title:</b> PRESIDENTS OF THE SPIRE</li>
+          <li class="rec"><b>Narrator:</b> A, epic and straight-faced (script below)</li>
+          <li class="rec"><b>Final joke:</b> the Tweet, then Joe's "Here's the deal, folks. Back in—" cut off mid-word</li>
+          <li class="rec"><b>Length:</b> 1:12, after adding the collection beat (your request: show off the mod's cards and relics)</li>
+          <li class="rec"><b>Narrator:</b> David (T3 casting)</li>
+          <li class="rec"><b>Sound and pacing</b> (T3 review): deeper, harder, deep-fried music; a fast "holy shit" edit</li>
+        </ul>
+        <p class="muted" style="margin:10px 0 0">The end card carries small print: "A fan-made mod. Not affiliated with Mega Crit."</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="board">
+    <h2>Storyboard</h2>
+    <p class="muted">Frames are crops of existing test screenshots and the select paintings: they show the framing each shot aims for. The real shots get staged by the director bot (T4) with clean UI, and the AI shots are made in T5.</p>
+
+    <!-- COLD OPEN -->
+    <div class="act" style="--c: var(--spire)">
+      <div class="act-head"><h3>Cold open</h3><span class="eyebrow">0:00–0:10 · music cue 1</span></div>
+
+      <div class="beat">
+        <div class="tc">0:00</div>
+        <div class="frame"><img src="frames/f01_spire.jpg" alt="The Spire from the game's title screen, under an orange storm"><span class="src">Gameplay plate</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>The Spire from the game's own title screen, menu hidden. Slow push-in, a lightning flash in the grade.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"For centuries, the Spire has devoured heroes."</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">Low drone, distant choir, one slow taiko pulse.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:04</div>
+        <div class="frame"><img src="frames/f02_monsters.jpg" alt="Three Spire monsters with attack intents"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Three hard cuts on three hits: monsters looming, attack intents up, an elite's close-up.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"Warriors. Assassins. Machines."</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">A taiko hit under each word.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:07</div>
+        <div class="frame"><img src="frames/f03_candidates.jpg" alt="The character-select row with the five base characters, The Donald and Sleepy Joe"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>The character-select row. The camera slides past the five base characters and stops on two new portraits.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"But this year... <em>(beat)</em> two new candidates are running."</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">Music drops to one held note, then a BRAAM on "running". The joke is the double meaning: a Spire run.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- THE DONALD -->
+    <div class="act" style="--c: var(--gold)">
+      <div class="act-head"><h3>The Donald</h3><span class="eyebrow">0:10–0:26 · music cue 2</span></div>
+
+      <div class="beat">
+        <div class="tc">0:10</div>
+        <div class="frame"><img src="frames/f04_donald_painting.jpg" alt="The Donald's select painting: golden shovel, green brick wall"><span class="src ai">AI shot</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>His select painting comes alive: low-angle push-in, embers drift, the golden shovel glints, bricks settle into the wall behind him.</span></div>
+          <div class="row"><span class="k">Text</span><span class="ost" style="color:var(--gold)">THE DONALD</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">Brass fanfare kicks in: pompous, triumphant, a little too much.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:12</div>
+        <div class="frame"><img src="frames/f05_wall.jpg" alt="The Big Beautiful Wall stage bursting gold"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>The Wall rises through all four stages, one per drum hit: CHAIN-LINK FENCE, BRICK WALL, CONCRETE WALL, then BIG BEAUTIFUL WALL with its gold burst and shake.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"One... builds walls."</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">Impact on each stage, rubble, a cash-register ding on the gold one.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:16</div>
+        <div class="frame"><img src="frames/f06_rain.jpg" alt="Gold coins pouring onto three enemies"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Make It Rain: coins pour onto every enemy while his Gold counter spins. <b>Card callout:</b> a clean, large render of Make It Rain slides in beside the action for a beat.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"Makes deals."</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:18</div>
+        <div class="frame"><img src="frames/f07_deport.jpg" alt="A DENIED stamp on an enemy under the Deport line"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>An elite drops under the Deport line; the DENIED stamp slams onto its HP bar. Deport: the white swoosh, "DEPORTED!". Then Mass Deportation sweeps a whole enemy line off the screen at once.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"And shows the Spire's worst... <em>(beat)</em> the door."</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">Rubber-stamp slam, a big whoosh per Deport.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:23</div>
+        <div class="frame"><img src="frames/f08_fired.jpg" alt="YOU'RE FIRED! slammed across the fight"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>"YOU'RE FIRED!" slams across the screen on the last hit, red flash. A Tweet bubble pops over the empty spot: "SAD!" <b>Card callout:</b> You're Fired!, 99 Gold badge and all.</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">Brass climax, then at 0:25.5 a record scratch and dead silence.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLEEPY JOE -->
+    <div class="act" style="--c: var(--joe)">
+      <div class="act-head"><h3>Sleepy Joe</h3><span class="eyebrow">0:26–0:37 · music cue 3</span></div>
+
+      <div class="beat">
+        <div class="tc">0:26</div>
+        <div class="frame"><img src="frames/f09_doze.jpg" alt="Sleepy Joe with Z's rising"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Sleepy Joe in a fight, Z's drifting up, the screen edges sinking into dusk as his Drowsy climbs.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"The other one... <em>(beat)</em> is resting his eyes."</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">A lone music box lullaby, slightly out of tune.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:30</div>
+        <div class="frame"><img src="frames/f10_tangent.jpg" alt="Sleepy Joe with a 'Folks, listen...' speech bubble"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Close on his hand: a Tangent card flips its lit line with every play. Bubbles: "Folks, listen..." then "...where was I?" <b>Card callout:</b> Here's the Deal, big, its gold line jumping from (1) to (2) to (3).</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:33</div>
+        <div class="frame"><img src="frames/f11_nodoff.jpg" alt="Nodded Off, then Enemy Turn"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>He plays one card too many and nods off mid-turn. "Nodded Off", then "ENEMY TURN" slams in and the monsters wind up.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">(whispered) "Whatever you do... <em>(beat)</em> don't wake him up."</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">The music box slows and dies (tape stop). Silence. A glint on the aviators: <i>ting</i>.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK BRANDON -->
+    <div class="act" style="--c: var(--red)">
+      <div class="act-head"><h3>Dark Brandon</h3><span class="eyebrow">0:37–0:48 · music cue 4</span></div>
+
+      <div class="beat">
+        <div class="tc">0:37</div>
+        <div class="frame"><img src="frames/f12_joe_face.jpg" alt="Joe's face from his select painting"><span class="src ai">AI shot</span><span class="note-standin">Made from two frames: Joe dozing, then the lenses blazing red.</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Painted close-up: Joe's head nods, then snaps up. The aviator lenses flare red.</span></div>
+          <div class="row"><span class="k">Text</span><span class="ost" style="color:var(--red)">DARK BRANDON</span> <span class="muted">(red neon, glitch)</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">The drop: 80s synthwave bass, gated drums and orchestral braams.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:39</div>
+        <div class="frame"><img src="frames/f13_laser.jpg" alt="The red mega laser tearing across three enemies"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Red wake-up burst, his pose snaps to Dark Brandon, and the mega laser tears across every enemy. Slow motion at the ignition, then full speed and a hard shake.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:42</div>
+        <div class="frame"><img src="frames/f17c_lasershow.jpg" alt="A red beam from Joe's eyes"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Laser Show rakes the enemy line; Double Vision fires the second beam.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:44</div>
+        <div class="frame"><img src="frames/f14b_micdrop.jpg" alt="Mic Drop meteor impact"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Mic Drop: a golden meteor slams the target.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:45</div>
+        <div class="frame"><img src="frames/f14_motorcade.jpg" alt="Three limos of the Motorcade driving through"><span class="src">Gameplay</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>The Motorcade plows through the enemy line, and Air Force One's shadow sweeps over the fight. No narration here: the music carries it.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOGETHER -->
+    <div class="act" style="--c: var(--both)">
+      <div class="act-head"><h3>Together</h3><span class="eyebrow">0:48–0:54 · music cue 5</span></div>
+
+      <div class="beat">
+        <div class="tc">0:48</div>
+        <div class="frame"><img src="frames/f15_coop.jpg" alt="Co-op fight: The Donald with his wall next to an ally"><span class="src">Gameplay</span><span class="note-standin">Stand-in: the co-op test paired him with Ironclad. The trailer pairs him with Joe.</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Co-op: The Donald and Sleepy Joe in the same fight.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"Two presidents. <em>(hit)</em> One Spire."</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:51</div>
+        <div class="frame"><img src="frames/f16_aisle.jpg" alt="A golden line from Joe"><span class="src">Gameplay</span><span class="note-standin">Stand-in: the golden line solo. In co-op it reaches The Donald.</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Coalition Wall raises a wall in front of Joe too; Reach Across the Aisle sends golden lines to The Donald.</span></div>
+          <div class="row"><span class="k">VO</span><span class="vo">"Finally... <em>(beat)</em> bipartisan infrastructure."</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- THE COLLECTION -->
+    <div class="act" style="--c: #d9b86a">
+      <div class="act-head"><h3>The collection</h3><span class="eyebrow">0:54–1:03 · music cue 5 builds</span></div>
+
+      <div class="beat">
+        <div class="tc">0:54</div>
+        <div class="frame"><img src="frames/f19_collection.jpg" alt="Mock: a fan of the mod's cards above a row of its relics"><span class="src gfx">Graphics</span><span class="note-standin">Mock from a library screenshot. The real beat uses clean card renders from the game.</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>A wall of the mod's real cards sweeps past the camera in 3D: gold Donald cards from the left, navy Joe cards from the right, flipping and fanning as they pass.</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">The finale cue building; a card-flick whoosh on each wave.</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">0:56</div>
+        <div class="frame"><img src="frames/f17_wrecking.jpg" alt="Wrecking Ball swinging into the enemies"><span class="src">Gameplay + graphics</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Four hero cards slam forward, one per drum hit, each chased by half a second of it in play: Wrecking Ball, Golden Escalator, Laser Show, State of the Union.</span></div>
+          <div class="row"><span class="k">Text</span><span class="ost">Each card's name, stamped under it</span></div>
+        </div>
+      </div>
+
+      <div class="beat">
+        <div class="tc">1:00</div>
+        <div class="frame"><img src="frames/f19_collection.jpg" alt="Relics in a row"><span class="src gfx">Graphics</span></div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>The relics and potions drop in and settle into a ring around both card backs, glinting one after another: Golden Shovel, Long Red Tie, Gold-Plated Toilet, Aviator Shades, the '67 Corvette, the Dark Brandon Mug...</span></div>
+          <div class="row"><span class="k">Text</span><span class="ost">Counters roll up: 176 CARDS · 18 RELICS · 6 POTIONS · CO-OP</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TITLE -->
+    <div class="act" style="--c: #f5efe0">
+      <div class="act-head"><h3>Title</h3><span class="eyebrow">1:03–1:07</span></div>
+      <div class="beat">
+        <div class="tc">1:03</div>
+        <div class="mock mock-title" role="img" aria-label="Title card mock: both paintings darkened behind the logo">
+          <img src="frames/key_donald.jpg" alt="">
+          <img src="frames/key_joe.jpg" alt="">
+          <div class="logo">
+            <span class="l1">PRESIDENTS OF THE SPIRE</span>
+            <span class="l2">A free mod for Slay the Spire 2</span>
+            <span class="l3">Download free · link in the description</span>
+            <span class="l3">github.com/nexost/sts2-pres-mod</span>
+          </div>
+          <span class="src gfx">Graphics</span>
+        </div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>The music cuts to one final hit. The logo lands over key art of both of them (a new painting made in T5, which doubles as the YouTube thumbnail).</span></div>
+          <div class="row"><span class="k">Small print</span><span class="muted">A fan-made mod. Not affiliated with Mega Crit.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUTTON -->
+    <div class="act" style="--c: #8f9b95">
+      <div class="act-head"><h3>Final joke</h3><span class="eyebrow">1:07–1:12</span></div>
+      <div class="beat">
+        <div class="tc">1:07</div>
+        <div class="mock mock-btn" role="img" aria-label="Final joke mock: a Tweet bubble and a speech bubble on black">
+          <div class="bubble tweet">BEST MOD EVER. MANY PEOPLE ARE SAYING.</div>
+          <div class="bubble tangent">Here's the deal, folks. Back in—</div>
+          <span class="src gfx">Graphics</span>
+        </div>
+        <div class="desc">
+          <div class="row"><span class="k">Picture</span><span>Black. The Tweet types itself, key by key. Joe's bubble answers, and the trailer hard-cuts to black mid-word.</span></div>
+          <div class="row"><span class="k">Sound</span><span class="snd">Typing clicks, one soft notification ping, then nothing.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="script">
+    <h2>Narration script (style A)</h2>
+    <p class="muted">About 60 words. Everything else is music, sound and the characters' own text.</p>
+    <div class="script">
+      <div class="slug" style="--c:var(--spire)">Cold open</div>
+      <div class="who">Narrator</div>
+      <div class="line">For centuries, the Spire has devoured heroes.</div>
+      <div class="line">Warriors. Assassins. Machines.</div>
+      <div class="line">But this year...</div>
+      <div class="par">(beat)</div>
+      <div class="line">two new candidates are running.</div>
+
+      <div class="slug" style="--c:var(--gold)">The Donald</div>
+      <div class="who">Narrator</div>
+      <div class="line">One... builds walls.</div>
+      <div class="line">Makes deals.</div>
+      <div class="line">And shows the Spire's worst...</div>
+      <div class="par">(beat)</div>
+      <div class="line">the door.</div>
+      <div class="act">"YOU'RE FIRED!" Record scratch. Silence.</div>
+
+      <div class="slug" style="--c:var(--joe)">Sleepy Joe</div>
+      <div class="who">Narrator</div>
+      <div class="par">(softly)</div>
+      <div class="line">The other one...</div>
+      <div class="par">(beat)</div>
+      <div class="line">is resting his eyes.</div>
+      <div class="par">(whispered)</div>
+      <div class="line">Whatever you do... don't wake him up.</div>
+      <div class="act">Tape stop. Glint. The drop.</div>
+
+      <div class="slug" style="--c:var(--both)">Together</div>
+      <div class="who">Narrator</div>
+      <div class="line">Two presidents. One Spire.</div>
+      <div class="line">Finally...</div>
+      <div class="par">(beat)</div>
+      <div class="line">bipartisan infrastructure.</div>
+    </div>
+
+    <h3 style="margin-top:22px">The other two styles, as samples</h3>
+    <div class="alts">
+      <div class="alt">
+        <div class="eyebrow">B · Fight-night announcer</div>
+        <p class="vo">"In the gold corner... seventy HP, ninety-nine gold, and a wall he'd love to tell you about... THE DONALD!"</p>
+        <p class="vo" style="margin:0">"And in the navy corner... currently resting his eyes... SLEEPY JOE!"</p>
+      </div>
+      <div class="alt">
+        <div class="eyebrow">C · Nature documentary</div>
+        <p class="vo">"Deep in the Spire, The Donald builds his nest. A wall. A big, beautiful one."</p>
+        <p class="vo" style="margin:0">"Nearby, Sleepy Joe enters his natural resting state. Do not approach."</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="tone">
+    <h2>Tone check</h2>
+    <p class="muted">Every joke against the project's rules: jokes land on the persona; walls and Deport only ever hit Spire monsters; sleepiness, confusion and gaffes are fine, age and health are not; nothing about immigrants, real groups, real events or other real people.</p>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Joke or line</th><th>Lands on</th><th>Verdict</th></tr></thead>
+        <tbody>
+          <tr><td>"Two new candidates are running"</td><td>The format (a Spire run)</td><td class="ok">OK</td></tr>
+          <tr><td>"One builds walls. Makes deals."</td><td>His persona; the Wall is his mechanic, in the Spire</td><td class="ok">OK</td></tr>
+          <tr><td>"Shows the Spire's worst the door" over a monster being Deported</td><td>A Spire monster</td><td><span class="care">Worded with care.</span> I dropped the mod's "riff-raff" phrasing here: out of the game's context, "deports the riff-raff" reads more like a real-world jab than it does on the select screen.</td></tr>
+          <tr><td>"YOU'RE FIRED!", "SAD!", "BEST MOD EVER. MANY PEOPLE ARE SAYING."</td><td>His catchphrases and way of talking</td><td class="ok">OK</td></tr>
+          <tr><td>"Resting his eyes", nodding off mid-turn</td><td>Sleepiness, on him</td><td class="ok">OK</td></tr>
+          <tr><td>"Folks, listen... where was I?", the cut-off "Back in—"</td><td>Rambling, on him</td><td class="ok">OK</td></tr>
+          <tr><td>Dark Brandon, laser eyes</td><td>The meme, on him</td><td class="ok">OK</td></tr>
+          <tr><td>"Bipartisan infrastructure"</td><td>Both personas' own talking points; no real policy</td><td class="ok">OK</td></tr>
+          <tr><td>Kept out on purpose</td><td colspan="2" class="muted">Age, health, elections and their results, real events, family, other politicians, anything about borders or immigration beyond the game mechanic.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="music">
+    <h2>Music brief</h2>
+    <p>Five short cues, generated separately with MiniMax Music 3 on your PC, several takes each, then edited together with hits, a record scratch and a tape stop, the way trailer music is usually cut. After the first round you asked for everything deeper, harder and deep-fried: low-tuned, bass-boosted and saturated, with the mixer able to push any take further (slowed tape, lower pitch, bass, drive).</p>
+    <div class="cues">
+      <div class="cue" style="--c:var(--spire)"><div class="bar"></div><div><h3>1 · The Spire</h3><div class="mono">0:00–0:10 · D minor</div><p style="margin:6px 0 0">Dark hybrid-orchestral opening: low string drone, distant choir, a slow taiko pulse, a riser into a braam.</p></div></div>
+      <div class="cue" style="--c:var(--gold)"><div class="bar"></div><div><h3>2 · The Donald</h3><div class="mono">0:10–0:25.5 · D minor · 140 BPM</div><p style="margin:6px 0 0">Menacing swagger: massive low brass over distorted 808s and hard trap or phonk drums. Bass-boosted, saturated, loud.</p></div></div>
+      <div class="cue" style="--c:var(--joe)"><div class="bar"></div><div><h3>3 · Lullaby</h3><div class="mono">0:26–0:36 · slow</div><p style="margin:6px 0 0">A slowed, pitched-down music box drenched in reverb and tape warble, over a deep sub-bass drone. Ends in a tape stop.</p></div></div>
+      <div class="cue" style="--c:var(--red)"><div class="bar"></div><div><h3>4 · Dark Brandon</h3><div class="mono">0:37–0:48 · D minor · 100 BPM</div><p style="margin:6px 0 0">Aggressive 80s synthwave: gated drums, distorted analog bass, arpeggios, with orchestral braams and taiko on top.</p></div></div>
+      <div class="cue" style="--c:var(--both)"><div class="bar"></div><div><h3>5 · Finale</h3><div class="mono">0:48–1:03 · 140 BPM</div><p style="margin:6px 0 0">Relentless and colossal: low brass, a low choir, taiko and distorted 808s or orchestral phonk, building through the collection. Stops dead on one enormous hit under the title.</p></div></div>
+    </div>
+    <div class="two" style="margin-top:16px">
+      <div>
+        <h3>Sound design</h3>
+        <ul class="plain">
+          <li>Trailer kit: braams, risers, sub drops, whooshes on cuts, impacts on hits.</li>
+          <li>Gags: record scratch, tape stop, the aviator glint, snores, typing clicks.</li>
+          <li>Character sounds: coin showers, the rubber stamp, the cash register, the laser charge.</li>
+          <li>The game's own combat sounds, captured with the footage where possible.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Mix</h3>
+        <ul class="plain">
+          <li>−14 LUFS integrated, true peak −1 dB (YouTube's target).</li>
+          <li>Narration sits on top; music ducks under it.</li>
+          <li>48 kHz stereo.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="shots">
+    <h2>Shot lists</h2>
+    <h3>Gameplay, staged by the director bot (T4)</h3>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>#</th><th>Shot</th><th>How it's staged</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">G01</td><td>The Spire plate</td><td>Title screen with the menu hidden</td></tr>
+          <tr><td class="mono">G02</td><td>Monsters</td><td>Elites and a boss idling with intents up, UI hidden</td></tr>
+          <tr><td class="mono">G03</td><td>Character select</td><td>The roster row, then both select screens with their embers</td></tr>
+          <tr><td class="mono">G04</td><td>The Wall, 0 to 70</td><td>Four big Builds, one stage each (Pour Concrete, Great Wall, Golden Escalator)</td></tr>
+          <tr><td class="mono">G05</td><td>Make It Rain</td><td>Three enemies, Gold counter in view</td></tr>
+          <tr><td class="mono">G06</td><td>Deport</td><td>An elite pushed under the line: DENIED stamp, Deport, swoosh</td></tr>
+          <tr><td class="mono">G07</td><td>Mass Deportation</td><td>A 3–4 enemy fight cleared at once</td></tr>
+          <tr><td class="mono">G08</td><td>You're Fired!</td><td>On a big elite, plus a "SAD!" Tweet bubble</td></tr>
+          <tr><td class="mono">G09</td><td>Dozing</td><td>Z's and the dusk vignette building to 9 of 10</td></tr>
+          <tr><td class="mono">G10</td><td>Tangent close-up</td><td>Here's the Deal cycling its lines while other cards are played</td></tr>
+          <tr><td class="mono">G11</td><td>Nodding off mid-turn</td><td>Lights Out: Nodded Off, Enemy Turn, monsters attack</td></tr>
+          <tr><td class="mono">G12</td><td>Dark Brandon wakes</td><td>Burst, pose swap, mega laser at 10+ Drowsy; Double Vision</td></tr>
+          <tr><td class="mono">G13</td><td>Laser Show</td><td>The sweep across a full enemy line</td></tr>
+          <tr><td class="mono">G14</td><td>Vehicles and meteors</td><td>Mic Drop, Motorcade, Air Force One, Zero to Sixty</td></tr>
+          <tr><td class="mono">G15</td><td>Co-op, both presidents</td><td>Two instances: The Donald hosts, Joe joins. Coalition Wall, Reach Across the Aisle, the laser firing past the Wall</td></tr>
+          <tr><td class="mono">G16</td><td>Montage extras</td><td>Wrecking Ball, Fire and Fury, Tweetstorm, Golden Escalator, State of the Union, Chapter 11, Hole in One</td></tr>
+          <tr><td class="mono">G17</td><td>Optional</td><td>Joe napping at the rest site, The Donald in the shop</td></tr>
+          <tr><td class="mono">+</td><td>Alternates for fast cutting</td><td>Every gameplay shot is recorded from two or three moments or framings (and a clean, UI-free version), so the edit can cut every beat</td></tr>
+          <tr><td class="mono">G18</td><td>Card and relic renders</td><td>Every card of both characters, base and upgraded, rendered by the game itself at high resolution on a transparent background; relic and potion icons. For the callouts and the collection</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 style="margin-top:22px">AI shots, from the mod's paintings (T5)</h3>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>#</th><th>Shot</th><th>Made from</th></tr></thead>
+        <tbody>
+          <tr><td class="mono">A1</td><td>The Donald hero, 3–4 s</td><td>His select painting, animated</td></tr>
+          <tr><td class="mono">A2</td><td>Joe's eyes open red, 3 s</td><td>Two new stills in his painting's style (dozing, then lenses blazing), animated between them</td></tr>
+          <tr><td class="mono">A3</td><td>Dark Brandon hero, 3 s</td><td>A red-neon version of his painting, lasers igniting</td></tr>
+          <tr><td class="mono">A4</td><td>Key art: both in front of the Spire</td><td>A new painting, lightly animated for the title; also the YouTube thumbnail</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin-top:10px">Always the game's painted style, never photoreal.</p>
+  </section>
+
+  <section id="look">
+    <h2>Look and feel</h2>
+    <div class="two">
+      <ul class="plain">
+        <li><b>Name cards:</b> THE DONALD in gold foil; SLEEPY JOE in navy with letters that droop; DARK BRANDON in red neon with a glitch.</li>
+        <li><b>Camera:</b> the game renders at 4K, so shots can push in up to 1.5× with no loss at 1440p. Slow drifts on calm shots, shakes on hits.</li>
+        <li><b>Pacing:</b> "holy shit" energy. In the action, a cut every 0.3 to 1 s, on the beat; each beat on the storyboard becomes two or three shots.</li>
+        <li><b>Deep-fried hits:</b> on the biggest moments (the Big Beautiful Wall, YOU'RE FIRED!, the Dark Brandon drop, the title) a few blown-out frames: crushed contrast, oversaturated color, a zoom punch, a hard shake, a chromatic split, and a bass-boosted hit in the sound.</li>
+        <li><b>Cuts:</b> whip pans and flash frames on hits, speed ramps (slow motion into an impact, then snapping to double speed).</li>
+        <li><b>Card callouts:</b> when a signature card is played, its clean render slides in large beside the action, so viewers learn the cards while they watch them work.</li>
+      </ul>
+      <ul class="plain">
+        <li><b>Frame:</b> full 16:9 for gameplay; letterbox bars only on the painted AI shots, so they read as cinematics.</li>
+        <li><b>Grade:</b> a warm gold push in The Donald's act, cool indigo for Sleepy Joe, crushed blacks and red for Dark Brandon.</li>
+        <li><b>Type:</b> the game's own serif family for gameplay text, so the trailer feels like part of the game.</li>
+      </ul>
+    </div>
+  </section>
+</div>

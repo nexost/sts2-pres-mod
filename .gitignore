@@ -12,3 +12,7 @@ obj/
 __pycache__/
 # Paths for this PC: docs/SETUP.md
 local_settings.json
+# Trailer edit (Step 12): npm packages and renders; media live in build/trailer/
+node_modules/
+/trailer/edit/out/
+/trailer/edit/src/vo_markers.json

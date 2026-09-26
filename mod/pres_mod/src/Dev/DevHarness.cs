@@ -52,6 +52,7 @@ namespace PresMod.Dev;
 ///              the key effects and renders every card, power, relic and potion text (DevHarness.Cards.cs).
 ///   balance  : one run by a heuristic bot for balance numbers, any character (DevHarness.Balance.cs).
 ///   coop     : two instances play a co-op fight and record the state each turn to find desyncs (DevHarness.Coop.cs).
+///   trailer  : stages and records trailer shots (DevHarness.Trailer.cs, scripts/trailer_capture.py).
 ///   other    : modes a character adds itself (CharacterTests.ExtraModes, e.g. Trump's deportsweep).
 /// Character-specific checks live in Characters/&lt;Name&gt;/Dev/DevHarness.&lt;Name&gt;.cs (CharacterTests.cs explains the hooks).
 /// Options: --pres-out &lt;dir&gt; (screenshots + report), --pres-seed &lt;seed&gt;, --pres-tile slot/count (window grid for
@@ -125,6 +126,14 @@ public static partial class DevHarness
 				else if (_mode == "coop")
 				{
 					TaskHelper.RunSafely(Guarded(RunCoopTest));
+				}
+				else if (_mode == "trailer")
+				{
+					TaskHelper.RunSafely(Guarded(RunTrailer));
+				}
+				else if (_mode == "trailer_coop")
+				{
+					TaskHelper.RunSafely(Guarded(RunTrailerCoop));
 				}
 				else if (Kit.ExtraModes.TryGetValue(_mode, out Func<Task>? extra))
 				{
@@ -303,7 +312,9 @@ public static partial class DevHarness
 
 	// ---------------------------------------------------------------- helpers
 
-	private static async Task StartRunAsCharacter(bool screenshots)
+	/// <summary>From the main menu to the first room as the test character. atMenu and atSelect let the trailer film the menu
+	/// and the character select screen on the way (DevHarness.Trailer.cs).</summary>
+	private static async Task StartRunAsCharacter(bool screenshots, Func<Control, Task>? atMenu = null, Func<Control, Task>? atSelect = null)
 	{
 		Node root = ((SceneTree)Engine.GetMainLoop()).Root;
 		Control mainMenu = await WaitHelper.ForNode<Control>(root, "/root/Game/RootSceneContainer/MainMenu", _ct, TimeSpan.FromSeconds(90));
@@ -312,6 +323,10 @@ public static partial class DevHarness
 		if (screenshots)
 		{
 			Screenshot("main_menu");
+		}
+		if (atMenu != null)
+		{
+			await atMenu(mainMenu);
 		}
 		NButton abandon = mainMenu.GetNode<NButton>("MainMenuTextButtons/AbandonRunButton");
 		if (abandon.Visible)
@@ -331,6 +346,10 @@ public static partial class DevHarness
 			await WaitHelper.Until(() => mainMenu.GetNodeOrNull<Control>("Submenus/CharacterSelectScreen")?.Visible ?? false, _ct, TimeSpan.FromSeconds(10));
 		}
 		Control charSelect = mainMenu.GetNode<Control>("Submenus/CharacterSelectScreen");
+		if (atSelect != null)
+		{
+			await atSelect(charSelect);
+		}
 		List<NCharacterSelectButton> buttons = UiHelper.FindAll<NCharacterSelectButton>(charSelect.GetNode("CharSelectButtons/ButtonContainer"));
 		buttons.First(b => b.Character.Id.Entry == TestCharacterId).Select();
 		await Task.Delay(3000);
@@ -466,7 +485,7 @@ public static partial class DevHarness
 
 	private static void WriteReport()
 	{
-		var report = new { mode = _mode, ok = _errors.Count == 0, errors = _errors, events = _events, sweep = _sweep, coop = _coopStates };
+		var report = new { mode = _mode, ok = _errors.Count == 0, errors = _errors, events = _events, sweep = _sweep, coop = _coopStates, clips = _clips };
 		File.WriteAllText(Path.Combine(_outDir, "report.json"), JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
 	}
 }
