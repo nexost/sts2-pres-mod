@@ -2,6 +2,8 @@
 
 ## v1.1.0 (2026-09-25): Sleepy Joe
 
+**▶ Watch the trailer: [Presidents of the Spire](https://youtu.be/co-SsNDz3go)**
+
 A second playable president, and a round of visual effects for The Donald. Old saves and runs still load.
 
 **Sleepy Joe (Joe Biden)**
