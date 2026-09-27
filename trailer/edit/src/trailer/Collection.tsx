@@ -2,9 +2,9 @@
 // second of it in play, which is a normal shot underneath), then the relics and potions ringing both presidents while
 // the counters roll up. Driven by the "collection" graphic in timeline.json.
 import React, {useEffect, useState} from 'react';
-import {AbsoluteFill, Easing, Img, continueRender, delayRender, interpolate, spring, staticFile, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Easing, Img, continueRender, delayRender, interpolate, spring, staticFile, useCurrentFrame} from 'remotion';
 import {FONTS} from '../fonts';
-import {Graphic, cardUrl, clamp01, rand} from './data';
+import {Graphic, cardUrl, clamp01, rand, useLayout} from './data';
 import {foil} from './Overlays';
 
 type Entry = {id: string; name: string; rarity?: string};
@@ -47,7 +47,7 @@ const Backdrop: React.FC<{t: number; tint: string}> = ({t, tint}) => (
 );
 
 const Wave: React.FC<{t: number; start: number; data: Collection}> = ({t, start, data}) => {
-	const {width, height} = useVideoConfig();
+	const {width, height, vertical} = useLayout();
 	const n = 34;
 	const decks = {trump: pick(data.trump.cards, n), biden: pick(data.biden.cards, n)};
 	const items = [];
@@ -63,7 +63,7 @@ const Wave: React.FC<{t: number; start: number; data: Collection}> = ({t, start,
 			const x = interpolate(p, [0, 1], [-0.95, 0.95]) * width * dir;
 			const y = (rand(seed) * 0.5 + (who === 'trump' ? -0.5 : 0.02)) * height * 0.9 + interpolate(p, [0, 1], [0.06, -0.06]) * height * dir;
 			const z = interpolate(rand(seed + 50), [0, 1], [-1500, -150]);
-			const h = height * 0.4;
+			const h = height * (vertical ? 0.24 : 0.4);
 			items.push(
 				<Img
 					key={seed}
@@ -84,7 +84,7 @@ const Wave: React.FC<{t: number; start: number; data: Collection}> = ({t, start,
 };
 
 const Slam: React.FC<{hero: Graphic; t: number}> = ({hero, t}) => {
-	const {fps, width, height} = useVideoConfig();
+	const {fps, height, U, vertical} = useLayout();
 	const f = (t - hero.at) * fps;
 	const s = spring({frame: f, fps, config: {damping: 14, stiffness: 240, mass: 0.7}});
 	const land = interpolate(f, [5, 7, 20], [0, 1, 0], clamp01);
@@ -105,7 +105,7 @@ const Slam: React.FC<{hero: Graphic; t: number}> = ({hero, t}) => {
 				<div
 					style={{
 						position: 'relative',
-						height: height * 0.66,
+						height: height * (vertical ? 0.46 : 0.66),
 						marginTop: -height * 0.08,
 						transform: `translateZ(${interpolate(s, [0, 1], [-2600, 0])}px) rotateX(${interpolate(s, [0, 1], [48, 0])}deg) rotateZ(${interpolate(s, [0, 1], [-14, -2]) + drift * 1.5}deg) scale(${1 + drift * 0.07})`,
 						filter: `drop-shadow(0 24px 40px rgba(0,0,0,0.8)) drop-shadow(0 0 ${60 * land + 20}px ${trump ? 'rgba(255,200,90,0.8)' : 'rgba(120,160,255,0.8)'})`,
@@ -127,8 +127,8 @@ const Slam: React.FC<{hero: Graphic; t: number}> = ({hero, t}) => {
 					/>
 				</div>
 			</AbsoluteFill>
-			<AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: height * 0.06}}>
-				<div style={{fontFamily: FONTS.spectral.family, ...foil(width * 0.042), letterSpacing: width * 0.004, transform: `scale(${interpolate(nameIn, [0, 1], [1.6, 1])})`, opacity: Math.min(1, nameIn * 2), filter: 'drop-shadow(0 4px 0 rgba(40,18,0,0.9))'}}>
+			<AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: height * (vertical ? 0.22 : 0.06)}}>
+				<div style={{fontFamily: FONTS.spectral.family, ...foil(U * 0.042), letterSpacing: U * 0.004, transform: `scale(${interpolate(nameIn, [0, 1], [1.6, 1])})`, opacity: Math.min(1, nameIn * 2), filter: 'drop-shadow(0 4px 0 rgba(40,18,0,0.9))'}}>
 					{hero.name}
 				</div>
 			</AbsoluteFill>
@@ -139,17 +139,17 @@ const Slam: React.FC<{hero: Graphic; t: number}> = ({hero, t}) => {
 
 /** After its slam, the hero card rides in the corner over its gameplay. */
 const Corner: React.FC<{hero: Graphic; t: number}> = ({hero, t}) => {
-	const {fps, width, height} = useVideoConfig();
+	const {fps, width, height, vertical} = useLayout();
 	const s = spring({frame: (t - hero.at - (hero.hold ?? 0.5)) * fps, fps, config: {damping: 16, stiffness: 220}});
 	return (
-		<AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'flex-start', padding: `${height * 0.05}px ${width * 0.035}px`}}>
-			<Img src={cardUrl(hero.card)} style={{height: height * 0.36, transform: `rotate(-4deg) scale(${interpolate(s, [0, 1], [1.6, 1])})`, transformOrigin: 'left bottom', filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.8))'}} />
+		<AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'flex-start', padding: `${height * (vertical ? 0.22 : 0.05)}px ${width * 0.035}px`}}>
+			<Img src={cardUrl(hero.card)} style={{height: height * (vertical ? 0.2 : 0.36), transform: `rotate(-4deg) scale(${interpolate(s, [0, 1], [1.6, 1])})`, transformOrigin: 'left bottom', filter: 'drop-shadow(0 12px 20px rgba(0,0,0,0.8))'}} />
 		</AbsoluteFill>
 	);
 };
 
 const Ring: React.FC<{t: number; start: number; dur: number; data: Collection}> = ({t, start, dur, data}) => {
-	const {fps, width, height} = useVideoConfig();
+	const {fps, width, height, U, vertical} = useLayout();
 	const icons = [
 		...data.trump.relics.map((r) => `relics/${snake(r.id)}`),
 		...data.biden.relics.map((r) => `relics/${snake(r.id)}`),
@@ -171,9 +171,9 @@ const Ring: React.FC<{t: number; start: number; dur: number; data: Collection}> 
 		<AbsoluteFill>
 			<Backdrop t={t} tint="#3a2a18" />
 			<AbsoluteFill style={{transform: `scale(${push})`, transformOrigin: '50% 44%'}}>
-				<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: width * 0.01, paddingBottom: height * 0.1}}>
-					<Img src={staticFile('ui/sprite_trump.png')} style={{height: height * 0.5, transform: `scaleX(-1) translateX(${(1 - sprites) * 200}px)`, opacity: sprites, filter: 'drop-shadow(0 0 30px rgba(255,200,90,0.35))'}} />
-					<Img src={staticFile('ui/sprite_biden.png')} style={{height: height * 0.47, transform: `translateX(${(1 - sprites) * 200}px)`, opacity: sprites, filter: 'drop-shadow(0 0 30px rgba(120,160,255,0.35))'}} />
+				<AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: width * 0.01, paddingBottom: height * (vertical ? 0.16 : 0.1)}}>
+					<Img src={staticFile('ui/sprite_trump.png')} style={{height: height * (vertical ? 0.27 : 0.5), transform: `scaleX(-1) translateX(${(1 - sprites) * 200}px)`, opacity: sprites, filter: 'drop-shadow(0 0 30px rgba(255,200,90,0.35))'}} />
+					<Img src={staticFile('ui/sprite_biden.png')} style={{height: height * (vertical ? 0.255 : 0.47), transform: `translateX(${(1 - sprites) * 200}px)`, opacity: sprites, filter: 'drop-shadow(0 0 30px rgba(120,160,255,0.35))'}} />
 				</AbsoluteFill>
 				{order.map((icon, k) => {
 					const a = (k / order.length) * Math.PI * 2 + spin - Math.PI / 2;
@@ -184,9 +184,10 @@ const Ring: React.FC<{t: number; start: number; dur: number; data: Collection}> 
 						interpolate(t, [land + 0.9, land + 1.0, land + 1.25], [0, 1, 0], clamp01),
 						interpolate(t, [land + 2.3, land + 2.4, land + 2.65], [0, 1, 0], clamp01),
 					);
-					const size = height * 0.1;
-					const x = width / 2 + Math.cos(a) * width * 0.36 - size / 2;
-					const y = height * 0.44 + Math.sin(a) * height * 0.36 - size / 2 - (1 - drop) * height * 0.4;
+					// Vertical: a tall ellipse around the pair, above the counters.
+					const size = vertical ? width * 0.13 : height * 0.1;
+					const x = width / 2 + Math.cos(a) * width * (vertical ? 0.4 : 0.36) - size / 2;
+					const y = height * (vertical ? 0.4 : 0.44) + Math.sin(a) * height * (vertical ? 0.25 : 0.36) - size / 2 - (1 - drop) * height * 0.4;
 					return (
 						<Img
 							key={icon}
@@ -196,9 +197,9 @@ const Ring: React.FC<{t: number; start: number; dur: number; data: Collection}> 
 					);
 				})}
 			</AbsoluteFill>
-			<AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: height * 0.07}}>
-				<div style={{fontFamily: FONTS.kreon.family, fontSize: width * 0.03, letterSpacing: width * 0.003, color: '#f4ecd8', textShadow: '0 3px 12px rgba(0,0,0,0.95)', opacity: roll > 0 ? 1 : 0}}>
-					{num(cards)} CARDS · {num(relics)} RELICS · {num(potions)} POTIONS · CO-OP
+			<AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: height * (vertical ? 0.2 : 0.07)}}>
+				<div style={{fontFamily: FONTS.kreon.family, fontSize: U * 0.03, letterSpacing: U * 0.003, color: '#f4ecd8', textShadow: '0 3px 12px rgba(0,0,0,0.95)', opacity: roll > 0 ? 1 : 0, textAlign: 'center', lineHeight: 1.3}}>
+					{num(cards)} CARDS · {num(relics)} RELICS{vertical ? <br /> : ' · '}{num(potions)} POTIONS · CO-OP
 				</div>
 			</AbsoluteFill>
 		</AbsoluteFill>
@@ -207,7 +208,7 @@ const Ring: React.FC<{t: number; start: number; dur: number; data: Collection}> 
 
 export const CollectionBeat: React.FC<{g: Graphic}> = ({g}) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
+	const {fps} = useLayout();
 	const data = useCollection();
 	if (!data) return null;
 	const t = g.at + frame / fps;

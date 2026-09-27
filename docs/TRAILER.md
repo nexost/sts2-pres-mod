@@ -23,6 +23,7 @@ master (rendered from PNG frames; the final x264 encodes run in the project's ff
 | `presidents_of_the_spire.en.srt` | YouTube closed captions (upload with the video) |
 | `presidents_of_the_spire_1080p60.mp4` | Reddit and general sharing (~15 Mbps; Reddit's limit is 1 GB) |
 | `presidents_of_the_spire_1080p60_captions.mp4` | The same with the narration burned in, for muted autoplay |
+| `presidents_of_the_spire_vertical.mp4` | Shorts, TikTok, Reels: 1080×1920 at 60 fps, 1:15 (from "But this year..."), captions burned in |
 | `thumbnail_1280x720.jpg`, `thumbnail_1920x1080.png` | YouTube thumbnail (under 2 MB) and a full-size copy |
 | `presidents_of_the_spire_mix.wav` | The mastered sound: 48 kHz 24-bit, −14 LUFS, true peak ≤ −1 dBTP |
 
@@ -103,6 +104,21 @@ hide the played-card display, so card callouts use them.
 - `python trailer/tools/upscale.py TAG...`: SeedVR2 7B fp16 to 1440p (block swap 36 + batch 21 to fit 24 GB), then
   RIFE v4.26 ×5 with every other frame kept (24 → 60 fps), ~10 min a shot. Output `build/trailer/media/ai/`.
 - ComfyUI must run with `PYTHONIOENCODING=utf-8` (art_review.py sets it); SeedVR2's flash_attn shim is patched locally.
+
+### The vertical cut
+The `Vertical` composition is the same edit at 1080×1920 (`Trailer` with `vertical: true`): each shot has its own
+vertical framing, `vcam`/`vcamTo` (scale 1 = the source's full height fills the frame, about a third of its width), or
+`vfit` (the whole frame letterboxed over a blurred copy, for moments too wide to crop, like "YOU'RE FIRED!" and the
+nod-off). Text and cards size themselves from `useLayout()` (a unit 1.45× the frame's width) and stay above the bottom
+fifth, where Shorts and TikTok draw their buttons; graphics can be limited to one cut with `"only"`. It starts at 7.3 s
+("But this year..."), with a title header over the select screen.
+```bash
+cd trailer/edit
+npx remotion render src/index.ts Vertical out/vertical_video.mp4 --frames=438-4954 --crf=14 --muted --concurrency=12
+cd ../..
+tools/ffmpeg/bin/ffmpeg -i trailer/edit/out/vertical_video.mp4 -ss 7.3 -i build/trailer/media/mix.wav -map 0:v -map 1:a -c:v copy -af "afade=t=in:d=0.12,volume=-0.4dB" -c:a aac -b:a 320k -shortest -movflags +faststart build/trailer/export/presidents_of_the_spire_vertical.mp4
+```
+Check framings with `node stills.mjs Vertical T1 T2... --out out/vstills`.
 
 ### Render and export
 ```bash

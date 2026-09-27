@@ -23,6 +23,8 @@ export const Root: React.FC = () => {
 			<Composition id="TitleDraft" component={TitleDraft} durationInFrames={1} fps={FPS} width={WIDTH} height={HEIGHT} defaultProps={{variant: 'spectral' as const, art: 'keyart/keyart_walk_s22.png'}} />
 			{/* The trailer (T6). Previews: --scale=0.5. captions: burned-in narration subtitles (for muted autoplay). */}
 			<Composition id="Trailer" component={Trailer} durationInFrames={Math.round(DURATION * FPS)} fps={FPS} width={WIDTH} height={HEIGHT} defaultProps={{captions: false}} />
+			{/* The vertical cut (9:16, Shorts/TikTok): the same edit reframed shot by shot (vcam, vfit), captions on; exported from 7.3 s. */}
+			<Composition id="Vertical" component={Trailer} durationInFrames={Math.round(DURATION * FPS)} fps={FPS} width={1080} height={1920} defaultProps={{captions: true, vertical: true}} />
 			{/* The thumbnail (T7), a still: npx remotion still src/index.ts Thumbnail out/thumbnail.png */}
 			<Composition id="Thumbnail" component={Thumbnail} durationInFrames={1} fps={FPS} width={1920} height={1080} defaultProps={{art: 'keyart/keyart_backtoback_s11.png'}} />
 			{/* The README's banner, a still: npx remotion still src/index.ts Banner out/banner.png */}
