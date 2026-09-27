@@ -1,9 +1,10 @@
 // Text and card overlays: name cards, the Wall's stage stamps, card callouts, kinetic lines and the aviator glint.
-// Every component runs in its own Sequence, so frame 0 is its "at".
+// Every component runs in its own Sequence, so frame 0 is its "at". Sizes use the layout unit U (see useLayout); the
+// vertical cut keeps text left or centre and above the bottom fifth, where Shorts and TikTok draw their controls.
 import React from 'react';
-import {AbsoluteFill, Easing, Img, interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
+import {AbsoluteFill, Easing, Img, interpolate, spring, useCurrentFrame} from 'remotion';
 import {FONTS} from '../fonts';
-import {Graphic, cardUrl, clamp01} from './data';
+import {Graphic, cardUrl, clamp01, useLayout} from './data';
 
 export const GOLD = 'linear-gradient(180deg, #fff7d6 0%, #ffe08a 22%, #f0b83c 48%, #b9791b 72%, #ffe9a8 100%)';
 const SILVER = 'linear-gradient(180deg, #ffffff 0%, #dfe6ff 35%, #9aa8dc 65%, #e9eeff 100%)';
@@ -25,7 +26,7 @@ const inOut = (frame: number, frames: number, inF: number, outF: number) =>
 // ---- Name cards ------------------------------------------------------------------------------------------------
 export const NameCard: React.FC<{g: Graphic}> = ({g}) => {
 	const frame = useCurrentFrame();
-	const {fps, width, height} = useVideoConfig();
+	const {fps, width, height, U, vertical} = useLayout();
 	const frames = Math.round((g.dur ?? 2) * fps);
 	const slam = spring({frame: frame - 2, fps, config: {damping: 13, stiffness: 210, mass: 0.8}});
 	const vis = inOut(frame, frames, 3, 7);
@@ -34,20 +35,20 @@ export const NameCard: React.FC<{g: Graphic}> = ({g}) => {
 	const eyebrow = {donald: 'CANDIDATE No. 1', joe: 'CANDIDATE No. 2', brandon: 'CANDIDATE No. 2  (AWAKE)'}[style];
 	const eyebrowStyle: React.CSSProperties = {
 		fontFamily: FONTS.kreon.family,
-		fontSize: width * 0.0135,
-		letterSpacing: width * 0.0045,
+		fontSize: U * (vertical ? 0.019 : 0.0135),
+		letterSpacing: U * 0.0045,
 		color: style === 'brandon' ? '#ff8a80' : '#f4ecd8',
 		textShadow: '0 2px 10px rgba(0,0,0,0.9)',
 		opacity: eyebrowIn,
 		transform: `translateX(${(1 - eyebrowIn) * -30}px)`,
-		marginBottom: width * 0.004,
+		marginBottom: U * 0.004,
 	};
 	if (style === 'brandon') {
 		// Red neon, flickering on like a tube, with an RGB split.
 		const flicker = [1, 0.2, 1, 0.4, 1, 1, 0.7, 1][Math.min(7, frame)] ?? 1;
-		const size = width * 0.092;
+		const size = U * 0.092;
 		return (
-			<AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: height * 0.09, opacity: vis}}>
+			<AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: height * (vertical ? 0.3 : 0.09), opacity: vis}}>
 				<div style={{...eyebrowStyle, textAlign: 'center'}}>{eyebrow}</div>
 				<div
 					style={{
@@ -66,12 +67,12 @@ export const NameCard: React.FC<{g: Graphic}> = ({g}) => {
 			</AbsoluteFill>
 		);
 	}
-	const size = width * 0.078;
+	const size = U * 0.078;
 	const isJoe = style === 'joe';
 	const letters = (g.text as string).split('');
 	const face = foil(size, isJoe ? SILVER : GOLD, isJoe ? 'rgba(15,20,60,0.95)' : 'rgba(60,30,5,0.9)');
 	return (
-		<AbsoluteFill style={{padding: `${height * (isJoe ? 0.14 : 0.36)}px ${width * 0.06}px`, opacity: vis}}>
+		<AbsoluteFill style={{padding: `${height * (vertical ? 0.5 : isJoe ? 0.14 : 0.36)}px ${width * 0.06}px`, opacity: vis}}>
 			<div style={eyebrowStyle}>{eyebrow}</div>
 			<div
 				style={{
@@ -96,7 +97,7 @@ export const NameCard: React.FC<{g: Graphic}> = ({g}) => {
 						})
 					: g.text}
 			</div>
-			<div style={{width: interpolate(frame, [4, 16], [0, width * 0.26], {...clamp01, easing: Easing.out(Easing.cubic)}), height: 4, marginTop: width * 0.006, background: `linear-gradient(90deg, ${isJoe ? '#aeb8ff' : '#f3c65a'}, rgba(0,0,0,0))`}} />
+			<div style={{width: interpolate(frame, [4, 16], [0, U * 0.26], {...clamp01, easing: Easing.out(Easing.cubic)}), height: 4, marginTop: U * 0.006, background: `linear-gradient(90deg, ${isJoe ? '#aeb8ff' : '#f3c65a'}, rgba(0,0,0,0))`}} />
 		</AbsoluteFill>
 	);
 };
@@ -105,22 +106,22 @@ export const NameCard: React.FC<{g: Graphic}> = ({g}) => {
 const STAGE_FILL = ['#c9d2da', '#e27a5b', '#dcd6c8'];
 export const WallStamps: React.FC<{stamps: Graphic[]; t0: number}> = ({stamps, t0}) => {
 	const frame = useCurrentFrame();
-	const {fps, width, height} = useVideoConfig();
+	const {fps, width, height, U, vertical} = useLayout();
 	const t = t0 + frame / fps;
 	const shown = stamps.filter((s) => t >= s.at);
 	const last = stamps[stamps.length - 1];
 	const end = last.at + (last.dur ?? 1);
 	const out = interpolate(t, [end - 0.12, end], [1, 0], clamp01);
 	return (
-		<AbsoluteFill style={{padding: `${height * 0.1}px ${width * 0.05}px`, opacity: out}}>
+		<AbsoluteFill style={{padding: `${height * (vertical ? 0.12 : 0.1)}px ${width * 0.05}px`, opacity: out}}>
 			{shown.map((s, i) => {
 				const current = i === shown.length - 1;
 				const f = (t - s.at) * fps;
 				const slam = spring({frame: f, fps, config: {damping: 11, stiffness: 260, mass: 0.6}});
 				const gold = s.level === 3;
-				const size = width * (current ? (gold ? 0.07 : 0.05) : 0.024);
+				const size = U * (current ? (gold ? (vertical ? 0.052 : 0.07) : vertical ? 0.042 : 0.05) : 0.024);
 				return (
-					<div key={s.text} style={{position: 'relative', alignSelf: 'flex-start', marginBottom: width * 0.004, transformOrigin: 'left center', transform: `rotate(${current ? -3 : -1}deg) scale(${current ? interpolate(slam, [0, 1], [1.9, 1]) : 1})`, opacity: current ? 1 : 0.75}}>
+					<div key={s.text} style={{position: 'relative', alignSelf: 'flex-start', maxWidth: vertical ? width * 0.9 : undefined, marginBottom: U * 0.004, transformOrigin: 'left center', transform: `rotate(${current ? -3 : -1}deg) scale(${current ? interpolate(slam, [0, 1], [1.9, 1]) : 1})`, opacity: current ? 1 : 0.75}}>
 						<div
 							style={{
 								fontFamily: FONTS.kreon.family,
@@ -142,18 +143,19 @@ export const WallStamps: React.FC<{stamps: Graphic[]; t0: number}> = ({stamps, t
 // ---- Card callouts: the real card slides in beside the action --------------------------------------------------
 export const Callout: React.FC<{g: Graphic}> = ({g}) => {
 	const frame = useCurrentFrame();
-	const {fps, width, height} = useVideoConfig();
+	const {fps, width, height, vertical} = useLayout();
 	const frames = Math.round((g.dur ?? 1.4) * fps);
 	const inS = spring({frame, fps, config: {damping: 15, stiffness: 170, mass: 0.9}});
 	const outP = interpolate(frame, [frames - 9, frames], [0, 1], {...clamp01, easing: Easing.in(Easing.cubic)});
-	const side = g.side === 'left' ? -1 : 1;
-	const h = height * 0.64;
+	const side = (vertical ? g.vside ?? g.side : g.side) === 'left' ? -1 : 1;
+	// Vertical: smaller and up top, clear of the action in the middle and the app's buttons down the right.
+	const h = height * (vertical ? 0.3 : 0.64);
 	const glow = (g.card as string).startsWith('trump') ? 'rgba(255, 196, 80, 0.55)' : 'rgba(110, 150, 255, 0.55)';
 	const x = (1 - inS) * width * 0.45 * side + outP * width * 0.5 * side;
 	const bob = Math.sin(frame / 14) * 6;
-	const valign = g.valign === 'bottom' ? 'flex-end' : 'center';
+	const valign = vertical ? 'flex-start' : g.valign === 'bottom' ? 'flex-end' : 'center';
 	return (
-		<AbsoluteFill style={{justifyContent: valign, alignItems: side > 0 ? 'flex-end' : 'flex-start', padding: `${height * 0.04}px ${width * 0.05}px`}}>
+		<AbsoluteFill style={{justifyContent: valign, alignItems: side > 0 ? 'flex-end' : 'flex-start', padding: `${height * (vertical ? 0.1 : 0.04)}px ${width * 0.05}px`}}>
 			<Img
 				src={cardUrl(g.card)}
 				style={{
@@ -169,24 +171,46 @@ export const Callout: React.FC<{g: Graphic}> = ({g}) => {
 // ---- Kinetic lines ("TWO PRESIDENTS.") -------------------------------------------------------------------------
 export const Kinetic: React.FC<{g: Graphic}> = ({g}) => {
 	const frame = useCurrentFrame();
-	const {fps, width} = useVideoConfig();
+	const {fps, width, height, U, vertical} = useLayout();
 	const frames = Math.round((g.dur ?? 1.2) * fps);
 	const slam = spring({frame, fps, config: {damping: 12, stiffness: 300, mass: 0.6}});
-	const size = width * 0.085;
+	const size = U * (vertical ? 0.075 : 0.085);
 	const spread = interpolate(frame, [0, frames], [0.03, 0.07]);
 	return (
-		<AbsoluteFill style={{justifyContent: 'flex-start', alignItems: 'center', paddingTop: width * 0.06, background: `linear-gradient(180deg, rgba(0,0,0,${interpolate(frame, [0, 6], [0.6, 0.4], clamp01)}) 0%, rgba(0,0,0,0) 45%)`}}>
+		<AbsoluteFill style={{justifyContent: 'flex-start', alignItems: 'center', paddingTop: vertical ? height * 0.14 : width * 0.06, background: `linear-gradient(180deg, rgba(0,0,0,${interpolate(frame, [0, 6], [0.6, 0.4], clamp01)}) 0%, rgba(0,0,0,0) 45%)`}}>
 			<div
 				style={{
 					fontFamily: FONTS.spectral.family,
 					...foil(size),
 					letterSpacing: size * spread,
+					maxWidth: vertical ? width * 0.92 : undefined,
+					textAlign: 'center',
 					transform: `scale(${interpolate(slam, [0, 1], [1.7, 1])})`,
 					opacity: frame < frames - 1 ? 1 : 0,
 					filter: `drop-shadow(0 ${size * 0.05}px 0 rgba(40,18,0,0.9)) drop-shadow(0 0 ${size * 0.35}px rgba(255,190,70,0.5))`,
 				}}
 			>
 				{g.text}
+			</div>
+		</AbsoluteFill>
+	);
+};
+
+// ---- The vertical cut's opening header: what this is, before anyone scrolls on -----------------------------------
+export const Header: React.FC<{g: Graphic}> = ({g}) => {
+	const frame = useCurrentFrame();
+	const {fps, width, height, U} = useLayout();
+	const frames = Math.round((g.dur ?? 2.5) * fps);
+	const inS = spring({frame, fps, config: {damping: 14, stiffness: 200}});
+	const out = interpolate(frame, [frames - 8, frames], [1, 0], clamp01);
+	return (
+		<AbsoluteFill style={{alignItems: 'center', paddingTop: height * 0.07, opacity: out, background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 26%)'}}>
+			<div style={{textAlign: 'center', maxWidth: width * 0.92, transform: `scale(${interpolate(inS, [0, 1], [1.3, 1])})`, filter: 'drop-shadow(0 4px 0 rgba(40,18,0,0.95))'}}>
+				<div style={{fontFamily: FONTS.spectral.family, ...foil(U * 0.068), letterSpacing: U * 0.004}}>{g.text}</div>
+				<div style={{fontFamily: FONTS.spectral.family, ...foil(U * 0.032), letterSpacing: U * 0.008, marginTop: U * 0.004}}>{g.text2}</div>
+			</div>
+			<div style={{marginTop: height * 0.012, padding: `${U * 0.006}px ${U * 0.016}px`, background: 'linear-gradient(90deg, #8e1414, #c42424)', borderTop: '3px solid #f3c65a', borderBottom: '3px solid #f3c65a', fontFamily: FONTS.kreon.family, fontSize: U * 0.019, letterSpacing: U * 0.003, color: '#fff6e0', opacity: Math.min(1, inS * 1.5)}}>
+				{g.sub}
 			</div>
 		</AbsoluteFill>
 	);
@@ -202,15 +226,16 @@ export const Lightning: React.FC = () => {
 // ---- The glint on the aviators ---------------------------------------------------------------------------------
 export const Glint: React.FC<{g: Graphic}> = ({g}) => {
 	const frame = useCurrentFrame();
-	const {fps, width, height} = useVideoConfig();
+	const {fps, width, height, U, vertical} = useLayout();
 	const p = interpolate(frame, [0, 0.12 * fps, 0.38 * fps], [0, 1, 0], clamp01);
-	const size = width * 0.11 * p;
+	const size = U * 0.11 * p;
+	const [gx, gy] = vertical ? [g.vx ?? g.x, g.vy ?? g.y] : [g.x, g.y];
 	return (
 		<svg
 			width={size * 2}
 			height={size * 2}
 			viewBox="-100 -100 200 200"
-			style={{position: 'absolute', left: g.x * width - size, top: g.y * height - size, transform: `rotate(${frame * 2}deg)`, mixBlendMode: 'screen'}}
+			style={{position: 'absolute', left: gx * width - size, top: gy * height - size, transform: `rotate(${frame * 2}deg)`, mixBlendMode: 'screen'}}
 		>
 			<defs>
 				<radialGradient id="glint">

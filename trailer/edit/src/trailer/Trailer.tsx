@@ -6,12 +6,13 @@ import {loadFonts} from '../fonts';
 import markers from '../vo_markers.json';
 import {CollectionBeat} from './Collection';
 import {ButtonCard, TitleCard} from './EndCards';
-import {GRAPHICS, Graphic, SHOTS, toFrames} from './data';
+import {GRAPHICS, Graphic, SHOTS, VerticalContext, toFrames, useLayout} from './data';
 import {kick} from './fx';
-import {Callout, Glint, Kinetic, Lightning, NameCard, WallStamps} from './Overlays';
+import {Callout, Glint, Header, Kinetic, Lightning, NameCard, WallStamps} from './Overlays';
 import {ShotView} from './Shot';
 
-export type TrailerProps = {captions: boolean};
+/** vertical: the 9:16 cut (its own framing and layouts, see useLayout); captions: burned-in narration subtitles. */
+export type TrailerProps = {captions: boolean; vertical?: boolean};
 
 /** A graphic in its own Sequence (frame 0 = its "at"). */
 const Timed: React.FC<{at: number; dur: number; children: React.ReactNode}> = ({at, dur, children}) => {
@@ -40,8 +41,10 @@ const Picture: React.FC = () => {
 	);
 };
 
-const Overlays: React.FC = () => {
-	const stamps = GRAPHICS.filter((g) => g.type === 'stamp');
+const Overlays: React.FC<{vertical: boolean}> = ({vertical}) => {
+	// A graphic can belong to one cut only ("only": "vertical" or "landscape").
+	const graphics = GRAPHICS.filter((g) => !g.only || g.only === (vertical ? 'vertical' : 'landscape'));
+	const stamps = graphics.filter((g) => g.type === 'stamp');
 	const one = (g: Graphic) => {
 		switch (g.type) {
 			case 'name':
@@ -54,6 +57,8 @@ const Overlays: React.FC = () => {
 				return <Glint g={g} />;
 			case 'lightning':
 				return <Lightning />;
+			case 'header':
+				return <Header g={g} />;
 			case 'collection':
 				return <CollectionBeat g={g} />;
 			case 'title':
@@ -71,7 +76,7 @@ const Overlays: React.FC = () => {
 					<WallStamps stamps={stamps} t0={stamps[0].at} />
 				</Timed>
 			)}
-			{GRAPHICS.filter((g) => g.type !== 'stamp').map((g, i) => (
+			{graphics.filter((g) => g.type !== 'stamp').map((g, i) => (
 				<Timed key={i} at={g.at} dur={g.dur ?? 0.4}>
 					{one(g)}
 				</Timed>
@@ -96,37 +101,42 @@ const Grain: React.FC = () => {
 	);
 };
 
+// Lines the picture already shows as big type aren't captioned twice.
+const SHOWN = new Set(GRAPHICS.filter((g) => g.type === 'kinetic').map((g) => (g.text as string).replace(/\.$/, '').toLowerCase()));
+
 const Captions: React.FC = () => {
 	const frame = useCurrentFrame();
-	const {fps, width} = useVideoConfig();
+	const {fps, width, height, U, vertical} = useLayout();
 	const t = frame / fps;
 	const line = (markers as {at: number; end: number; text: string}[]).find((m) => t >= m.at && t < m.end + 0.2);
-	if (!line) return null;
+	if (!line || SHOWN.has(line.text.replace(/\.$/, '').toLowerCase())) return null;
 	return (
-		<div style={{position: 'absolute', bottom: width * 0.03, width: '100%', textAlign: 'center', fontFamily: 'TrailerKreon', fontSize: width * 0.019, color: '#fff', textShadow: '0 0 10px #000, 0 2px 4px #000'}}>
+		<div style={{position: 'absolute', bottom: vertical ? height * 0.24 : width * 0.03, left: width * 0.06, right: width * 0.06, textAlign: 'center', fontFamily: 'TrailerKreon', fontSize: U * (vertical ? 0.034 : 0.019), color: '#fff', textShadow: '0 0 10px #000, 0 2px 4px #000, 0 0 3px #000'}}>
 			{line.text}
 		</div>
 	);
 };
 
-export const Trailer: React.FC<TrailerProps> = ({captions}) => {
+export const Trailer: React.FC<TrailerProps> = ({captions, vertical = false}) => {
 	loadFonts();
 	const frame = useCurrentFrame();
 	const {fps} = useVideoConfig();
 	const k = kick(frame / fps, frame);
 	return (
-		<AbsoluteFill style={{backgroundColor: 'black', overflow: 'hidden'}}>
-			<Audio src={staticFile('mix.wav')} />
-			<AbsoluteFill style={{transform: `translate(${k.x}px, ${k.y}px) scale(${k.scale})`, filter: k.filter}}>
-				<Picture />
+		<VerticalContext.Provider value={vertical}>
+			<AbsoluteFill style={{backgroundColor: 'black', overflow: 'hidden'}}>
+				<Audio src={staticFile('mix.wav')} />
+				<AbsoluteFill style={{transform: `translate(${k.x}px, ${k.y}px) scale(${k.scale})`, filter: k.filter}}>
+					<Picture />
+				</AbsoluteFill>
+				<AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.42) 100%)'}} />
+				<Grain />
+				<AbsoluteFill style={{transform: `translate(${k.x * 0.4}px, ${k.y * 0.4}px)`}}>
+					<Overlays vertical={vertical} />
+				</AbsoluteFill>
+				<AbsoluteFill style={{backgroundColor: 'white', opacity: k.flash}} />
+				{captions && <Captions />}
 			</AbsoluteFill>
-			<AbsoluteFill style={{background: 'radial-gradient(ellipse at 50% 50%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.42) 100%)'}} />
-			<Grain />
-			<AbsoluteFill style={{transform: `translate(${k.x * 0.4}px, ${k.y * 0.4}px)`}}>
-				<Overlays />
-			</AbsoluteFill>
-			<AbsoluteFill style={{backgroundColor: 'white', opacity: k.flash}} />
-			{captions && <Captions />}
-		</AbsoluteFill>
+		</VerticalContext.Provider>
 	);
 };

@@ -2,7 +2,7 @@
 // optionally slowed or frozen, with a grade ("look").
 import React from 'react';
 import {AbsoluteFill, Easing, Freeze, OffthreadVideo, interpolate, useCurrentFrame, useVideoConfig} from 'remotion';
-import {Cam, Shot, clamp01, videoUrl} from './data';
+import {Cam, Shot, clamp01, useLayout, videoUrl} from './data';
 
 const LOOKS: Record<string, {filter: string; overlay?: string; blend?: React.CSSProperties['mixBlendMode']}> = {
 	cold: {filter: 'saturate(0.8) contrast(1.08) brightness(0.92)', overlay: 'rgba(40, 70, 140, 0.16)', blend: 'multiply'},
@@ -27,6 +27,22 @@ export const Framed: React.FC<{cam: Cam; clampX?: boolean; children: React.React
 	);
 };
 
+/**
+ * The vertical cut's camera: the 16:9 source as a box `s` times the frame's height (1 = the source's full height fills
+ * the frame, showing about a third of its width), placed so (x, y) sits at the frame's centre, kept covering the frame.
+ */
+const VFramed: React.FC<{cam: Cam; children: React.ReactNode}> = ({cam, children}) => {
+	const {width, height} = useVideoConfig();
+	const s = Math.max(1, cam[0]);
+	const boxH = height * s;
+	const boxW = (boxH * 16) / 9;
+	const hx = width / (2 * boxW);
+	const hy = 0.5 / s;
+	const x = Math.min(1 - hx, Math.max(hx, cam[1]));
+	const y = Math.min(1 - hy, Math.max(hy, cam[2]));
+	return <div style={{position: 'absolute', width: boxW, height: boxH, left: width / 2 - x * boxW, top: height / 2 - y * boxH}}>{children}</div>;
+};
+
 export const Clip: React.FC<{src: string; from: number; rate?: number; freeze?: boolean}> = ({src, from, rate = 1, freeze}) => {
 	const {fps} = useVideoConfig();
 	const video = <OffthreadVideo src={videoUrl(src)} trimBefore={Math.round(from * fps)} playbackRate={rate} muted style={{width: '100%', height: '100%', objectFit: 'cover'}} />;
@@ -39,6 +55,31 @@ const Split: React.FC<{shot: Shot; frames: number}> = ({shot, frames}) => {
 	const {fps, width} = useVideoConfig();
 	const inP = interpolate(frame, [0, 0.28 * fps], [0, 1], {...clamp01, easing: Easing.out(Easing.cubic)});
 	const drift = interpolate(frame, [0, frames], [0, 1], clamp01);
+	const {vertical, height} = useLayout();
+	if (vertical) {
+		// Stacked: each painting in a box 0.8x the frame's height, its face placed in its own half.
+		const boxH = height * (0.8 + drift * 0.04);
+		const boxW = (boxH * 16) / 9;
+		const top = 'polygon(0 0, 100% 0, 100% 46%, 0 54%)';
+		const bottom = 'polygon(0 54%, 100% 46%, 100% 100%, 0 100%)';
+		return (
+			<AbsoluteFill style={{backgroundColor: 'black'}}>
+				<AbsoluteFill style={{clipPath: top, transform: `translateY(${(inP - 1) * height * 0.5}px)`}}>
+					<div style={{position: 'absolute', width: boxW, height: boxH, left: width / 2 - 0.645 * boxW, top: 0}}>
+						<Clip src={shot.left!} from={shot.from} />
+					</div>
+				</AbsoluteFill>
+				<AbsoluteFill style={{clipPath: bottom, transform: `translateY(${(1 - inP) * height * 0.5}px)`}}>
+					<div style={{position: 'absolute', width: boxW, height: boxH, left: width / 2 - 0.55 * boxW, top: height * 0.64 - 0.22 * boxH}}>
+						<Clip src={shot.right!} from={shot.from} />
+					</div>
+				</AbsoluteFill>
+				<svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{position: 'absolute', opacity: inP}}>
+					<polygon points="0,53.6 100,45.6 100,46.4 0,54.4" fill="#e6b84a" />
+				</svg>
+			</AbsoluteFill>
+		);
+	}
 	const left = 'polygon(0 0, 54% 0, 46% 100%, 0 100%)';
 	const right = 'polygon(54% 0, 100% 0, 100% 100%, 46% 100%)';
 	return (
@@ -70,21 +111,41 @@ const Split: React.FC<{shot: Shot; frames: number}> = ({shot, frames}) => {
 
 export const ShotView: React.FC<{shot: Shot; frames: number}> = ({shot, frames}) => {
 	const frame = useCurrentFrame();
-	const {fps} = useVideoConfig();
+	const {fps, vertical} = useLayout();
 	if (shot.src === 'split') {
 		return <Split shot={shot} frames={frames} />;
 	}
 	const p = frames > 1 ? Easing.inOut(Easing.quad)(Math.min(1, frame / (frames - 1))) : 0;
-	const cam0 = shot.cam ?? ([1, 0.5, 0.5] as Cam);
-	const cam1 = shot.camTo ?? cam0;
+	const cam0 = (vertical ? shot.vcam ?? shot.cam : shot.cam) ?? ([1, 0.5, 0.5] as Cam);
+	const cam1 = (vertical ? shot.vcamTo ?? (shot.vcam ? undefined : shot.camTo) : shot.camTo) ?? cam0;
 	const cam = cam0.map((v, i) => v + (cam1[i] - v) * p) as Cam;
 	const look = shot.look ? LOOKS[shot.look] : undefined;
 	const opacity = shot.fadeIn ? interpolate(frame, [0, shot.fadeIn * fps], [0, 1], clamp01) : 1;
+	if (vertical && shot.vfit) {
+		// Too wide to crop (a line of text across the screen): the whole frame across the width, over a blurred copy.
+		const clip = <Clip src={shot.src} from={shot.from} rate={shot.rate} freeze={shot.freeze} />;
+		return (
+			<AbsoluteFill style={{opacity, filter: look?.filter}}>
+				<AbsoluteFill style={{filter: 'blur(28px) brightness(0.45) saturate(1.2)'}}>
+					<VFramed cam={[1, 0.5, 0.5]}>{clip}</VFramed>
+				</AbsoluteFill>
+				<AbsoluteFill style={{justifyContent: 'center', paddingBottom: '12%'}}>
+					<div style={{width: '100%', aspectRatio: '16 / 9', transform: `scale(${1.04 + p * 0.06})`, boxShadow: '0 20px 60px rgba(0,0,0,0.7)'}}>{clip}</div>
+				</AbsoluteFill>
+			</AbsoluteFill>
+		);
+	}
 	return (
 		<AbsoluteFill style={{opacity, filter: look?.filter}}>
-			<Framed cam={cam}>
-				<Clip src={shot.src} from={shot.from} rate={shot.rate} freeze={shot.freeze} />
-			</Framed>
+			{vertical ? (
+				<VFramed cam={cam}>
+					<Clip src={shot.src} from={shot.from} rate={shot.rate} freeze={shot.freeze} />
+				</VFramed>
+			) : (
+				<Framed cam={cam}>
+					<Clip src={shot.src} from={shot.from} rate={shot.rate} freeze={shot.freeze} />
+				</Framed>
+			)}
 			{look?.overlay && <AbsoluteFill style={{backgroundColor: look.overlay, mixBlendMode: look.blend}} />}
 		</AbsoluteFill>
 	);
