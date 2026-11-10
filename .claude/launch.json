@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "art-review",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["scripts/art_review.py", "--no-browser"],
+      "port": 8190
+    }
+  ]
+}
